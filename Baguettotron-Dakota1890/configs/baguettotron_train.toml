@@ -77,7 +77,15 @@ wandb_project = "dakota-rl-grammar"
 wandb_entity = ""
 log_interval = 10
 eval_interval = 100
-metrics = ["reward/mean", "reward/std", "char_accuracy", "affix_accuracy", "semantic_accuracy"]
+metrics = [
+    "reward/mean",
+    "reward/std",
+    "char_accuracy",
+    "affix_accuracy",
+    "semantic_accuracy",
+    "char_accuracy_by_char",
+    "affix_accuracy_by_affix",
+]
 
 [checkpointing]
 output_dir = "./checkpoints"
@@ -97,4 +105,3 @@ enabled = true
 backend = "nccl"
 num_workers = 4
 fsdp_enabled = false
-

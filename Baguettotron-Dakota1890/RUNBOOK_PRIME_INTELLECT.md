@@ -103,6 +103,22 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 uv run rl \
 - Inference sanity: single prompt uses `<|im_start|>...<|im_end|>` + `<think>` prelude.  
 - W&B: both trainer/orchestrator streaming reward + char/affix metrics.
 
+## Ledger-enabled orchestrator (same patch as Dakota runs)
+If you want reward ledger extraction logged from the orchestrator (in addition to trainer metrics), apply the existing patch in `dakota_rl_training/utils/orchestrator_ledger_patch.py` once in the prime-rl checkout. On the PI instance:
+```bash
+export PYTHONPATH=$PYTHONPATH:~/Dakota1890/dakota_rl_training/utils
+cd ~/prime-rl
+python -c "from orchestrator_ledger_patch import patch_orchestrator_monitor_logging as p; p()"
+# After patching, launch orchestrator normally:
+uv run orchestrator @ ~/Dakota1890/Baguettotron-Dakota1890/configs/baguettotron_orch.toml
+```
+Alternative (one-off without modifying prime-rl files):
+```bash
+cd ~/prime-rl
+python -c "from orchestrator_ledger_patch import patch_orchestrator_monitor_logging as p; p(); import prime_rl.cli.orchestrator as o; o.main()" @ ~/Dakota1890/Baguettotron-Dakota1890/configs/baguettotron_orch.toml
+```
+
+
 ## Troubleshooting (PrimeIntellect reality)
 - No “launch job” in UI: you must SSH and run the CLI above (see `dakota_rl_training/REAL_LAUNCH_METHOD.md`).  
 - HF pull throttled: set `HF_TOKEN` and retry.  
