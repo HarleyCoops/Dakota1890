@@ -1,0 +1,26 @@
+# Orchestrator config for PleIAs/Baguettotron Dakota RL (PrimeIntellect)
+
+batch_size = 128
+seq_len = 1024
+rollouts_per_example = 4
+mask_truncated_completions = false
+max_steps = 1000
+
+[model]
+name = "PleIAs/Baguettotron"
+
+[sampling]
+max_tokens = 96
+
+[[env]]
+id = "harleycooper/dakota1890"
+
+[ckpt]
+interval = 200
+keep = 3
+
+[wandb]
+project = "dakota-rl-grammar"
+offline = false
+name = "baguettotron-orchestrator"
+

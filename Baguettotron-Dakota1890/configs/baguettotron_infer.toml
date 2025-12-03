@@ -1,0 +1,38 @@
+# Inference server config for PleIAs/Baguettotron (vLLM style)
+
+[model]
+name_or_path = "PleIAs/Baguettotron"
+revision = "main"
+torch_dtype = "auto"
+
+[server]
+host = "0.0.0.0"
+port = 8000
+max_concurrent_requests = 16
+timeout = 300
+
+[engine]
+tensor_parallel_size = 1
+pipeline_parallel_size = 1
+max_model_len = 4096
+gpu_memory_utilization = 0.85
+swap_space = 4
+dtype = "auto"
+
+[sampling]
+temperature = 0.7
+top_p = 0.9
+max_tokens = 96
+n = 1
+best_of = 1
+presence_penalty = 0.0
+frequency_penalty = 0.0
+
+[tokenizer]
+tokenizer_mode = "auto"
+trust_remote_code = true
+
+[logging]
+log_level = "info"
+log_requests = true
+
