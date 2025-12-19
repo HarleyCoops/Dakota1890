@@ -66,7 +66,7 @@ conservative normalization to reduce noise while preserving linguistic signals:
 - Normalize subscripts (Unicode subscript digits -> ASCII digits).
 - Standardize breaks and gaps:
   - `[x]` -> `<gap>`
-  - `[...]` or `...` or `…` -> `<big_gap>`
+  - `[...]` or `...` or `...` -> `<big_gap>`
 - Preserve determinatives in `{...}` and logograms in ALL CAPS.
 
 Translation text is lightly normalized (line number stripping, bracket removal)
@@ -140,13 +140,15 @@ Script:
 python Akkadian/scripts/build_sft_dataset.py --source-root Akkadian/SourceDocuments --out Akkadian/data/sft.jsonl
 ```
 
-## 6. Grammar Rule Induction (planned)
+## 6. Grammar Rule Induction (GPT-5.2 only)
 
-The Dakota pipeline converts implicit grammar into explicit reward functions.
-For Akkadian, the equivalent is induced from aligned transliteration corpora
-and lexicon data. This step is not implemented yet, but the plan is:
+We induce explicit grammar rules to drive the RL gym. This step is implemented
+in `Akkadian/scripts/induce_grammar_rules.py` and is restricted to GPT-5.2
+models only.
 
-- Feed the combined corpus (train + published_texts + lexicon) to an LLM.
+The induction logic:
+
+- Feed the combined corpus (train + published_texts + lexicon) to GPT-5.2.
 - Extract rules with:
   - Affix patterns from hyphenated syllables
   - Determinative behavior in `{...}`
@@ -156,6 +158,12 @@ and lexicon data. This step is not implemented yet, but the plan is:
   - `rule_id`, `pattern`, `constraints`, `positive_examples`, `difficulty`
 
 These rules will seed the RL gym and synthetic dataset generation.
+
+Run (requires `OPENAI_API_KEY`):
+
+```powershell
+python Akkadian/scripts/induce_grammar_rules.py --source-root Akkadian/SourceDocuments --out Akkadian/data/grammar_rules/rules.jsonl
+```
 
 ## 7. RL Gym (planned)
 
@@ -208,6 +216,6 @@ python -m pip install -r Akkadian/requirements.txt
 
 This pipeline treats SourceDocuments as the canonical ground truth, builds a
 multi-task SFT dataset for translation and morphology normalization, and sets
-up the foundation for LLM-driven grammar induction and RL. The goal is not only
-translation accuracy but also explicit modeling of Akkadian structure (scribal
-conventions, determinatives, logograms, and morphology).
+up the foundation for GPT-5.2-driven grammar induction and RL. The goal is not
+only translation accuracy but also explicit modeling of Akkadian structure
+(scribal conventions, determinatives, logograms, and morphology).
