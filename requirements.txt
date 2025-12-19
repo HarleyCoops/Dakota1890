@@ -28,6 +28,6 @@ wandb>=0.16.0
 weave>=0.50.0
 
 # Thinking Machines / Tinker integration
-tinker>=0.4.0
+tinker>=0.7.0
 chz>=0.1.1
 git+https://github.com/thinking-machines-lab/tinker-cookbook.git
