@@ -30,9 +30,9 @@ class GrammarRule:
 
 @dataclass
 class InductionConfig:
-    model: str = "gpt-5.2-codex"
+    model: str = "gpt-5.2"
     temperature: float = 0.2
-    max_output_tokens: int = 1200
+    max_output_tokens: int = 15000
     reasoning_effort: str = "high"
     chunk_size: int = 25
     max_docs: int = -1
@@ -47,6 +47,8 @@ SYSTEM_PROMPT = (
     "Induce explicit Old Assyrian grammar rules from transliteration samples. "
     "Focus on morphology, determinatives, logograms, and formulaic syntax."
 )
+
+SAMPLES_TOKEN = "<<SAMPLES>>"
 
 USER_PROMPT_TEMPLATE = """
 You are given Old Assyrian transliteration samples. Induce grammar rules that are
@@ -75,10 +77,61 @@ Guidelines:
 - Treat ALL CAPS tokens as logograms.
 - Prefer rules that can be checked mechanically (regex or substring checks).
 - Provide at most 12 rules for this batch.
+- Keep every JSON string on one line; if you must include a line break, escape it as \\n.
+- Do not include raw newlines inside JSON string values.
 
 Transliteration samples:
-{samples}
+<<SAMPLES>>
 """.strip()
+
+RULES_SCHEMA = {
+    "name": "akkadian_grammar_rules",
+    "schema": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "rule_type": {"type": "string"},
+                "pattern": {"type": "string"},
+                "constraints": {"type": "string"},
+                "positive_examples": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "transliteration": {"type": "string"},
+                            "note": {"type": "string"},
+                        },
+                        "required": ["transliteration", "note"],
+                    },
+                },
+                "negative_examples": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "transliteration": {"type": "string"},
+                            "note": {"type": "string"},
+                        },
+                        "required": ["transliteration", "note"],
+                    },
+                },
+                "difficulty": {"type": "string"},
+                "confidence": {"type": "number"},
+            },
+            "required": [
+                "rule_type",
+                "pattern",
+                "constraints",
+                "positive_examples",
+                "negative_examples",
+                "difficulty",
+                "confidence",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
 
 
 def _ensure_model_allowed(model: str) -> None:
@@ -93,6 +146,12 @@ def _load_openai_client():
         raise RuleInductionError(
             "openai package not installed. Add it to requirements or pip install openai."
         ) from exc
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        load_dotenv = None
+    if load_dotenv is not None:
+        load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuleInductionError("OPENAI_API_KEY is not set in the environment.")
@@ -149,15 +208,69 @@ def _parse_json_array(text: str) -> List[Dict[str, object]]:
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise RuleInductionError(f"Failed to parse JSON from model output: {exc}") from exc
+        repaired = _sanitize_json_text(text)
+        try:
+            data = json.loads(repaired)
+        except json.JSONDecodeError as exc2:
+            raise RuleInductionError(f"Failed to parse JSON from model output: {exc}") from exc2
     if not isinstance(data, list):
         raise RuleInductionError("Model output is not a JSON array.")
     return data
 
 
+def _sanitize_json_text(text: str) -> str:
+    """Escape raw newlines/tabs inside JSON strings to recover valid JSON."""
+    out: List[str] = []
+    in_string = False
+    escape = False
+    for ch in text:
+        if in_string:
+            if escape:
+                out.append(ch)
+                escape = False
+                continue
+            if ch == "\\":
+                out.append(ch)
+                escape = True
+                continue
+            if ch == "\"":
+                out.append(ch)
+                in_string = False
+                continue
+            if ch == "\n":
+                out.append("\\n")
+                continue
+            if ch == "\t":
+                out.append("\\t")
+                continue
+            if ch == "\r":
+                continue
+            out.append(ch)
+        else:
+            if ch == "\"":
+                in_string = True
+            out.append(ch)
+    return "".join(out)
+
+
+def _extract_response_text(response) -> str:
+    output_text = getattr(response, "output_text", None)
+    if output_text:
+        return output_text
+
+    chunks: List[str] = []
+    for item in getattr(response, "output", []) or []:
+        for part in getattr(item, "content", []) or []:
+            text = getattr(part, "text", None)
+            if text:
+                chunks.append(text)
+    return "".join(chunks)
+
+
 def induce_rules_from_documents(
     document_index: Path,
     config: Optional[InductionConfig] = None,
+    stream_out_path: Optional[Path] = None,
 ) -> List[GrammarRule]:
     config = config or InductionConfig()
     _ensure_model_allowed(config.model)
@@ -183,9 +296,12 @@ def induce_rules_from_documents(
     client = None if config.dry_run else _load_openai_client()
 
     all_rules: List[GrammarRule] = []
+    if stream_out_path is not None:
+        stream_out_path.parent.mkdir(parents=True, exist_ok=True)
+        stream_out_path.write_text("", encoding="utf-8")
     for idx, chunk_records in enumerate(chunks, start=1):
         sample_text = _format_samples(chunk_records)
-        prompt = USER_PROMPT_TEMPLATE.format(samples=sample_text)
+        prompt = USER_PROMPT_TEMPLATE.replace(SAMPLES_TOKEN, sample_text)
 
         if config.dry_run:
             prompt_path = config.output_dir / f"prompt_chunk_{idx:04d}.txt"
@@ -198,27 +314,29 @@ def induce_rules_from_documents(
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            "temperature": config.temperature,
             "max_output_tokens": config.max_output_tokens,
         }
+        if config.temperature is not None and not config.model.startswith("gpt-5.2"):
+            request_kwargs["temperature"] = config.temperature
         if config.reasoning_effort:
             request_kwargs["reasoning"] = {"effort": config.reasoning_effort}
 
         response = client.responses.create(**request_kwargs)
-        output_text = getattr(response, "output_text", None)
-        if output_text is None:
-            output_text = "".join(
-                part.text
-                for item in response.output
-                for part in item.content
-                if hasattr(part, "text")
-            )
+        output_text = _extract_response_text(response)
 
         if config.save_raw:
             raw_path = raw_dir / f"response_chunk_{idx:04d}.txt"
             raw_path.write_text(output_text or "", encoding="utf-8")
+            if not output_text:
+                debug_path = raw_dir / f"response_chunk_{idx:04d}.json"
+                try:
+                    debug_payload = response.model_dump()
+                except Exception:
+                    debug_payload = {"error": "failed_to_dump_response"}
+                debug_path.write_text(json.dumps(debug_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
         rules_payload = _parse_json_array(output_text or "")
+        chunk_rules: List[GrammarRule] = []
         for jdx, rule in enumerate(rules_payload, start=1):
             rule_id = f"akk_rule_{idx:04d}_{jdx:03d}"
             source_ids = [r.get("oare_id", "") for r in chunk_records if r.get("oare_id")]
@@ -233,7 +351,13 @@ def induce_rules_from_documents(
                 confidence=float(rule.get("confidence", 0.0)),
                 source_oare_ids=source_ids,
             )
+            chunk_rules.append(grammar_rule)
             all_rules.append(grammar_rule)
+
+        if stream_out_path is not None and chunk_rules:
+            with stream_out_path.open("a", encoding="utf-8") as handle:
+                for rule in chunk_rules:
+                    handle.write(json.dumps(rule.__dict__, ensure_ascii=False) + "\n")
 
         time.sleep(0.5)
 
@@ -259,9 +383,7 @@ def run_induction(
             "document_index.jsonl not found. Run build_document_index.py first."
         )
 
-    rules = induce_rules_from_documents(document_index, config)
+    rules = induce_rules_from_documents(document_index, config, stream_out_path=out_path)
     if config and config.dry_run:
         return 0
-
-    save_rules(rules, out_path)
     return len(rules)

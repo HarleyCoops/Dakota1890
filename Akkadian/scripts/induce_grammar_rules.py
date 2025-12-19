@@ -32,7 +32,7 @@ def main() -> int:
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-5.2-codex",
+        default="gpt-5.2",
         help="GPT-5.2 model name (enforced)",
     )
     parser.add_argument(
@@ -56,7 +56,7 @@ def main() -> int:
     parser.add_argument(
         "--max-output-tokens",
         type=int,
-        default=1200,
+        default=15000,
         help="Maximum tokens per response",
     )
     parser.add_argument(
