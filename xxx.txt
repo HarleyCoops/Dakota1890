@@ -1,1 +1,0 @@
-ssh -i C:\Users\chris\.ssh\prime_rl_key root@189.1.171.247 -p 1234
