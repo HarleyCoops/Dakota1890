@@ -14,7 +14,7 @@
 ![Python Package](https://img.shields.io/badge/pypi-dakota--grammar--env-blue)
 
 
-## Novel Methodology: Zero-to-One Language Resurrection
+## Novel Methodology: Zero-to-One Language Model
 
 **This project introduces a novel approach to low-resource language learning by transforming a single historical textbook into a complete, self-contained training ecosystem.**
 
