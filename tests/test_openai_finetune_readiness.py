@@ -14,4 +14,7 @@ def test_openai_finetune_readiness_report_uses_repo_assets() -> None:
     assert report["valid_exists"] is True
     assert report["train_examples"] == 980
     assert report["valid_examples"] == 245
-    assert report["base_model"]
+    assert report["base_model"] == "gpt-4.1-mini-2025-04-14"
+    assert report["epochs"] == 3
+    assert report["train_token_estimate"] > 0
+    assert report["estimated_training_tokens"] >= report["train_token_estimate"]

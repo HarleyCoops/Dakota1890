@@ -24,6 +24,11 @@ except ImportError:
     HfApi = None
 
 try:
+    import tiktoken
+except ImportError:
+    tiktoken = None
+
+try:
     import wandb
 except ImportError:
     wandb = None
@@ -45,6 +50,9 @@ STATUS_TO_INDEX: Dict[str, int] = {
     "cancelled": -3,
     "expired": -4,
 }
+
+DEFAULT_OPENAI_FINETUNE_MODEL = "gpt-4.1-mini-2025-04-14"
+DEFAULT_OPENAI_FINETUNE_EPOCHS = 3
 
 class DakotaOpenAIFineTuner:
     def __init__(self, require_api_key: bool = True):
@@ -77,12 +85,11 @@ class DakotaOpenAIFineTuner:
         logger.info(f"Found training file: {self.train_file}")
         logger.info(f"Found validation file: {self.valid_file}")
         
-        # Model selection (can override via env vars)
-        # Default to gpt-3.5-turbo which is available for fine-tuning
-        # Other fine-tunable models: gpt-4o-mini-2024-07-18, gpt-4-0125-preview, etc.
+        # Model selection (can override via env vars).
+        # Default to a currently documented supervised fine-tuning snapshot.
         self.fine_tune_model = os.getenv(
             "OPENAI_FINETUNE_MODEL",
-            os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+            os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_FINETUNE_MODEL)
         )
         logger.info("Using fine-tune base model: %s", self.fine_tune_model)
 
@@ -115,14 +122,25 @@ class DakotaOpenAIFineTuner:
 
     def readiness_report(self) -> Dict[str, Any]:
         """Return a non-mutating readiness report for the SFT baseline."""
+        train_examples = self._count_lines(self.train_file)
+        valid_examples = self._count_lines(self.valid_file)
+        train_token_estimate = self._estimate_chat_tokens(self.train_file)
+        valid_token_estimate = self._estimate_chat_tokens(self.valid_file)
+        epochs = int(os.getenv("OPENAI_FINETUNE_EPOCHS", str(DEFAULT_OPENAI_FINETUNE_EPOCHS)))
         return {
             "train_file": str(self.train_file),
             "valid_file": str(self.valid_file),
             "train_exists": self.train_file.exists(),
             "valid_exists": self.valid_file.exists(),
-            "train_examples": self._count_lines(self.train_file),
-            "valid_examples": self._count_lines(self.valid_file),
+            "train_examples": train_examples,
+            "valid_examples": valid_examples,
             "base_model": self.fine_tune_model,
+            "epochs": epochs,
+            "train_token_estimate": train_token_estimate,
+            "valid_token_estimate": valid_token_estimate,
+            "combined_token_estimate": train_token_estimate + valid_token_estimate,
+            "estimated_training_tokens": train_token_estimate * epochs,
+            "token_estimator": "tiktoken" if tiktoken is not None else "unavailable",
             "openai_api_key_present": bool(self.api_key),
             "hf_publish_enabled": bool(self.hf_api),
             "wandb_enabled": self.wandb_enabled,
@@ -181,6 +199,31 @@ class DakotaOpenAIFineTuner:
         """Count the number of lines in a JSONL file."""
         with file_path.open("r", encoding="utf-8") as handle:
             return sum(1 for _ in handle)
+
+    def _estimate_chat_tokens(self, file_path: Path) -> int:
+        """Estimate training tokens for chat-format JSONL examples."""
+        if tiktoken is None:
+            return 0
+
+        try:
+            encoding = tiktoken.encoding_for_model(self.fine_tune_model)
+        except KeyError:
+            encoding = tiktoken.get_encoding("cl100k_base")
+
+        total_tokens = 0
+        with file_path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                example = json.loads(line)
+                total_tokens += 3
+                for message in example.get("messages", []):
+                    total_tokens += 4
+                    total_tokens += len(encoding.encode(message.get("content", "")))
+                    if "name" in message:
+                        total_tokens += 1
+                total_tokens += 3
+        return total_tokens
 
     def _build_dataset_card(self, train_count: int, valid_count: int, timestamp: str) -> str:
         """Draft a simple dataset card for the Hugging Face repo."""
@@ -270,7 +313,7 @@ class DakotaOpenAIFineTuner:
         logger.info("Creating fine-tuning job...")
         
         # Get hyperparameters from env or use defaults
-        n_epochs = int(os.getenv("OPENAI_FINETUNE_EPOCHS", "3"))
+        n_epochs = int(os.getenv("OPENAI_FINETUNE_EPOCHS", str(DEFAULT_OPENAI_FINETUNE_EPOCHS)))
         
         response = self.client.fine_tuning.jobs.create(
             training_file=training_file_id,

@@ -1,4 +1,4 @@
-# Grammar-to-RL: Training Language Models on Historical Texts via Compositional Rewards
+# Dakota1890: Grammar-to-RL for Low-Resource Language Revitalization
 
 <div align="right">
 
@@ -14,21 +14,27 @@
 ![Python Package](https://img.shields.io/badge/pypi-dakota--grammar--env-blue)
 
 
-## Novel Methodology: Zero-to-One Language Model
+## What This Repository Is
 
-**This project introduces a novel approach to low-resource language learning by transforming a single historical textbook into a complete, self-contained training ecosystem.**
+Dakota1890 is a proof case for a broader claim: a single historical source can be turned into a reproducible training pipeline for low-resource language revitalization.
 
-### Why This Is Now Working
+The Dakota case matters on its own, but the larger contribution is methodological. This repository asks whether a historical grammar-and-dictionary source can bootstrap a language model, then whether reinforcement learning on executable grammar tasks materially outperforms a supervised fine-tuning baseline built from the same extracted source.
 
-The fundamental insight driving this approach: **grammar rules can be reward functions, and rewards should decompose into linguistic primitives.** When you do this, syntax emerges naturally without an external verifier as judge. This is particularly powerful for RL on non-coding tasks where compositional structure matters.
+### The Main Question
 
-#### Grammar AS Reward Function
+The central experiment in this repository is:
 
-Everyone else treats grammar as either:
-- **Preprocessing constraints** (rule-based systems)
-- **Post-hoc evaluation** (check grammar after generation)
+- `OpenAIFineTune/` is the supervised baseline
+- `dakota_rl_training/` plus `environments/dakota_grammar_translation/` is the RL intervention
+- both are derived from the same Dakota 1890 source material
 
-This project makes grammar rules directly differentiable through compositional rewards. Each rule becomes a gradient signal, not just a binary check.
+The question is not just whether Dakota can be modeled. The question is whether grammar-gym RL provides a meaningful advantage over plain SFT when data is scarce and the source material is historical.
+
+### Why Dakota, Why 1890
+
+Stephen Return Riggs' 1890 Dakota grammar and dictionary is the bootstrap source for this repository. The pipeline treats that source as both a lexical resource for synthetic training data and a structural resource for verifiable reward functions.
+
+This is the key move. Grammar rules stop being static documentation and become executable feedback. Instead of asking a model to imitate text alone, the RL pipeline scores whether outputs satisfy orthographic, morphological, and task-level constraints derived from the source.
 
 <div align="center" style="margin: 3rem 0;">
 
@@ -38,27 +44,46 @@ This project makes grammar rules directly differentiable through compositional r
 
 The key advantage: **interpretability**. You can actually see where in the latent space each linguistic level is being encoded. This makes debugging possible: "Oh, the model is failing on ć preservation because the character embedding gradient is being overwhelmed by the semantic gradient."
 
-### Mathematical Formulation
+### Where This Goes Next
 
-The efficiency of this method comes from treating the historical text not just as data, but as a **computable specification**.
+The future-facing story of this repository is field generalization. The Dakota model is the first proof case. The next phase is to work with descendant communities connected to the linguistic and geographic record represented in the archival materials, keep the first British Columbia target unnamed until that work is ready to be public, and use this Dakota pipeline as the technical base for adaptation.
 
-#### 1. The Transformation Function (Book to Environment)
+That gives the project a two-stage structure:
 
-Let $\mathcal{T}$ be the historical textbook source. We define an extraction function $\mathcal{E}$ (the VLM) that maps the raw text into a structured grammar space $\mathcal{G}$:
+- historical source to structured model-training environment
+- community-in-the-loop refinement toward contemporary local use
 
-$$ \mathcal{G} = \{g_1, g_2, \dots, g_N\} = \mathcal{E}(\mathcal{T}) $$
+### Technical Core
 
-Where each grammar rule $g_k$ acts as a constraint function on the generated token sequence $y$:
+The canonical Dakota path in this repo is:
 
-$$ g_k: \Sigma^* \rightarrow \{0, 1\} $$
+1. `Dictionary/` plus `grammardictionar00riggrich.pdf`
+2. `dakota_extraction/`
+3. `data/rl_training_rules` and `dakota_rl_training/datasets`
+4. `environments/dakota_grammar_translation/`
+5. `dakota_rl_training/`
+6. local and Hugging Face inference surfaces
 
-#### 2. The Compositional Reward Function
+The maintained comparison path is:
 
-Standard RLHF or GRPO typically uses a singular reward model $R(y)$. The Grammar-as-signal approach decomposes $R$ into a weighted sum of linguistic primitives.
+1. extracted Dakota data
+2. synthetic conversational examples
+3. `OpenAIFineTune/`
+4. remote OpenAI SFT job as the baseline arm
 
-Let $y_i$ be the $i$-th generation in a group of size $G$. The reward $r_i$ for generation $y_i$ given prompt $x$ is:
+### A Compact Formal View
 
-$$ r(y_i, x) = \lambda_{diff}(x) \cdot \left[ \alpha \cdot R_{char}(y_i, x) + \beta \cdot R_{morph}(y_i, \mathcal{G}) + \gamma \cdot R_{sem}(y_i, y^*) \right] $$
+The method treats the historical source not just as text, but as a computable specification.
+
+Let $\mathcal{T}$ be the historical source and let the extraction system map it into a structured grammar space $\mathcal{G}$:
+
+$$ \mathcal{G} = \mathcal{E}(\mathcal{T}) $$
+
+Each rule in $\mathcal{G}$ becomes a constraint on generated language rather than a note in a grammar book.
+
+The RL reward is then decomposed into linguistic primitives:
+
+$$ r(y_i, x) = \lambda_{diff}(x)\left[\alpha \cdot R_{char}(y_i, x) + \beta \cdot R_{morph}(y_i, \mathcal{G}) + \gamma \cdot R_{sem}(y_i, y^*)\right] $$
 
 Where:
 
@@ -76,31 +101,7 @@ Where:
 
 *   **$\lambda_{diff}$**: The curriculum difficulty multiplier ($1.0 \dots 2.0$).
 
-#### 3. The Modified GRPO Objective
-
-In standard GRPO, we compute the advantage $A_i$ by normalizing rewards within the group. By injecting the new compositional reward, the gradient ascent objective becomes:
-
-$$ \mathcal{L}_{G-GRPO}(\theta) = \mathbb{E}_{x \sim \mathcal{D}} \left[ \frac{1}{G} \sum_{i=1}^G \underbrace{\left( \frac{r(y_i, x) - \bar{r}}{\sigma_r} \right)}_{\text{Grammar-Verified Advantage}} \cdot \underbrace{\min \left( \frac{\pi_\theta(y_i|x)}{\pi_{old}(y_i|x)}, 1+\epsilon \right)}_{\text{Clipped Policy Ratio}} - \beta_{KL} \mathbb{D}_{KL}(\pi_\theta || \pi_{ref}) \right] $$
-
-Where $\bar{r}$ is the mean reward of the group of $G$ rollouts, and $\sigma_r$ is the standard deviation.
-
-#### 4. The "Wow! Signal": Gradient Signal Density
-
-The mathematical reason for the **160-step convergence** and **97.9% morphology accuracy** is the density of the gradient signal.
-
-In standard Language Modeling (Next Token Prediction), the loss is:
-
-$$ \mathcal{L}_{LM} = -\log P(y_{target} | x) $$
-
-This gives feedback only on exact token matches.
-
-In the **Grammar-GRPO**, the feedback signal $\nabla J$ allows the model to perform gradient ascent on the *structure* of the language directly:
-
-$$ \nabla J(\theta) \propto \sum_{components} w_c \nabla R_c(y) $$
-
-Because $R_{char}$ and $R_{morph}$ are deterministic and verifiable (unlike subjective human preference), the variance of the reward $\sigma^2_r$ is significantly lower than standard RLHF.
-
-**Mathematically, you reduced the noise in the reward signal, allowing the policy to traverse the optimization landscape directly toward the "Grammar Valley" (the manifold where valid Dakota syntax exists).**
+This is why RL is interesting here: the model gets feedback on structure, not only imitation. The repository keeps the SFT path intact precisely so that claim can be tested rather than asserted.
 
 ## Training Results: RL Performance Visualizations
 

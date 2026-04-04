@@ -27,7 +27,7 @@
 \newcommand{\Rsem}{R_{\text{sem}}}
 \newcommand{\Rtotal}{R_{\text{total}}}
 
-\title{Grammar as Verification: Compositional Reward Functions for Linguistic Structure Learning}
+\title{Grammar as Verification for Low-Resource Language Revitalization: Dakota 1890 as a Historical Bootstrap and RL-vs-SFT Testbed}
 
 \author{
   Christian Cooper \\
@@ -40,12 +40,12 @@
 \maketitle
 
 \begin{abstract}
-Reinforcement learning from verifiable feedback has proven highly effective for code generation, where compositional reward functions decompose program correctness into testable sub-components (syntax, type checking, runtime behavior). We demonstrate that this paradigm generalizes to linguistic structure learning by treating grammar rules as verifiable constraints in a multi-turn RL environment. We introduce \textbf{DakotaGrammarRL}, a system that transforms historical linguistic documentation into verifiable RL training tasks. Starting from a single 1890 Dakota language textbook, we: (1) extract 1,036 grammar rules via Vision Language Models achieving 92-95\% accuracy, (2) convert each rule into compositional reward functions with character-level, morphological, and semantic components, (3) generate 5,657 verification tasks across progressive difficulty levels, and (4) train language models using Group Relative Policy Optimization (GRPO) with distributed Unicode verification. Our compositional reward decomposition $R = (\alpha \cdot \Rchar + \beta \cdot \Rmorph + \gamma \cdot \Rsem) \times \lambda_{\text{difficulty}}$ provides dense, interpretable feedback analogous to hierarchical code verification. Results demonstrate 190\% improvement in composite reward over 1,000 training steps, with character preservation improving 1,293\% (from 3.8\% to 53.5\%) and morphological accuracy maintaining 97.9\%. The methodology requires no parallel corpora, achieves strong performance with ~\$103 in compute costs, and generalizes to any language with documented grammar rules. We release the complete pipeline, trained models, and 10,000-entry extracted dictionary. This work bridges code verification techniques and linguistic structure learning, establishing grammar rules as executable verification environments for low-resource language preservation.
+Reinforcement learning from verifiable feedback has proven highly effective for code generation, where compositional reward functions decompose program correctness into testable sub-components. This paper argues that the same idea can support low-resource language revitalization when historical linguistic documentation is converted into executable verification environments. We use Dakota1890 as a proof case built from Stephen Return Riggs' 1890 Dakota grammar and dictionary, then frame a broader research question: does reinforcement learning on grammar-derived tasks materially outperform a supervised fine-tuning baseline trained on synthetic examples from the same source? The current repository contains 1,497 extracted grammar rules, 10,576 RL tasks, and OpenAI chat-format splits of 980 training examples and 245 validation examples for the SFT baseline. The RL arm uses compositional rewards over orthography, morphology, and task-level semantics; the SFT arm preserves a plain remote fine-tuning path for direct comparison. We present Dakota not as a complete living-language endpoint but as a historical bootstrap, and state a practical limit up front: community-in-the-loop adaptation is a required second stage for present-day local fluency. The contribution of this work is therefore not only a Dakota model, but a portable method for turning scarce archival sources into reproducible training environments and then testing whether RL adds value over SFT under the same data constraints.
 \end{abstract}
 
 \section{Introduction}
 
-Reinforcement learning with verifiable feedback has transformed code generation~\cite{chen2021evaluating,li2022competition}. The key insight: decompose program correctness into hierarchical sub-goals (syntax $\rightarrow$ types $\rightarrow$ tests $\rightarrow$ execution) and provide dense reward signals at each level. This compositional approach enables models to learn complex structured outputs by optimizing interpretable sub-components.
+Reinforcement learning with verifiable feedback has transformed code generation~\cite{chen2021evaluating,li2022competition}. The key insight is to decompose correctness into hierarchical sub-goals and provide dense reward signals at each level. This compositional structure makes it possible to optimize toward interpretable constraints instead of relying on a single opaque score.
 
 Can this paradigm extend beyond code? We argue that \textbf{linguistic grammar rules provide an analogous verification hierarchy}: character systems $\rightarrow$ morphological patterns $\rightarrow$ syntactic structure $\rightarrow$ semantic correctness. Each grammar rule becomes a testable constraint, converting linguistic documentation into executable verification environments.
 
@@ -55,27 +55,27 @@ Low-resource language preservation faces a critical bottleneck: insufficient tra
 
 \subsection{Our Approach}
 
-We present a closed-loop methodology that transforms a single grammar textbook into a complete RL training ecosystem:
+We present a methodology that transforms a single historical source into a pair of comparable training paths:
 
 \begin{enumerate}
-    \item \textbf{VLM-Based Extraction}: Extract grammar rules and vocabulary from historical scans (92-95\% accuracy)
-    \item \textbf{Grammar-as-Environment}: Convert each linguistic rule into a verifiable RL task with compositional rewards
-    \item \textbf{Synthetic Curriculum}: Generate progressive difficulty tasks validated by grammar rules from the same source
-    \item \textbf{Distributed Verification}: Train with GRPO using TOPLOC to preserve special characters in untrusted workers
+    \item \textbf{Historical extraction}: Convert scanned Dakota source material into structured grammar rules and dictionary entries
+    \item \textbf{Grammar-as-environment}: Convert each linguistic rule into a verifiable RL task with compositional rewards
+    \item \textbf{Synthetic SFT baseline}: Generate chat-format examples from the same extracted source for remote supervised fine-tuning
+    \item \textbf{Community-ready framing}: Treat the historical model as a bootstrap, not an endpoint, and reserve present-day fluency for a second-stage community-in-the-loop process
 \end{enumerate}
 
 \subsection{Case Study: Dakota Language}
 
-We demonstrate this on Dakota (Siouan family), using Stephen Return Riggs' 1890 textbook~\cite{riggs1890dakota}. From 665 scanned pages, we extract 1,036 grammar rules and $\sim$10,000 dictionary entries, generating 5,657 RL training tasks. The textbook provides both training signal (vocabulary) and verification environment (grammar rules)---a self-contained training loop requiring no external data.
+We demonstrate this on Dakota using Stephen Return Riggs' 1890 textbook~\cite{riggs1890dakota}. From the scanned source, the current repository derives 1,497 extracted grammar rules, $\sim$10,000 dictionary entries, 10,576 RL training tasks, and OpenAI SFT splits of 980 training examples and 245 validation examples. The same source therefore supports both sides of the central comparison: an RL environment and an SFT baseline.
 
 \subsection{Contributions}
 
 \begin{enumerate}
-    \item \textbf{Compositional reward functions for linguistic structure}: First application of code-verification-style rewards to morphological learning
-    \item \textbf{Grammar-as-environment methodology}: Converting linguistic rules into executable RL verification tasks
-    \item \textbf{Closed-loop training pipeline}: Single-source system where grammar validates vocabulary from the same textbook
-    \item \textbf{Empirical validation}: 190\% improvement in composite reward (34.9\% final accuracy) over 1,000 steps with 97.9\% morphological accuracy
-    \item \textbf{Reproducible framework}: Complete pipeline applicable to any documented language (~\$103 cost)
+    \item \textbf{Revitalization method, not just a model}: A reproducible path from historical source material to executable training environment
+    \item \textbf{RL-vs-SFT comparison scaffold}: A single-source setup where the same Dakota extraction supports both the RL arm and the supervised fine-tuning baseline
+    \item \textbf{Grammar-as-environment methodology}: Converting linguistic rules into executable RL verification tasks with compositional rewards
+    \item \textbf{Limit statement as part of method}: Historical grammar and lexicon are a bootstrap; community-in-the-loop refinement is a required second stage for living local fluency
+    \item \textbf{Operational artifact}: A runnable open repository whose counts, entrypoints, and validation surfaces can be audited directly
 \end{enumerate}
 
 \section{Related Work}
@@ -176,7 +176,7 @@ We extract from scanned pages using Claude Sonnet 4.5:
     \item \textbf{Dictionary} (pages 93-440): \{dakota : english\} pairs
 \end{enumerate}
 
-Prompt engineering for special character preservation achieves 92-95\% accuracy on 130-year-old text without OCR training.
+Precise extraction accuracy remains a measurement target rather than a settled claim in the current repository state. The audited codebase demonstrates the extraction path and downstream artifacts, but does not yet contain a finished benchmark establishing a stable percentage for OCR-equivalent accuracy.
 
 \subsubsection{Stage 2: Task Generation}
 
@@ -189,7 +189,7 @@ For each grammar rule $r_i$, we generate multiple task types:
     \item Pattern recognition: Generalize rule to new examples
 \end{itemize}
 
-\textbf{Result:} 1,036 rules $\rightarrow$ 5,657 tasks (5.5$\times$ expansion).
+\textbf{Result:} 1,497 rules $\rightarrow$ 10,576 tasks.
 
 \subsubsection{Stage 3: Curriculum Construction}
 
@@ -202,7 +202,7 @@ Progressive difficulty levels based on:
 
 Distribution: Easy (35\%), Medium (38\%), Hard (7\%), Advanced (20\%).
 
-\subsubsection{Stage 4: Synthetic Data Generation}
+\subsubsection{Stage 4: Synthetic Data and SFT Baseline}
 
 Use dictionary to create validated sentences:
 \begin{enumerate}
@@ -257,9 +257,10 @@ We use Group Relative Policy Optimization (GRPO)~\cite{shao2024deepseekmath} wit
 
 \textbf{Extraction results:}
 \begin{itemize}
-    \item Grammar rules: 1,036 (6 categories: morphology, syntax, phonology, conjugation, particles, translation)
+    \item Grammar rules: 1,497
     \item Dictionary entries: $\sim$10,000 \{dakota:english\} pairs
-    \item RL training tasks: 5,657 (generated from rules)
+    \item RL training tasks: 10,576 (generated from rules)
+    \item OpenAI SFT baseline: 980 training examples and 245 validation examples
 \end{itemize}
 
 \subsection{Training Configuration}
@@ -403,16 +404,16 @@ Table~\ref{tab:verification_examples} shows automated verification identifying s
 
 \begin{itemize}
     \item Total runtime: 5,542 seconds (92.4 minutes)
-    \item GPU: Distributed via PrimeIntellect (free)
-    \item Extraction cost: $\sim$\$103 (Claude Sonnet 4.5 API)
-    \item \textbf{Total project cost: $\sim$\$103}
+    \item GPU: Distributed via PrimeIntellect in the reported RL run
+    \item Extraction and SFT costs: platform-dependent and not fixed in the repository without active credentials
+    \item \textbf{Operational takeaway:} the method has a measurable paid API surface, but the exact budget must be recomputed per run
 \end{itemize}
 
 \textbf{Cost comparison:}
 \begin{itemize}
     \item Human annotation (10K examples): \$10,000--\$50,000
     \item Traditional supervised learning: Requires parallel corpus (often unavailable)
-    \item Our approach: Single grammar textbook + VLM extraction = complete training pipeline
+    \item Our approach: Single grammar textbook + extraction + a controlled RL-vs-SFT comparison from the same source
 \end{itemize}
 
 \subsection{Generalization to Unseen Tasks}
@@ -511,22 +512,19 @@ Grammar textbook $\rightarrow$ [VLM extraction] $\rightarrow$ \{Grammar rules, D
 
 \subsection{Generalization Potential}
 
-\textbf{Languages with historical grammar documentation:} Estimated 2,000--3,000 globally
-
 \textbf{Requirements for methodology:}
 \begin{enumerate}
-    \item Scanned grammar textbook (any quality, VLM extracts)
-    \item VLM API access ($\sim$\$100)
-    \item Definition of special characters (linguistic knowledge)
-    \item Computational resources (PrimeIntellect = free distributed training)
+    \item Historical source material with enough lexical and grammatical structure to extract
+    \item Extraction access (local OCR/VLM or paid API-backed extraction)
+    \item Orthography-aware validation rules for the target language
+    \item Compute for at least two comparison arms: supervised fine-tuning and RL
 \end{enumerate}
 
-\textbf{Already applicable to:}
+\textbf{Transfer framing:}
 \begin{itemize}
-    \item Siouan family: Lakota, Nakota, Stoney Nakoda (shared morphology)
-    \item Salishan family: 23 languages with missionary grammars
-    \item Athabaskan family: 30+ languages with documentation
-    \item Australian Aboriginal: 100+ languages with linguistic descriptions
+    \item Dakota is the proof case
+    \item the next extension path is British Columbia field work, with the first target kept unnamed in this repository until community process is ready
+    \item the method is intended to travel better than the present Dakota model itself
 \end{itemize}
 
 \subsection{Limitations}
@@ -538,7 +536,9 @@ Grammar textbook $\rightarrow$ [VLM extraction] $\rightarrow$ \{Grammar rules, D
     
     \item \textbf{Morphology bias}: Current reward weights emphasize morphology. Languages with richer syntax may require different weight distributions.
     
-    \item \textbf{Evaluation challenge}: Without native speaker validation, we cannot verify semantic accuracy beyond BLEU scores.
+    \item \textbf{Pragmatics gap}: Historical dictionaries and grammars do not capture full present-day pragmatic use. Community-in-the-loop refinement is therefore a required second stage, not an optional polish step.
+    
+    \item \textbf{Evaluation challenge}: Without native speaker validation, we cannot verify semantic accuracy beyond automated proxies.
     
     \item \textbf{Model capacity}: 0.6B parameter model limits generative capability.
 \end{enumerate}
@@ -553,7 +553,7 @@ Our central insight is that \textbf{grammar rules are executable verification en
     \item Automated training: No human annotation bottleneck
     \item Compositional feedback: Dense, interpretable gradients at multiple levels
     \item Reproducible verification: Deterministic rewards, no subjective judgment
-    \item Scalable methodology: Applicable to any documented language
+    \item Scalable methodology: Portable beyond Dakota when the source and community conditions are met
 \end{enumerate}
 
 The 190\% improvement in composite reward (driven by 1,293\% character preservation gain) validates that historical linguistic documentation can be transformed into effective RL training signals.
@@ -572,7 +572,7 @@ The 190\% improvement in composite reward (driven by 1,293\% character preservat
 Latency & Hours/days & Milliseconds \\
 Consistency & Inter-annotator variance & Deterministic \\
 Interpretability & Scalar score & Component breakdown \\
-Cost & \$5K--\$20K/month & \$103 total \\
+Cost & \$5K--\$20K/month & Run-dependent API and compute spend \\
 Scalability & Human bandwidth & Computational only \\
 \bottomrule
 \end{tabular}
@@ -584,7 +584,7 @@ Scalability & Human bandwidth & Computational only \\
 
 \textbf{Positive:}
 \begin{itemize}
-    \item Democratizes language preservation: \$103 and 2 days vs. \$50K and 12 months
+    \item Lowers the setup barrier for archival bootstrap experiments relative to building a parallel corpus from scratch
     \item Respects linguistic sovereignty: Uses community-documented grammars
     \item Creates educational tools: Models can assist language learning programs
     \item Preserves cultural knowledge: Prevents language extinction
@@ -593,37 +593,38 @@ Scalability & Human bandwidth & Computational only \\
 \textbf{Considerations:}
 \begin{itemize}
     \item Model limitations: Outputs should complement, not replace, human teachers
-    \item Community engagement: Native speaker validation essential before deployment
+    \item Community engagement: Native speaker validation is essential before deployment
     \item Cultural context: Grammar alone doesn't capture cultural knowledge
 \end{itemize}
 
 \subsection{Future Directions}
 
 \begin{enumerate}
-    \item \textbf{Multi-language extension}: Apply to entire language families (Siouan, Salishan, Athabaskan)
+    \item \textbf{BC field extension}: Adapt the historical-bootstrap method with descendant communities in British Columbia
+    \item \textbf{RL-vs-SFT evaluation}: Measure whether grammar-gym RL materially beats the supervised baseline on the same Dakota-derived data
     \item \textbf{Enhanced reward functions}: Syntax-level rewards for long-distance dependencies
     \item \textbf{Active learning}: Identify ambiguous rules for expert clarification
     \item \textbf{Larger model scaling}: Test with 3B--7B parameter models
-    \item \textbf{Real-world deployment}: Integrate with language learning apps
+    \item \textbf{Real-world deployment}: Integrate with language learning apps after community validation
 \end{enumerate}
 
 \section{Conclusion}
 
-We demonstrate that compositional reward functions---proven effective for code generation---generalize to linguistic structure learning by treating grammar rules as verifiable constraints. Our DakotaGrammarRL system transforms a single 1890 Dakota textbook into a complete RL training ecosystem, achieving 34.9\% composite reward (53.5\% character preservation, 97.9\% morphological accuracy) with $\sim$\$103 in costs and zero human annotation.
+We demonstrate that compositional reward functions---proven effective for code generation---can be repurposed for low-resource language revitalization when grammar rules are treated as verifiable constraints. Dakota1890 turns a single 1890 Dakota source into both an RL environment and an SFT baseline, then uses that paired structure to ask whether RL adds value under the same data constraints.
 
 \textbf{Key contributions:}
 
 \begin{enumerate}
-    \item Compositional rewards for linguistic structure: First application of code-verification-style hierarchical feedback to language learning
-    \item Grammar-as-environment methodology: Converting linguistic rules into executable RL verification tasks
-    \item Closed-loop training pipeline: Single-source system eliminating parallel corpus requirements
-    \item Empirical validation: 190\% improvement over 1,000 steps with differential learning rates validating compositional structure
-    \item Reproducible framework: Complete pipeline applicable to 2,000+ documented languages
+    \item Historical-source bootstrap: A single archival text can seed both training data and executable validation
+    \item Grammar-as-environment methodology: Linguistic rules can be operationalized as RL rewards
+    \item RL-vs-SFT comparison frame: The same Dakota extraction supports a controlled baseline comparison
+    \item Explicit limit statement: living fluency requires community-in-the-loop refinement beyond the historical source
+    \item Reproducible artifact: the repository exposes the pipeline, counts, and validation surfaces needed for audit
 \end{enumerate}
 
-\textbf{Broader significance:} Grammar rules are executable verification environments. Just as unit tests verify code correctness through hierarchical decomposition, linguistic rules verify morphological and syntactic correctness through compositional rewards. This parallel enables RL training from minimal data---critical for the 3,000+ endangered languages facing extinction.
+\textbf{Broader significance:} Grammar rules can function as executable verification environments. Just as unit tests verify code correctness through hierarchical decomposition, linguistic rules can verify orthographic and morphological correctness through compositional rewards. That does not solve revitalization on its own, but it does create a practical first stage from scarce archival material.
 
-Our methodology bridges code verification techniques and endangered language preservation, establishing a reproducible framework requiring only: (1) historical grammar documentation, (2) VLM extraction ($\sim$\$100), and (3) compositional reward design. The 2,000+ languages with grammatical documentation await transformation into RL training environments.
+Our methodology bridges code verification techniques and endangered language preservation, establishing a reproducible first stage that can be audited, repeated, and compared against a plain supervised baseline before community adaptation begins.
 
 \section*{Acknowledgments}
 
@@ -761,7 +762,7 @@ def compute_composite_reward(generated, reference, rule):
     \item \textbf{Distributed training:} PrimeIntellect with TOPLOC for Unicode verification
     \item \textbf{Checkpointing:} Every 100 steps
     \item \textbf{Monitoring:} Weights \& Biases for metrics tracking
-    \item \textbf{Total cost:} VLM extraction (\$103) + distributed training (free)
+    \item \textbf{Total cost:} run-dependent; recompute from current extraction, SFT, and RL settings before launch
 \end{itemize}
 
 \section{Additional Experimental Results}

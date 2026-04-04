@@ -49,6 +49,12 @@ python dakota_rl_training/train.py --check-only
 python scripts/rl/dakota_openai_finetune.py --check-only
 ```
 
+The OpenAI readiness check now reports:
+
+- resolved train/validation asset paths
+- the configured fine-tune base model
+- estimated train, validation, and total trained tokens for the current epoch count
+
 ## Minimal Live Smokes
 
 Run these only if the API keys are valid and funded:
@@ -76,3 +82,4 @@ python scripts/rl/dakota_openai_finetune.py --check-only
 - Local inference still requires a runtime whose installed `huggingface-hub` version matches the pinned requirements; the current sandbox may need a reinstall before `run_inference.py` succeeds.
 - HF remote inference also depends on token permissions for Inference Providers.
 - The OpenAI SFT launcher can submit a paid remote fine-tuning job via `python scripts/rl/dakota_openai_finetune.py`, but step-0 validation only runs the readiness check by default.
+- As of the current step-0 audit, the launcher defaults to `gpt-4.1-mini-2025-04-14` and should be treated as budget-gated remote work.
