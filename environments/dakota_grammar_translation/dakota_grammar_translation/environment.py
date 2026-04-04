@@ -130,8 +130,17 @@ def _prepare_records(
     allowed_tasks = {t.lower() for t in task_types or []}
     records: list[dict[str, Any]] = []
     for idx, entry in enumerate(entries):
-        difficulty = str(entry.get("difficulty", "medium"))
-        task_type = str(entry.get("task_type", "default"))
+        entry_info = entry.get("info") if isinstance(entry.get("info"), dict) else {}
+        difficulty = str(
+            entry.get("difficulty")
+            or entry_info.get("difficulty")
+            or "medium"
+        )
+        task_type = str(
+            entry.get("task_type")
+            or entry_info.get("task_type")
+            or "default"
+        )
         if allowed_difficulties and difficulty.lower() not in allowed_difficulties:
             continue
         if allowed_tasks and task_type.lower() not in allowed_tasks:
@@ -141,15 +150,19 @@ def _prepare_records(
         if not prompt or not answer:
             continue
         info = {
-            "rule_id": entry.get("rule_id"),
-            "verification_pattern": entry.get("verification_pattern"),
+            "rule_id": entry.get("rule_id") or entry_info.get("rule_id"),
+            "verification_pattern": (
+                entry.get("verification_pattern")
+                or entry_info.get("verification_pattern")
+                or entry_info.get("pattern")
+            ),
             "difficulty": difficulty,
             "task_type": task_type,
-            "special_chars": entry.get("info", {}).get("special_chars", []),
-            "required_affixes": entry.get("info", {}).get("required_affixes", []),
+            "special_chars": entry_info.get("special_chars", []),
+            "required_affixes": entry_info.get("required_affixes", []),
         }
         if include_hints:
-            info["hints"] = entry.get("hints", [])
+            info["hints"] = entry.get("hints") or entry_info.get("hints") or []
         records.append(
             {
                 "id": entry.get("task_id") or f"dakota_task_{idx:05d}",
