@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Convert Extracted Dakota Grammar Rules to PrimeIntellect Task Format
-
-Takes the 1,036 rules from data/rl_training_rules/ and converts them
-to JSONL format for PrimeIntellect training.
-"""
+"""Convert organized Dakota grammar rules into PrimeIntellect/Tinker task JSONL."""
 
 import json
 from pathlib import Path

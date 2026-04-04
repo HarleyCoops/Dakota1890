@@ -74,7 +74,7 @@ Chart 2 reveals the differential learning across reward components, validating t
 **Morphological Accuracy (`metrics/affix_reward`):**
 - Started at 0.953 (step 0) and reached 0.979 (step 999)
 - Achieved near-perfect performance (97.9%) in affix application
-- This exceptional performance validates the grammar rule extraction methodology, as the model successfully learned morphological patterns encoded in the 1,036 extracted rules
+- This exceptional performance validates the grammar rule extraction methodology, as the model successfully learned morphological patterns encoded in the 1,497 extracted rules
 
 **Character Preservation (`metrics/char_overlap_reward`):**
 - Started at 0.038 (step 0) and reached 0.535 (step 999)
@@ -325,7 +325,7 @@ The results validate the core methodological innovation demonstrated in this wor
 
 1. **Rule Extraction Quality**: The VLM-based extraction successfully captured testable grammar patterns from 130-year-old historical text, preserving morphological rules in a format suitable for RL training.
 
-2. **Task Generation Effectiveness**: The conversion of 1,036 grammar rules into 5,657 RL tasks created sufficient training signal for the model to learn morphological patterns. The high accuracy suggests the task generation process successfully encoded the grammar rules as verifiable constraints.
+2. **Task Generation Effectiveness**: The conversion of 1,497 grammar rules into 10,576 RL tasks created sufficient training signal for the model to learn morphological patterns. The high accuracy suggests the task generation process successfully encoded the grammar rules as verifiable constraints.
 
 3. **Verification Mechanism**: The compositional reward functions successfully verified correctness, providing meaningful learning signals. The decomposition into character, morphology, and semantic components enabled fine-grained learning.
 

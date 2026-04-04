@@ -2,7 +2,7 @@
 # For use with PrimeIntellect prime-rl vLLM backend
 
 [model]
-name_or_path = "Qwen/Qwen2.5-7B-Instruct"
+name_or_path = "Qwen/Qwen3-0.6B"
 revision = "main"
 torch_dtype = "auto"
 

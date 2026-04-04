@@ -9,11 +9,27 @@ and runs GRPO training with curriculum learning.
 
 import argparse
 import logging
+import site
 import sys
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
+ENVIRONMENT_PACKAGE_DIR = ROOT_DIR / "environments" / "dakota_grammar_translation"
+
+# Prefer the pip-installed `verifiers` package over the legacy local folder that
+# shares the same import name inside `dakota_rl_training/`.
+_original_sys_path = list(sys.path)
+_site_paths = [site.getusersitepackages(), *site.getsitepackages()]
+_clean_path = [p for p in _original_sys_path if Path(p or ".").resolve() != SCRIPT_DIR]
+sys.path = [p for p in _site_paths if p] + _clean_path
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+if str(ENVIRONMENT_PACKAGE_DIR) not in sys.path:
+    sys.path.append(str(ENVIRONMENT_PACKAGE_DIR))
 
 # Try to import prime_rl components
 try:
@@ -35,7 +51,7 @@ logger = logging.getLogger(__name__)
 def check_prerequisites() -> tuple[bool, list[str]]:
     """Check if all prerequisites are met."""
     issues = []
-    
+     
     if not PRIME_RL_AVAILABLE:
         issues.append("prime_rl not installed. Install with: pip install git+https://github.com/PrimeIntellect-ai/prime-rl.git")
     
@@ -44,12 +60,12 @@ def check_prerequisites() -> tuple[bool, list[str]]:
     except ImportError:
         issues.append("verifiers not installed. Install with: pip install git+https://github.com/PrimeIntellect-ai/verifiers.git")
     
-    # Check if environment package is installed
+    # Check if environment package is installed or available directly from the repo.
     try:
         from dakota_grammar_translation import load_environment
     except ImportError:
         issues.append(
-            "dakota_grammar_translation environment not installed. "
+            "dakota_grammar_translation environment could not be imported from the repo. "
             "Install with: pip install -e environments/dakota_grammar_translation"
         )
     

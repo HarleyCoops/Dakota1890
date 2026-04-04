@@ -2,6 +2,8 @@
 
 Complete Reinforcement Learning training environment for Dakota grammar and morphology, built on actual extracted grammar rules from Stephen Return Riggs' 1890 Dakota Grammar & Dictionary.
 
+Step 0 note: the canonical repository-level workflow now lives in [`PIPELINE.md`](../PIPELINE.md) and [`SETUP.md`](../SETUP.md). This README is preserved for the RL stack itself; older one-off references have been pruned or archived.
+
 ## What We Built
 
 ###  Phase 1 Complete: Grammar Extraction & RL Task Generation
@@ -241,7 +243,7 @@ TOPLOC remains available on PrimeIntellect; on Tinker the rubric itself enforces
 
 ### Model
 
-**Base**: Qwen2.5-7B-Instruct (open source)
+**Base**: Qwen/Qwen3-0.6B for local checks, with Qwen/Qwen3-30B-A3B-Instruct-2507 for the published adapter path
 **Method**: LoRA fine-tuning (rank 64)
 **Algorithm**: GRPO (Group Relative Policy Optimization)
 
@@ -396,7 +398,7 @@ asyncio.run(test())
 ### Generate Tasks from New Pages
 
 ```python
-from blackfeet_extraction.core.grammar_page_processor import GrammarPageProcessor
+from dakota_extraction.core.grammar_page_processor import GrammarPageProcessor
 from pathlib import Path
 
 processor = GrammarPageProcessor()

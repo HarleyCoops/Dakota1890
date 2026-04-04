@@ -268,7 +268,7 @@ These results provide early evidence for the core methodological idea: transform
 
 1. **Rule Extraction Quality**: The VLM-based extraction successfully captured testable grammar patterns from historical text, preserving morphological rules in a format suitable for RL training.
 
-2. **Task Generation Effectiveness**: The conversion of 1,036 grammar rules into 5,657 RL tasks created sufficient training signal for the model to learn morphological patterns. The high accuracy suggests the task generation process successfully encoded the grammar rules as verifiable constraints.
+2. **Task Generation Effectiveness**: The conversion of 1,497 grammar rules into 10,576 RL tasks created sufficient training signal for the model to learn morphological patterns. The high accuracy suggests the task generation process successfully encoded the grammar rules as verifiable constraints.
 
 3. **Compositional Reward Structure**: The decomposition into character, morphology, and semantic components enabled fine-grained learning. The model learned morphological patterns more effectively than orthographic preservation, suggesting potential areas for future improvement.
 
@@ -504,8 +504,8 @@ python scripts/extraction/extract_grammar_pages.py --pages 31-92 --yes
 - Confidence scoring
 
 **Output**: `data/grammar_extracted/`
-- 62 JSON files (1 per page)
-- 1,036 grammar rules extracted
+- Page-level JSON files for the grammar section
+- 1,497 grammar rules extracted
 - 6 categories: morphology, syntax, phonology, conjugation, particles, translation
 
 **Key Innovation**: Each grammar rule becomes a verifiable constraint
@@ -515,7 +515,7 @@ python scripts/extraction/extract_grammar_pages.py --pages 31-92 --yes
 ```bash
 python scripts/extraction/extract_dakota_dictionary_v2.py --pages 93-440
 ```
-**Output**: `data/dictionary_extracted/`
+**Output**: `data/extracted/`
 - ~10,000 {dakota:english} pairs
 - Etymology and usage notes
 - Part of speech tags
@@ -538,7 +538,7 @@ python scripts/rl/organize_grammar_for_rl.py --input data/grammar_extracted/
 - Affix and special character tagging
 
 **Output**: `data/rl_training_rules/`
-- 1,036 rules organized by category
+- 1,497 rules organized by category
 - Verification patterns defined
 - Source page tracking
 
@@ -557,7 +557,7 @@ python scripts/conversion/convert_rules_to_primeintellect.py
   - Pattern identification
 
 **Output**: `dakota_rl_training/datasets/`
-- **5,657 total tasks** from 1,036 rules
+- **10,576 total tasks** from 1,497 rules
 - Curriculum-ready:
   - Easy: 1,998 tasks
   - Medium: 2,155 tasks
@@ -565,26 +565,30 @@ python scripts/conversion/convert_rules_to_primeintellect.py
   - Advanced: 1,106 tasks
 
 ### Step 6: Synthetic Dataset Generation
-**Script**: `scripts/conversion/generate_synthetic_dakota.py` (Stoney Nakoda methodology)
+**Script**: `scripts/conversion/generate_synthetic_dakota.py` (secondary SFT baseline)
 ```bash
-python scripts/conversion/generate_synthetic_dakota.py --dictionary data/dictionary_extracted/
+python scripts/conversion/generate_synthetic_dakota.py \
+    --extracted-dir data/extracted \
+    --pairs-per-language 8 \
+    --output-file data/bilingual_training_set.jsonl
+
+python scripts/conversion/convert_extracted_to_chat.py \
+    --input-file data/bilingual_training_set.jsonl \
+    --output-dir OpenAIFineTune
 ```
 **Process**:
-1. Load dictionary pairs: {dakota:english}
-2. Reverse pairs: {english:dakota}
-3. Generate Q&A variations:
-   - "How do you say X in Dakota?" → dakota_word
-   - "Translate X to English" → english_word
-   - "Use X in a sentence" → full_sentence
-4. **Validate sentences through Grammar Gym**:
-   - Check special characters
-   - Verify affix usage
-   - Confirm grammatical structure
+1. Load extracted dictionary entries from `data/extracted/`
+2. Generate Gemini-backed Q&A variations:
+    - "How do you say X in Dakota?" → dakota_word
+    - "Translate X to English" → english_word
+    - "Use X in a sentence" → full_sentence
+3. Convert synthetic Q&A into OpenAI chat JSONL
+4. Preserve Dakota orthography and source provenance fields for review
 
-**Output**: `data/synthetic_dataset/`
-- Sentence-level Dakota examples
-- Grammar-validated
-- Q&A format for fine-tuning
+**Output**:
+- `data/bilingual_training_set.jsonl`
+- `OpenAIFineTune/dakota_train.jsonl` (980 examples)
+- `OpenAIFineTune/dakota_valid.jsonl` (245 examples)
 
 ### Step 7: RL Environment Setup
 **Script**: `scripts/rl/create_grammar_rl_environment.py`
@@ -592,12 +596,12 @@ python scripts/conversion/generate_synthetic_dakota.py --dictionary data/diction
 python scripts/rl/create_grammar_rl_environment.py --rules-dir data/rl_training_rules/
 ```
 **Creates**:
-- `DakotaGrammarEnv`: Multi-turn verification
-- `DakotaGrammarRubric`: Compositional rewards
-- Curriculum learning stages
-- TOPLOC verification enabled
+- Packaged Dakota grammar environment in `environments/dakota_grammar_translation/`
+- `DakotaGrammarRubric`: Compositional rewards with reward-ledger support
+- Consumer-hardware local checks and documented remote/Tinker path
+- TOPLOC-compatible interfaces for distributed runs
 
-**Output**: `data/rl_environment/environment_config.json`
+**Output**: importable `load_environment()` package and JSONL task datasets
 
 ### Step 8: Training on PrimeIntellect
 **Script**: `dakota_rl_training/train.py`
@@ -641,10 +645,10 @@ prime-rl train \
 - **Special character preservation**: 100% (ć, š, ŋ, ḣ preserved exactly)
 
 ### Dataset Size
-- **Grammar rules**: 1,036 rules across 6 categories
-- **RL training tasks**: 5,657 tasks
+- **Grammar rules**: 1,497 rules across 6 categories
+- **RL training tasks**: 10,576 tasks
 - **Dictionary entries**: ~10,000 word pairs
-- **Synthetic sentences**: Generated and validated
+- **OpenAI chat baseline**: 980 train / 245 validation examples
 
 ### Training Metrics (Expected)
 - **Character accuracy**: >90% for all special chars
@@ -684,19 +688,22 @@ prime-rl train \
 11. `dakota_rl_training/train.py` - Launch training
 
 ### Documentation
-- `docs/guides/GRAMMAR_RL_PIPELINE.md` - Complete grammar extraction guide
-- `docs/status/PRIMEINTELLECT_INTEGRATION_COMPLETE.md` - RL integration details
-- `docs/status/GRAMMAR_EXTRACTION_COMPLETE.md` - Final extraction results
-- `docs/root/CLAUDE.md` - Project instructions for AI assistants
-- `docs/root/` - Quick reference documentation previously at root
+- `PIPELINE.md` - Canonical Dakota DAG and active entrypoints
+- `SETUP.md` - Sandbox-ready environment and smoke-test instructions
+- `REPO_MAP.md` - Step 0 repository inventory and classifications
+- `PIPELINE_AUDIT.md` - Answers to the architecture and grant-critical audit questions
+- `CLEANUP_PLAN.md` - Conservative pruning/archive decisions
+- `VALIDATION_REPORT.md` - Pre/post cleanup validation results
+- `GRANT_TECHNICAL_SUMMARY.md` - Grant-ready technical overview
 
 ### Output Directories
 - `data/processed_images/` - Converted JPEG images (440 files)
-- `data/grammar_extracted/` - Raw grammar rules (62 pages)
-- `data/rl_training_rules/` - Organized RL rules (1,036 rules)
-- `data/dictionary_extracted/` - Dictionary entries (~10,000)
-- `data/synthetic_dataset/` - Generated sentences
-- `dakota_rl_training/datasets/` - RL training tasks (5,657)
+- `data/grammar_extracted/` - Raw grammar rule extractions
+- `data/rl_training_rules/` - Organized RL rules (1,497 rules)
+- `data/extracted/` - Dictionary page extractions (~10,000 entries)
+- `data/bilingual_training_set.jsonl` - Synthetic QA baseline corpus
+- `OpenAIFineTune/` - OpenAI chat-format baseline splits (980 / 245)
+- `dakota_rl_training/datasets/` - RL training tasks (10,576)
 - `dakota_rl_training/checkpoints/` - Model checkpoints
 
 ---
@@ -705,15 +712,15 @@ prime-rl train \
 
 ### VLM Extraction Layer
 - **Primary**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`)
-- **Alternative**: Qwen3-VL-235B-A22B (with reasoning budget)
 - **Prompt Engineering**: Specialized Dakota orthography preservation
 - **Output**: Structured JSON with confidence scores
 
 ### RL Training System
-- **Base Model**: Qwen/Qwen2.5-7B-Instruct
-- **Method**: LoRA fine-tuning (rank 64)
+- **Local check model**: Qwen/Qwen3-0.6B
+- **Published adapter base**: Qwen/Qwen3-30B-A3B-Instruct-2507
+- **Method**: LoRA fine-tuning (rank 32 on the published adapter)
 - **Algorithm**: GRPO (Group Relative Policy Optimization)
-- **Framework**: PrimeIntellect prime-rl
+- **Frameworks**: PrimeIntellect prime-rl and Thinking Machines Tinker
 - **Verification**: TOPLOC for distributed Unicode validation
 
 ### Reward Function
@@ -728,9 +735,9 @@ reward = (
 
 ### Curriculum Learning
 Progressive difficulty over 3 stages:
-1. Easy tasks (1,998) → 80% target accuracy
-2. Medium tasks (2,155) → 75% target accuracy
-3. Hard tasks (398) → 70% target accuracy
+1. Easy tasks (1,973) → baseline orthography and simple morphology
+2. Medium tasks (5,294) → the main training mass
+3. Hard/advanced tasks (1,172 + 2,137) → compositional morphology and reverse translation
 
 ---
 
@@ -822,17 +829,19 @@ Building on the success of the Dakota grammar pipeline, we are applying the same
 # Core extraction
 pip install anthropic pillow python-dotenv
 
+# Synthetic QA baseline
+pip install google-generativeai openai
+
 # RL training
 pip install git+https://github.com/PrimeIntellect-ai/verifiers.git
 pip install git+https://github.com/PrimeIntellect-ai/prime-rl.git
-
-# Optional: Alternative VLM
-pip install openai  # For OpenRouter/Qwen3-VL
 ```
 
 ### API Keys
 - `ANTHROPIC_API_KEY` - Claude Sonnet 4.5 (required)
-- `OPENROUTER_API_KEY` - Qwen3-VL (optional)
+- `GOOGLE_API_KEY` - Gemini synthetic QA generation (optional)
+- `OPENAI_API_KEY` - OpenAI SFT baseline submission or readiness checks (optional)
+- `HF_TOKEN` - Hugging Face inference or publishing flows (optional)
 
 ### System Requirements
 - **Extraction**: Python 3.8+, 8GB RAM
@@ -862,17 +871,23 @@ python scripts/extraction/convert_all_images.py
 ### 3. Extract Grammar
 ```bash
 python scripts/extraction/extract_grammar_pages.py --pages 31-92 --yes
-# Output: 1,036 rules in data/grammar_extracted/
+# Output: 1,497 rules in data/grammar_extracted/
 ```
 
 ### 4. Generate RL Tasks
 ```bash
 python scripts/rl/organize_grammar_for_rl.py --input data/grammar_extracted/
 python scripts/conversion/convert_rules_to_primeintellect.py
-# Output: 5,657 tasks in dakota_rl_training/datasets/
+# Output: 10,576 tasks in dakota_rl_training/datasets/
 ```
 
-### 5. Launch Training
+### 5. Check the SFT Baseline Assets
+```bash
+python scripts/rl/dakota_openai_finetune.py --check-only
+# Output: readiness report for OpenAIFineTune/dakota_train.jsonl and dakota_valid.jsonl
+```
+
+### 6. Launch Training
 ```bash
 cd dakota_rl_training
 python train.py --config configs/training_config.yaml

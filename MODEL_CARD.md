@@ -11,7 +11,7 @@ tags:
 - indigenous-languages
 - thinking-machines
 - tinker
-base_model: Qwen/Qwen2.5-32B-Instruct
+base_model: Qwen/Qwen3-30B-A3B-Instruct-2507
 widget:
   - text: "Translate 'my elder brother' to Dakota."
 preview_image: grammar.jpg
@@ -23,14 +23,14 @@ preview_image: grammar.jpg
   <img src="https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890/resolve/main/visualizations/comprehensive_dashboard.png" width="100%" alt="Dakota RL Dashboard" />
 </div>
 
-This model is a **Reinforcement Learning (RL) fine-tune** of Qwen2.5-32B-Instruct, optimized for **Dakota language grammar and morphology**.
+This model is a **Reinforcement Learning (RL) fine-tune** of Qwen/Qwen3-30B-A3B-Instruct-2507, optimized for **Dakota language grammar and morphology**.
 
 It was trained using the **Thinking Machines Tinker** distributed RL pipeline, leveraging the **GRPO (Group Relative Policy Optimization)** algorithm. The training process used a custom verifier environment built from Stephen Return Riggs' 1890 _Dakota Grammar & Dictionary_.
 
 ## Model Details
 
-* **Base Model**: Qwen/Qwen2.5-32B-Instruct
-* **Architecture**: LoRA Adapter (Rank 64)
+* **Base Model**: Qwen/Qwen3-30B-A3B-Instruct-2507
+* **Architecture**: LoRA Adapter (Rank 32)
 * **Training Method**: GRPO (Group Relative Policy Optimization)
 * **Training Infrastructure**: Thinking Machines Tinker
 * **Language**: Dakota (dak), English (en)
@@ -38,7 +38,7 @@ It was trained using the **Thinking Machines Tinker** distributed RL pipeline, l
 
 ## Training Data & Methodology
 
-The model was trained on a dataset of **~10,000 RL tasks** generated from the 1890 Dakota Grammar. These tasks focus on:
+The model was trained on a dataset of **10,576 RL tasks** generated from 1,497 extracted Dakota grammar rules. These tasks focus on:
 
 1. **Morphology**: Applying prefixes/suffixes (e.g., possessives `-ku`, `-ću`, `-tku`).
 2. **Translation**: Context-aware translation between Dakota and English.
@@ -83,7 +83,7 @@ The model showed significant improvement in both morphological accuracy and char
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-base_model_name = "Qwen/Qwen2.5-32B-Instruct"
+base_model_name = "Qwen/Qwen3-30B-A3B-Instruct-2507"
 adapter_name = "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"
 
 # Load base model

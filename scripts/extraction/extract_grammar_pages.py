@@ -7,10 +7,16 @@ Extracts grammar rules from pages 1-88 for RL training
 import base64
 import json
 import os
+import sys
 from pathlib import Path
 
 import anthropic
 from dotenv import load_dotenv
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from dakota_extraction.tools.image_converter import ImageConverter
 from dakota_extraction.core.grammar_extraction_prompt import build_grammar_extraction_prompt
 
@@ -132,7 +138,7 @@ def extract_grammar_page_with_claude(image_path: Path, page_number: int) -> dict
         }
 
 
-def main():
+def main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -167,7 +173,7 @@ def main():
     if not os.getenv("ANTHROPIC_API_KEY"):
         print("\nERROR: ANTHROPIC_API_KEY not set")
         print("Add to .env file: ANTHROPIC_API_KEY=your_key_here")
-        return
+        return 1
 
     # Setup directories
     jp2_dir = Path("Dictionary/grammardictionar00riggrich_jp2")
@@ -195,7 +201,7 @@ def main():
         confirm = input("\nContinue? [y/N]: ")
         if confirm.lower() != 'y':
             print("Cancelled")
-            return
+            return 1
 
     # Convert JP2 to JPEG if needed
     print("\nStep 1: Converting images...")
@@ -214,6 +220,7 @@ def main():
     print("\nStep 2: Extracting grammar rules...")
 
     all_extractions = []
+    failed_pages = []
 
     for page_num in range(start_page, end_page + 1):
         print(f"\nPage {page_num}/{end_page}")
@@ -240,6 +247,7 @@ def main():
 
         except Exception as e:
             print(f"  ERROR: {e}")
+            failed_pages.append(page_num)
             continue
 
     # Save combined output
@@ -263,15 +271,19 @@ def main():
     print(" EXTRACTION COMPLETE")
     print("="*70)
     print(f"\nPages processed: {len(all_extractions)}")
+    print(f"Pages failed: {len(failed_pages)}")
     print(f"Grammar rules: {total_rules}")
     print(f"Example sentences: {total_examples}")
     print(f"Interlinear texts: {total_interlinear}")
     print(f"\nOutput directory: {output_dir}/")
     print(f"Combined file: {combined_file}")
+    if failed_pages:
+        print(f"Failed pages: {failed_pages}")
     print("\nNext step:")
     print("  python organize_grammar_for_rl.py --input data/grammar_extracted/")
     print()
+    return 1 if failed_pages else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

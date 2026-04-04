@@ -1,0 +1,177 @@
+# Repo Map
+
+Legend:
+
+- `PIPELINE-CRITICAL`: active Dakota path from source material to model output
+- `NARRATIVE/VISUAL`: README story, images, diagrams, papers, dashboards
+- `EXPERIMENTAL/DEAD`: superseded or preserved dead ends
+- `CONFIG/INFRA`: requirements, CI, test harness, packaging
+- `AMBIGUOUS`: present in the repo but not clearly part of the maintained Dakota step-0 path
+
+## Top Level
+
+- `PIPELINE-CRITICAL` `Dictionary/`
+  - `grammardictionar00riggrich_0001.jp2` ... `grammardictionar00riggrich_0440.jp2`
+- `PIPELINE-CRITICAL` `grammardictionar00riggrich.pdf`
+- `PIPELINE-CRITICAL` `dakota_extraction/`
+  - `README.md`
+  - `run_extraction.py`
+  - `core/`
+    - `advanced_page_processor.py`
+    - `claude_page_processor.py`
+    - `dakota_extraction_prompt.py`
+    - `extraction_prompt.py`
+    - `grammar_extraction_prompt.py`
+    - `grammar_page_processor.py`
+    - `page_processor.py`
+  - `datasets/`
+    - `orthography.py`
+    - `task_generator.py`
+    - `training_dataset_builder.py`
+  - `schemas/`
+    - `dictionary_schema.py`
+    - `grammar_schema.py`
+  - `tools/`
+    - `image_converter.py`
+  - `tinker_qwen3vl/`
+    - `README.md`
+    - `TRAINING.md`
+    - `classify_layout.py`
+    - `image_utils.py`
+    - `qwen3vl_page_processor.py`
+    - `run_extraction.py`
+    - `validate_schema.py`
+    - Classification: `EXPERIMENTAL/DEAD`
+- `PIPELINE-CRITICAL` `data/`
+  - `processed_images/`
+  - `grammar_extracted/`
+  - `rl_training_rules/`
+  - `extracted/`
+  - `bilingual_training_set.jsonl`
+  - Classification: generated artifacts backing the active Dakota path
+- `PIPELINE-CRITICAL` `scripts/`
+  - `extraction/`
+    - `convert_all_images.py`
+    - `extract_dakota_dictionary_v2.py`
+    - `extract_grammar_pages.py`
+  - `conversion/`
+    - `convert_extracted_to_chat.py`
+    - `convert_rules_to_primeintellect.py`
+    - `generate_synthetic_dakota.py`
+  - `rl/`
+    - `dakota_openai_finetune.py`
+    - `organize_grammar_for_rl.py`
+    - `run_complete_grammar_pipeline.py`
+    - `create_grammar_rl_environment.py`
+      - Classification: `EXPERIMENTAL/DEAD`
+  - `inference/`
+    - `sample_tinker_remote.py`
+  - `analysis/`
+    - narrative and dashboard helpers
+- `PIPELINE-CRITICAL` `dakota_rl_training/`
+  - `README.md`
+  - `train.py`
+  - `tinker_train.py`
+  - `publish_tinker_weights.py`
+  - `tinker_integration.py`
+  - `datasets/`
+    - `grammar_tasks_complete.jsonl`
+    - `grammar_tasks_easy.jsonl`
+    - `grammar_tasks_medium.jsonl`
+    - `grammar_tasks_hard.jsonl`
+  - `configs/`
+    - `training_config.yaml`
+    - `train.toml`
+    - `infer.toml`
+    - `orch.toml`
+    - `train_30b.toml`
+    - `infer_30b.toml`
+    - `orch_30b.toml`
+  - `utils/`
+    - reward-ledger and W&B helpers
+- `PIPELINE-CRITICAL` `environments/dakota_grammar_translation/`
+  - `pyproject.toml`
+  - `README.md`
+  - `dakota_grammar_translation/`
+    - `__init__.py`
+    - `environment.py`
+    - `configs/`
+      - `infer_30b.toml`
+      - `orch_30b.toml`
+      - `train_30b.toml`
+    - `data/`
+      - `grammar_tasks_complete.jsonl`
+- `PIPELINE-CRITICAL` `OpenAIFineTune/`
+  - `dakota_train.jsonl`
+  - `dakota_valid.jsonl`
+- `PIPELINE-CRITICAL` `run_inference.py`
+- `PIPELINE-CRITICAL` `hf_inference_standalone.py`
+- `PIPELINE-CRITICAL` `MODEL_CARD.md`
+- `PIPELINE-CRITICAL` `Qwen3-30B-ThinkingMachines-Dakota1890/`
+  - deployed adapter/model-card surface kept intact
+
+- `CONFIG/INFRA` `pytest.ini`
+- `CONFIG/INFRA` `requirements.txt`
+- `CONFIG/INFRA` `requirements_hf_inference.txt`
+- `CONFIG/INFRA` `requirements-dev.txt`
+- `CONFIG/INFRA` `requirements-docs.txt`
+- `CONFIG/INFRA` `.github/`
+- `CONFIG/INFRA` `.env.template`
+- `CONFIG/INFRA` `conftest.py`
+- `CONFIG/INFRA` `tests/`
+  - `test_offline_eval.py`
+  - `test_training_dataset_builder.py`
+  - `test_verifier_integration.py`
+  - `test_sft_baseline.py`
+  - `test_inference_configuration.py`
+
+- `NARRATIVE/VISUAL` `README.md`
+- `NARRATIVE/VISUAL` `Public/`
+- `NARRATIVE/VISUAL` `media/`
+- `NARRATIVE/VISUAL` `wandb/`
+- `NARRATIVE/VISUAL` `wandb_analysis/`
+- `NARRATIVE/VISUAL` `wandb_visualizations/`
+- `NARRATIVE/VISUAL` `paper.tex`
+- `NARRATIVE/VISUAL` `docs/papers/`
+- `NARRATIVE/VISUAL` `dakota_rl.html`
+- `NARRATIVE/VISUAL` `CITATION.cff`
+
+- `EXPERIMENTAL/DEAD` `archive/step0_legacy/`
+  - `docs/guides/` archived step-0 stale guides
+  - `docs/guides_outdated/` archived PrimeIntellect/OpenRouter-era instructions
+  - `scripts/extraction/` archived duplicate extraction scripts
+  - `tests/` archived manual and obsolete tests
+  - `root_artifacts/` archived tracked debug/error logs
+  - `tmp_publish/` archived duplicate publish bundle
+
+- `AMBIGUOUS` `eval/`
+  - useful evaluation harness, but not wired into the main README pipeline
+- `AMBIGUOUS` `huggingface_space/`
+  - active deployment surface, but partially independent from local validation
+- `AMBIGUOUS` `outputs/`
+  - local generated outputs, not part of the canonical source path
+- `AMBIGUOUS` `tools/`
+  - helper utilities outside the main Dakota chain
+- `AMBIGUOUS` `dakota-grammar-env`
+  - package or artifact name present at repo root; not used in step-0 commands
+- `AMBIGUOUS` `e2b/`
+  - external sandboxing notes, not part of the main Dakota training chain
+
+- `NARRATIVE/VISUAL` `Akkadian/`
+  - reference-only comparative project; inventory only in step 0
+- `NARRATIVE/VISUAL` `RailroadEngineer1959/`
+  - reference-only comparative project; inventory only in step 0
+- `NARRATIVE/VISUAL` `Qwen3-RailroadEngineer1959-RL/`
+  - reference-only model artifact
+- `NARRATIVE/VISUAL` `Baguettotron-Dakota1890/`
+  - reference-only adjacent experiment
+
+## Ambiguous Items Requiring Maintainer Judgment
+
+- `downloaded_model_step_400/`
+- `model_step_400.tar.gz`
+- `benchmark_results.jsonl`
+- `test_model_inference.py`
+- `test_space_inference_local.py`
+
+These exist outside the canonical step-0 path but may still have value as local artifacts or demos.

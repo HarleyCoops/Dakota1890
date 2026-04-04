@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""
-Standalone inference script for Qwen3-0.6B-Dakota-Grammar-RL model
-using Hugging Face infrastructure (Inference API or Inference Endpoints).
-
-This script uses your HF login credentials to access the model on HF infrastructure.
-"""
+"""Standalone Hugging Face inference client for the Dakota 30B adapter."""
 
 import os
 import argparse
@@ -13,7 +8,7 @@ from typing import Optional, Dict, Any
 from huggingface_hub import InferenceClient, login
 from huggingface_hub.utils import HfHubHTTPError
 
-MODEL_ID = "HarleyCooper/Qwen3-30B-Dakota1890"
+MODEL_ID = "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"
 
 DEFAULT_SYSTEM_PROMPT = (
     "You are a Dakota language expert specializing in the 1890 Dakota-English Dictionary grammar. "

@@ -1,19 +1,18 @@
-# This script creates a large set of practice questions and answers for Dakota language training.
-# It uses Google's Gemini AI to help generate natural, meaningful questions that test
-# different aspects of the Dakota language, from basic translations to complex cultural concepts.
-# Adapted from the Stoney Nakoda bilingual_qa_generator.py pattern.
+"""Generate Dakota synthetic Q&A pairs from extracted dictionary entries via Gemini."""
 
+import argparse
 import json
 import logging
-from typing import Dict, List, Generator
+from typing import Dict, Generator, List
 from pathlib import Path
-from dotenv import load_dotenv
-import os
-from tqdm import tqdm
-import time
 from datetime import datetime
-import google.generativeai as genai
+import os
 import re
+import time
+
+import google.generativeai as genai
+from dotenv import load_dotenv
+from tqdm import tqdm
 
 # Set up our logging system to track what's happening
 logging.basicConfig(
@@ -419,27 +418,44 @@ class DakotaQAGenerator:
                 'percent_complete': (pair_count / total_pairs) * 100 if total_pairs > 0 else 0
             }, ensure_ascii=False) + '\n')
 
-def main():
+def main() -> None:
+    """CLI for generating Dakota synthetic QA with controllable sample sizes."""
+    parser = argparse.ArgumentParser(
+        description="Generate Dakota synthetic question/answer pairs from extracted dictionary entries."
+    )
+    parser.add_argument(
+        "--extracted-dir",
+        default="data/extracted",
+        help="Directory containing extracted Dakota page JSON files.",
+    )
+    parser.add_argument(
+        "--output-file",
+        default="data/bilingual_training_set.jsonl",
+        help="Destination JSONL path for the generated QA pairs.",
+    )
+    parser.add_argument(
+        "--pairs-per-language",
+        type=int,
+        default=75000,
+        help="Target number of QA pairs per direction (English->Dakota and Dakota->English).",
+    )
+    parser.add_argument(
+        "--context-size",
+        type=int,
+        default=5,
+        help="Number of dictionary entries to send per Gemini request.",
+    )
+    args = parser.parse_args()
+
     try:
-        # Find project root (assuming script is in scripts/conversion/)
-        script_dir = Path(__file__).parent
-        project_root = script_dir.parent.parent
-        extracted_dict_dir = project_root / "data" / "extracted"
-        output_path = project_root / "data" / "bilingual_training_set.jsonl"
-        
-        # Create the generator
-        generator = DakotaQAGenerator(str(extracted_dict_dir))
-        
-        # Generate all the questions and answers
-        logger.info("Starting full training set generation...")
+        generator = DakotaQAGenerator(args.extracted_dir)
+        logger.info("Starting Dakota synthetic QA generation...")
         generator.generate_training_set(
-            str(output_path),
-            pairs_per_language=75000,  # Match Stoney Nakoda default
-            context_size=5  # Number of entries per API call
+            args.output_file,
+            pairs_per_language=args.pairs_per_language,
+            context_size=args.context_size,
         )
-        
         logger.info("Training set generation completed successfully")
-                
     except Exception as e:
         logger.error(f"Error during training set generation: {str(e)}", exc_info=True)
         raise

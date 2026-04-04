@@ -342,17 +342,17 @@ class AdvancedPageProcessor:
 
 def main():
     """Example usage."""
-    from blackfeet_extraction.tools.image_converter import ImageConverter
+    from dakota_extraction.tools.image_converter import ImageConverter
 
     # Step 1: Convert first JP2 file
     print("Step 1: Converting JP2 to JPEG...")
     converter = ImageConverter(
-        input_dir="dictionary/grammardictionar00riggrich_jp2",
+        input_dir="Dictionary/grammardictionar00riggrich_jp2",
         output_dir="data/processed_images",
     )
 
     jp2_files = sorted(
-        Path("dictionary/grammardictionar00riggrich_jp2").glob("*.jp2")
+        Path("Dictionary/grammardictionar00riggrich_jp2").glob("*.jp2")
     )
     if not jp2_files:
         print("No JP2 files found")

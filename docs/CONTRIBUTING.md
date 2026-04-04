@@ -11,7 +11,7 @@ Thanks for helping preserve the Dakota language. Please:
    OFFLINE=1 pytest -q
    ruff check .
    ```
-4. External API tests (Anthropic/OpenRouter/PrimeIntellect) are allowed locally, but are **skipped in CI**.
+4. External API tests (Anthropic/Gemini/OpenAI/PrimeIntellect) are allowed locally, but are **skipped in CI**.
 5. For evaluation, prefer the versioned subset in `eval/fixtures` and `eval/run_eval.py`.
 
 ## Commit style

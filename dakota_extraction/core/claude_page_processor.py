@@ -1,9 +1,4 @@
-"""
-Claude Sonnet 4.5 Page Processor for Dakota Dictionary
-
-Uses Anthropic's Claude API directly instead of OpenRouter.
-Same sophisticated extraction prompt and reasoning capabilities.
-"""
+"""Claude Sonnet 4.5 page processor for Dakota dictionary extraction."""
 
 import json
 import os
@@ -323,7 +318,7 @@ class ClaudePageProcessor:
 
 def main():
     """Test with Claude."""
-    from blackfeet_extraction.tools.image_converter import ImageConverter
+    from dakota_extraction.tools.image_converter import ImageConverter
 
     # Check API key
     if not os.getenv("ANTHROPIC_API_KEY"):
@@ -335,11 +330,11 @@ def main():
     # Convert first dictionary page
     print("Step 1: Converting page 89...")
     converter = ImageConverter(
-        input_dir="dictionary/grammardictionar00riggrich_jp2",
+        input_dir="Dictionary/grammardictionar00riggrich_jp2",
         output_dir="data/processed_images",
     )
 
-    page_89 = Path("dictionary/grammardictionar00riggrich_jp2/grammardictionar00riggrich_0089.jp2")
+    page_89 = Path("Dictionary/grammardictionar00riggrich_jp2/grammardictionar00riggrich_0089.jp2")
     if page_89.exists():
         first_image = converter.convert_jp2_to_jpeg(page_89)
     else:

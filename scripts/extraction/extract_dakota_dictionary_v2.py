@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Dakota Dictionary Extraction Pipeline - Updated for Page 89 Start
+Dakota Dictionary Extraction Pipeline - Updated for Page 95 Start
 Following the Stoney Nakoda approach by @harleycoops
 
 Dictionary Structure:
@@ -101,14 +101,14 @@ def test_extraction():
     print(f"\nPages 1-{GRAMMAR_PAGES}: Grammar rules (already extracted)")
     print(f"Pages {DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE}: Dictionary entries (extracting for SFT)\n")
 
-    # Convert page 89
+    # Convert page 95
     converter = ImageConverter(
         input_dir="Dictionary/grammardictionar00riggrich_jp2",
         output_dir="data/processed_images",
         quality=95,
     )
 
-    # Get page 89 specifically
+    # Get page 95 specifically
     page_file = Path(f"Dictionary/grammardictionar00riggrich_jp2/grammardictionar00riggrich_{DICTIONARY_START_PAGE:04d}.jp2")
 
     if not page_file.exists():
@@ -334,7 +334,7 @@ Costs:
     group.add_argument("--test", action="store_true",
                       help=f"Test on page {DICTIONARY_START_PAGE} (first dictionary page)")
     group.add_argument("--pages", type=str,
-                      help="Page range (e.g., 89-100)")
+                      help="Page range (e.g., 95-110)")
     group.add_argument("--all-dictionary", action="store_true",
                       help=f"Process all dictionary pages ({DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE})")
 

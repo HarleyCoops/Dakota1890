@@ -1,9 +1,11 @@
+"""Deploy a dedicated Hugging Face inference endpoint for the Dakota adapter."""
+
 import os
 import time
 import argparse
 from huggingface_hub import create_inference_endpoint, get_inference_endpoint, get_token
 
-MODEL_ID = "HarleyCooper/Qwen3-30B-Dakota1890"
+MODEL_ID = "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"
 ENDPOINT_NAME = "dakota-qwen3-30b-inference"
 
 def deploy_endpoint(framework="pytorch", accelerator="gpu", instance_size="large", vendor="aws", region="us-east-1"):

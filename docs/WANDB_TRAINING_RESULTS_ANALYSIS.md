@@ -10,7 +10,7 @@ This analysis presents the training outcomes from applying a novel methodology t
 
 The methodology employed here represents a significant departure from traditional approaches to low-resource language model training. Rather than relying on external datasets, parallel corpora, or manual annotation, this approach demonstrates that a single historical source document can be transformed into:
 
-1. **Grammar Rules as Verifiable RL Environments**: 1,036 grammar rules extracted from pages 1-88 of the Riggs dictionary were converted into 5,657 testable RL tasks, where each rule becomes an environment that can verify correctness through compositional reward functions.
+1. **Grammar Rules as Verifiable RL Environments**: 1,497 grammar rules extracted from the Riggs grammar section were converted into 10,576 testable RL tasks, where each rule becomes an environment that can verify correctness through compositional reward functions.
 
 2. **Dictionary as Vocabulary Foundation**: 239 pages of dictionary entries (pages 89-440) provide the lexical foundation, ensuring all vocabulary used in training originates from the same authoritative source.
 
@@ -112,7 +112,7 @@ The results validate the core methodological innovation: grammar rules extracted
 
 1. **Rule Extraction Quality**: The VLM-based extraction successfully captured testable grammar patterns from 130-year-old text.
 
-2. **Task Generation Effectiveness**: The conversion of 1,036 rules into 5,657 tasks created sufficient training signal for the model to learn morphological patterns.
+2. **Task Generation Effectiveness**: The conversion of 1,497 rules into 10,576 tasks created sufficient training signal for the model to learn morphological patterns.
 
 3. **Verification Mechanism**: The compositional reward functions successfully verified correctness, providing meaningful learning signals.
 

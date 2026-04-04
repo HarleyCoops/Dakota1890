@@ -1,19 +1,17 @@
-"""
-Converts Dakota Q&A pairs JSONL to OpenAI fine-tuning chat format.
-Adapted from Stoney Nakoda finetunesetup.py pattern.
-"""
+"""Convert Dakota synthetic QA JSONL into OpenAI fine-tuning chat files."""
 
+import argparse
 import json
-import random
-import os
 import logging
+import os
 from pathlib import Path
+import random
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def prepare_fine_tuning_data(input_file: str, output_dir: str, seed: int = 42):
+def prepare_fine_tuning_data(input_file: str, output_dir: str, seed: int = 42) -> dict[str, int]:
     """
     Converts a JSONL file of Q&A pairs to the OpenAI fine-tuning format,
     then splits it into training and validation sets.
@@ -34,11 +32,10 @@ def prepare_fine_tuning_data(input_file: str, output_dir: str, seed: int = 42):
     
     input_path = Path(input_file)
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_file}")
-        return
+        raise FileNotFoundError(f"Input file not found: {input_file}")
     
     try:
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, 'r', encoding='utf-8-sig') as f:
             for line_num, line in enumerate(f, 1):
                 try:
                     entry = json.loads(line.strip())
@@ -71,15 +68,12 @@ def prepare_fine_tuning_data(input_file: str, output_dir: str, seed: int = 42):
                     logger.warning(f"Skipping entry on line {line_num} with missing key {e} in {input_file}")
 
     except FileNotFoundError:
-        logger.error(f"Input file not found: {input_file}")
-        return
+        raise
     except Exception as e:
-        logger.error(f"Error reading input file: {e}")
-        return
+        raise RuntimeError(f"Error reading input file: {e}") from e
 
     if not data:
-        logger.error("No data was processed. Exiting.")
-        return
+        raise ValueError("No data was processed from the input JSONL.")
 
     # Shuffle and split the data
     logger.info(f"Successfully converted {len(data)} entries. Shuffling and splitting data...")
@@ -104,9 +98,45 @@ def prepare_fine_tuning_data(input_file: str, output_dir: str, seed: int = 42):
     logger.info("Data preparation complete.")
     logger.info(f"Train: {len(train_data)} examples ({len(train_data)/len(data)*100:.1f}%)")
     logger.info(f"Valid: {len(valid_data)} examples ({len(valid_data)/len(data)*100:.1f}%)")
+    return {
+        "total_examples": len(data),
+        "train_examples": len(train_data),
+        "valid_examples": len(valid_data),
+    }
+
+
+def main() -> None:
+    """CLI for producing Dakota OpenAI chat fine-tune files."""
+    parser = argparse.ArgumentParser(
+        description="Convert Dakota synthetic QA JSONL into OpenAI chat fine-tuning files."
+    )
+    parser.add_argument(
+        "--input-file",
+        default="data/bilingual_training_set.jsonl",
+        help="Input JSONL with question/answer pairs.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="OpenAIFineTune",
+        help="Destination directory for dakota_train.jsonl and dakota_valid.jsonl.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Shuffle seed for the train/validation split.",
+    )
+    args = parser.parse_args()
+
+    stats = prepare_fine_tuning_data(args.input_file, args.output_dir, seed=args.seed)
+    logger.info(
+        "Prepared %d total examples (%d train / %d valid)",
+        stats["total_examples"],
+        stats["train_examples"],
+        stats["valid_examples"],
+    )
+
 
 if __name__ == "__main__":
-    input_qa_file = "data/bilingual_training_set.jsonl"
-    output_directory = "OpenAIFineTune/"
-    prepare_fine_tuning_data(input_qa_file, output_directory)
+    main()
 

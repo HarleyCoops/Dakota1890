@@ -1,14 +1,9 @@
-"""
-Complete Dakota Dictionary Extraction Pipeline
+"""Run the maintained Dakota extraction pipeline from source pages to datasets.
 
-This script runs the full extraction pipeline:
-1. Convert JP2 files to JPEG (if needed)
-2. Process each page with Claude Sonnet 4.5
-3. Extract structured linguistic data
-4. Build training datasets
-
-Usage:
-    python dakota_extraction/run_extraction.py --input Dictionary/grammardictionar00riggrich_jp2 --output data/extracted
+This entrypoint keeps the current Dakota path in one place:
+1. Convert JP2 pages to JPEG where needed
+2. Extract structured Dakota dictionary entries with Claude Sonnet 4.5
+3. Build dataset artifacts from the saved extraction JSON
 """
 
 import argparse
@@ -86,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     print("\n" + "="*70)
-    print(" BLACKFEET DICTIONARY EXTRACTION PIPELINE")
+    print(" DAKOTA DICTIONARY EXTRACTION PIPELINE")
     print("="*70)
     print(f"\nInput directory:    {args.input}")
     print(f"Processed images:   {args.processed}")
@@ -182,7 +177,7 @@ def main():
     print("  1. Review extracted data in", args.extracted)
     print("  2. Check reasoning traces for quality assurance")
     print("  3. Use training datasets to fine-tune a language model")
-    print("  4. See blackfeet_extraction/README.md for training guides")
+    print("  4. See PIPELINE.md and SETUP.md for maintained workflow details")
     print()
 
 

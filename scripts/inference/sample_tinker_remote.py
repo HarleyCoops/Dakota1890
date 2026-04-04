@@ -1,3 +1,5 @@
+"""Sample a published Dakota checkpoint from Thinking Machines Tinker."""
+
 import os
 import argparse
 import tinker
@@ -15,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description="Sample from a published Tinker model")
     parser.add_argument("--checkpoint", required=True, help="Tinker checkpoint path (tinker://...)")
     parser.add_argument("--sampler-path", help="Tinker sampler weights path (tinker://.../sampler_weights/...)")
-    parser.add_argument("--base-model", default="Qwen/Qwen3-4B-Instruct-2507", help="Base model name")
+    parser.add_argument("--base-model", default="Qwen/Qwen3-30B-A3B-Instruct-2507", help="Base model name")
     parser.add_argument("--rank", type=int, default=32, help="LoRA rank")
     parser.add_argument("--prompt", default="Translate 'my elder brother' to Dakota.", help="Prompt to sample")
     parser.add_argument("--max-tokens", type=int, default=256, help="Max new tokens")

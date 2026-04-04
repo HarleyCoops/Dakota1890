@@ -2,13 +2,13 @@
 # For use with PrimeIntellect prime-rl framework
 
 [model]
-name_or_path = "Qwen/Qwen2.5-7B-Instruct"
+name_or_path = "Qwen/Qwen3-0.6B"
 revision = "main"
 torch_dtype = "auto"
 
 [model.lora]
 enabled = true
-r = 64
+r = 32
 lora_alpha = 128
 lora_dropout = 0.05
 target_modules = ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]

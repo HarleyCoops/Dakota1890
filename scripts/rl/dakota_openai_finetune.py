@@ -6,16 +6,17 @@ Handles fine-tuning Dakota language models via OpenAI API with optional
 HuggingFace dataset publishing and Weights & Biases tracking.
 """
 
-import os
-import json
-import time
-import logging
 import io
-from pathlib import Path
+import json
+import logging
+import os
+import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
-from dotenv import load_dotenv
+
 from openai import OpenAI
+from dotenv import load_dotenv
 
 try:
     from huggingface_hub import HfApi
@@ -46,16 +47,19 @@ STATUS_TO_INDEX: Dict[str, int] = {
 }
 
 class DakotaOpenAIFineTuner:
-    def __init__(self):
-        """Initialize the OpenAI fine-tuner with API key and file paths."""
+    def __init__(self, require_api_key: bool = True):
+        """Initialize file paths immediately and the OpenAI client only when needed."""
         # Load environment variables
         load_dotenv()
-        api_key = os.getenv('OPENAI_API_KEY')
-        if not api_key:
+        self.api_key = os.getenv('OPENAI_API_KEY')
+        if require_api_key and not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
-        
-        self.client = OpenAI(api_key=api_key)
-        logger.info("OpenAI client initialized successfully")
+
+        self.client = OpenAI(api_key=self.api_key) if self.api_key else None
+        if self.client is not None:
+            logger.info("OpenAI client initialized successfully")
+        else:
+            logger.info("OPENAI_API_KEY not set; running in file-readiness mode only")
 
         # Define file paths - look in project root, not script directory
         # Script is in scripts/rl/, but files are in root OpenAIFineTune/
@@ -108,6 +112,21 @@ class DakotaOpenAIFineTuner:
         self.wandb_run_name = os.getenv("WANDB_RUN_NAME")
         self.wandb_enabled = bool(self.wandb_api_key and self.wandb_project)
         self.wandb_run = None
+
+    def readiness_report(self) -> Dict[str, Any]:
+        """Return a non-mutating readiness report for the SFT baseline."""
+        return {
+            "train_file": str(self.train_file),
+            "valid_file": str(self.valid_file),
+            "train_exists": self.train_file.exists(),
+            "valid_exists": self.valid_file.exists(),
+            "train_examples": self._count_lines(self.train_file),
+            "valid_examples": self._count_lines(self.valid_file),
+            "base_model": self.fine_tune_model,
+            "openai_api_key_present": bool(self.api_key),
+            "hf_publish_enabled": bool(self.hf_api),
+            "wandb_enabled": self.wandb_enabled,
+        }
 
     def _init_wandb(self) -> None:
         """Initialize Weights & Biases logging if configured."""
@@ -230,6 +249,8 @@ class DakotaOpenAIFineTuner:
 
     def upload_file(self, file_path: Path, purpose: str) -> str:
         """Upload a file to OpenAI and return its file ID."""
+        if self.client is None:
+            raise RuntimeError("OpenAI client is unavailable. Set OPENAI_API_KEY before uploading files.")
         file_path = Path(file_path)
         logger.info("Uploading %s file: %s", purpose, file_path)
 
@@ -244,6 +265,8 @@ class DakotaOpenAIFineTuner:
 
     def create_fine_tuning_job(self, training_file_id: str, validation_file_id: str) -> str:
         """Create a fine-tuning job and return its ID."""
+        if self.client is None:
+            raise RuntimeError("OpenAI client is unavailable. Set OPENAI_API_KEY before creating jobs.")
         logger.info("Creating fine-tuning job...")
         
         # Get hyperparameters from env or use defaults
@@ -263,6 +286,8 @@ class DakotaOpenAIFineTuner:
 
     def monitor_job_progress(self, job_id: str, check_interval: int = 60):
         """Monitor the progress of a fine-tuning job."""
+        if self.client is None:
+            raise RuntimeError("OpenAI client is unavailable. Set OPENAI_API_KEY before monitoring jobs.")
         logger.info("Starting to monitor fine-tuning job: %s", job_id)
         start_time = time.time()
 
@@ -377,27 +402,40 @@ class DakotaOpenAIFineTuner:
         finally:
             self._finish_wandb()
 
-def main():
-    """Main function to run the fine-tuning process."""
+def main() -> None:
+    """Main function to run the fine-tuning process or readiness-only validation."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run or validate Dakota OpenAI fine-tuning assets.")
+    parser.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Validate files and configuration without creating a fine-tuning job.",
+    )
+    args = parser.parse_args()
+
     logger.info("=== Starting Dakota Language Model Fine-Tuning ===")
     logger.info(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     try:
-        tuner = DakotaOpenAIFineTuner()
+        tuner = DakotaOpenAIFineTuner(require_api_key=not args.check_only)
+        if args.check_only:
+            logger.info("Readiness report: %s", json.dumps(tuner.readiness_report(), indent=2))
+            return
+
         final_job = tuner.run_fine_tuning()
-        
+
         if final_job and hasattr(final_job, 'fine_tuned_model'):
             logger.info("=== Fine-Tuning Process Completed Successfully ===")
             logger.info(f"Fine-tuned model ID: {final_job.fine_tuned_model}")
         else:
             logger.warning("=== Fine-Tuning Process Completed with Issues ===")
-        
+
         logger.info(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
+
     except Exception as e:
         logger.error(f"Fatal error: {str(e)}", exc_info=True)
         raise
 
 if __name__ == "__main__":
     main()
-
