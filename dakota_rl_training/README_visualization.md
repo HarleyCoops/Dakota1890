@@ -21,13 +21,13 @@ All URLs resolve to the public `wandb_analysis/7nikv4vp` directory in
 python3 -m venv .venv
 source .venv/bin/activate
 pip install pandas numpy matplotlib requests
-python dakota_rl_wandb_report.py
+python scripts/analysis/dakota_rl_wandb_report.py
 ```
 
 The script will create:
-- `dakota_rl_outputs/dakota_rl_wandb_report.pdf` (multi-page PDF with all charts)
-- `dakota_rl_outputs/figures/*.png` (individual charts)
-- `dakota_rl_outputs/tables/*.csv` (derived metrics)
+- `docs/reports/dakota_rl_outputs/dakota_rl_wandb_report.pdf` (multi-page PDF with all charts)
+- `docs/reports/dakota_rl_outputs/figures/*.png` (individual charts)
+- `docs/reports/dakota_rl_outputs/tables/*.csv` (derived metrics)
 
 ## What the charts show
 

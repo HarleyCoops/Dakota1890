@@ -61,15 +61,15 @@ def infer(prompt, max_tokens, temperature, top_p):
         debug_mode = os.getenv("DEBUG_INFERENCE", "false").lower() == "true"
         debug_info = []  # Collect debug info to return
         
-        # Generate with parameters matching test_model_inference.py (the working version)
+        # Generate with parameters matching scripts/inference/test_model_inference.py
         # Use torch.no_grad() for efficiency
         import torch
         with torch.no_grad():
             output = model.generate(
                 **inputs,
-                max_new_tokens=min(max_tokens, 64),  # Match test_model_inference.py
-                temperature=0.3,  # Match test_model_inference.py (was 0.1 - too low!)
-                top_p=0.9,  # Match test_model_inference.py (was 0.8)
+                max_new_tokens=min(max_tokens, 64),  # Match scripts/inference/test_model_inference.py
+                temperature=0.3,  # Match scripts/inference/test_model_inference.py
+                top_p=0.9,  # Match scripts/inference/test_model_inference.py
                 do_sample=True,
                 pad_token_id=tok.eos_token_id,
                 eos_token_id=tok.eos_token_id,
@@ -102,7 +102,7 @@ def infer(prompt, max_tokens, temperature, top_p):
             print(f"DEBUG - Output length: {output.shape[1]}")
         
         # Extract only the generated part (after the prompt)
-        # Use the same method as test_model_inference.py which works
+        # Use the same method as scripts/inference/test_model_inference.py
         prompt_tokens = inputs['input_ids'][0]
         generated_tokens = output[0][len(prompt_tokens):]
         
@@ -129,9 +129,9 @@ def infer(prompt, max_tokens, temperature, top_p):
                 print("DEBUG - WARNING: No new tokens generated!")
             generated_text = ""
         
-        # Method 2: Fallback to string slicing (like test_model_inference.py)
+        # Method 2: Fallback to string slicing used in scripts/inference/test_model_inference.py
         if not generated_text or len(generated_text.strip()) == 0:
-            # Try the method from test_model_inference.py
+            # Try the method from scripts/inference/test_model_inference.py
             if "assistant" in decoded.lower() or "</s>" in decoded:
                 parts = decoded.split("assistant")
                 if len(parts) > 1:

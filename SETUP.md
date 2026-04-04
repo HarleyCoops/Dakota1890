@@ -66,6 +66,8 @@ python scripts/conversion/generate_synthetic_dakota.py \
 python scripts/conversion/convert_extracted_to_chat.py \
   --input-file data/bilingual_training_set_smoke.jsonl \
   --output-dir OpenAIFineTune/smoke
+
+python scripts/rl/dakota_openai_finetune.py --check-only
 ```
 
 ## Known Constraints
@@ -73,3 +75,4 @@ python scripts/conversion/convert_extracted_to_chat.py \
 - `scripts/extraction/extract_grammar_pages.py` now exits nonzero when page extraction fails.
 - Local inference still requires a runtime whose installed `huggingface-hub` version matches the pinned requirements; the current sandbox may need a reinstall before `run_inference.py` succeeds.
 - HF remote inference also depends on token permissions for Inference Providers.
+- The OpenAI SFT launcher can submit a paid remote fine-tuning job via `python scripts/rl/dakota_openai_finetune.py`, but step-0 validation only runs the readiness check by default.

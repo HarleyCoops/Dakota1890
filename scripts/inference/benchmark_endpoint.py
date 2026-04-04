@@ -37,12 +37,20 @@ def main():
     parser = argparse.ArgumentParser(description="Benchmark Dakota model endpoint against QA dataset")
     parser.add_argument("--samples", type=int, default=1, help="Number of random samples to test")
     parser.add_argument("--endpoint-url", type=str, default=DEFAULT_ENDPOINT, help="Inference Endpoint URL")
-    parser.add_argument("--output", type=str, default="benchmark_results.jsonl", help="Output JSONL file")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="eval/benchmarks/benchmark_results.jsonl",
+        help="Output JSONL file",
+    )
     parser.add_argument("--dataset", type=str, default="HarleyCooper/dakota-bilingual-qa", help="Dataset ID")
     parser.add_argument("--split", type=str, default="validation", help="Dataset split to sample from (train/validation)")
     parser.add_argument("--timeout", type=int, default=900, help="Client timeout in seconds")
     
     args = parser.parse_args()
+
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Loading dataset: {args.dataset} ({args.split})...")
     try:
@@ -104,14 +112,14 @@ def main():
             results.append(result_entry)
 
             # Write incrementally to save progress
-            with open(args.output, "a", encoding="utf-8") as f:
+            with open(output_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(result_entry, ensure_ascii=False) + "\n")
 
         except Exception as e:
             print(f"  -> Exception: {e}")
 
     print("\n" + "=" * 60)
-    print(f"Benchmark complete. Results saved to {args.output}")
+    print(f"Benchmark complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

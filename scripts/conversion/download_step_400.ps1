@@ -4,7 +4,7 @@
 $instanceIP = "65.109.75.43"  # Update if your instance IP is different
 $sshKey = "$env:USERPROFILE\.ssh\DakotaRL3"
 $remotePath = "~/dakota_rl_training/outputs/ledger_test_400/weights/step_400"
-$localPath = "downloaded_model_step_400"
+$localPath = "archive\\step0_legacy\\root_artifacts\\downloaded_model_step_400"
 
 Write-Host "Downloading model files from step_400..." -ForegroundColor Green
 Write-Host "Remote: root@${instanceIP}:${remotePath}" -ForegroundColor Yellow

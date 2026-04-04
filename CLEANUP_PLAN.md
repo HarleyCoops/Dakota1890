@@ -52,22 +52,25 @@ Moved into `archive/step0_legacy/`:
 - `README.md`
 - `Public/`, `media/`, `wandb*`, model cards, and visual assets
 - `Qwen3-30B-ThinkingMachines-Dakota1890/`
-- reference projects:
-  - `Akkadian/`
-  - `RailroadEngineer1959/`
-  - `Qwen3-RailroadEngineer1959-RL/`
-  - `Baguettotron-Dakota1890/`
+- `OpenAIFineTune/` as the maintained supervised baseline for Dakota-vs-RL comparison
+- externalized reference projects now maintained in the `Daily` monorepo:
+  - `Projects/Akkadian/`
+  - `Projects/RailroadEngineer1959/`
+  - `Projects/Qwen3-RailroadEngineer1959-RL/`
+  - `Projects/Baguettotron-Dakota1890/`
+- `prime-rl-framework/` as a live external checkout with local modifications; do not relocate in step 0 without a dedicated cleanup of that nested repo
 
 ## Deferred
 
-These remain in place for now and should be discussed before any destructive move:
+These were moved out of the repo root during step 0 and should be discussed before any deeper refactor or deletion:
 
-- `downloaded_model_step_400/`
-- `model_step_400.tar.gz`
-- `benchmark_results.jsonl`
-- `test_model_inference.py`
-- `test_space_inference_local.py`
+- `archive/step0_legacy/root_artifacts/downloaded_model_step_400/`
+- `archive/step0_legacy/root_artifacts/model_step_400.tar.gz`
+- `eval/benchmarks/benchmark_results.jsonl`
+- `scripts/inference/test_model_inference.py`
+- `scripts/inference/test_space_inference_local.py`
 - older `docs/status/*` historical records that still quote early-run counts
+- `prime-rl-framework/` path normalization beyond the current root location
 
 ## Rationale
 

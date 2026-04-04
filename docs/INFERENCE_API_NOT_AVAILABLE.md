@@ -48,10 +48,10 @@ Create a dedicated Inference Endpoint:
 
 ### Option 4: Local Inference (Requires GPU)
 
-Use the existing `test_model_inference.py` script:
+Use the existing `scripts/inference/test_model_inference.py` script:
 
 ```powershell
-python test_model_inference.py
+python scripts/inference/test_model_inference.py
 ```
 
 **Requirements:**

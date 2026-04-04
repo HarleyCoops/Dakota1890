@@ -30,7 +30,7 @@ flowchart TD
     N --> O["data/bilingual_training_set.jsonl"]
     O --> P["OpenAI chat conversion<br/>scripts/conversion/convert_extracted_to_chat.py"]
     P --> Q["OpenAIFineTune/dakota_train.jsonl<br/>OpenAIFineTune/dakota_valid.jsonl"]
-    Q --> R["OpenAI readiness / baseline submission<br/>scripts/rl/dakota_openai_finetune.py"]
+    Q --> R["OpenAI readiness / remote baseline launch<br/>scripts/rl/dakota_openai_finetune.py"]
 ```
 
 ## Canonical Entry Points

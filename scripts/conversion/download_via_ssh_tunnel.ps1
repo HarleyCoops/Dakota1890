@@ -11,6 +11,10 @@
 
 Write-Host "Downloading model archive..." -ForegroundColor Green
 Write-Host ""
+
+$localArchive = "archive\\step0_legacy\\root_artifacts\\model_step_400.tar.gz"
+$localExtractDir = "archive\\step0_legacy\\root_artifacts"
+New-Item -ItemType Directory -Force -Path $localExtractDir | Out-Null
 Write-Host "First, create the archive on the server:" -ForegroundColor Yellow
 Write-Host "  cd ~/dakota_rl_training/outputs/ledger_test_400/weights" -ForegroundColor White
 Write-Host "  tar -czf ~/model_step_400.tar.gz step_400/" -ForegroundColor White
@@ -31,7 +35,7 @@ $scpCmd = "scp"
 if ($sshKey) {
     $scpCmd += " -i `"$sshKey`""
 }
-$scpCmd += " root@${instanceIP}:~/model_step_400.tar.gz model_step_400.tar.gz"
+$scpCmd += " root@${instanceIP}:~/model_step_400.tar.gz `"$localArchive`""
 
 Write-Host "Running: $scpCmd" -ForegroundColor Cyan
 Invoke-Expression $scpCmd
@@ -41,12 +45,12 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host " Download complete!" -ForegroundColor Green
     Write-Host ""
     Write-Host "Extracting archive..." -ForegroundColor Yellow
-    tar -xzf model_step_400.tar.gz
+    tar -xzf $localArchive -C $localExtractDir
     if ($LASTEXITCODE -eq 0) {
-        Write-Host " Extracted to: step_400/" -ForegroundColor Green
+        Write-Host " Extracted under: ${localExtractDir}" -ForegroundColor Green
         Write-Host ""
         Write-Host "Next: Upload to Hugging Face" -ForegroundColor Cyan
-        Write-Host "  python scripts/conversion/upload_model_to_hf.py --model-dir `"step_400`"" -ForegroundColor White
+        Write-Host "  python scripts/conversion/upload_model_to_hf.py --model-dir `"${localExtractDir}\\step_400`"" -ForegroundColor White
     }
 } else {
     Write-Host ""

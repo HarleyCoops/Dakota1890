@@ -49,6 +49,7 @@ The synthetic-QA -> OpenAI fine-tune path remains in the repo as a comparison ba
 ### Stage 4: Supervised Fine-Tuning (SFT)
 
 - The active preserved SFT baseline is OpenAI chat-format fine-tuning data plus readiness checks in `scripts/rl/dakota_openai_finetune.py`
+- A non-billing API smoke against `fine_tuning.jobs.list(limit=1)` succeeds in the current sandbox, so the launch surface is reachable with the configured key
 - There is no active in-repo open-source SFT trainer wired as the canonical path
 - Interpretation:
   - “OpenAI-style SFT” in this repo means OpenAI API fine-tune assets, not an OpenAI open-source base model

@@ -112,7 +112,7 @@ class DakotaInferenceClient:
                     f"  1. The model needs to be enabled for Inference API (check model settings)\n"
                     f"  2. The model requires Inference Endpoints instead (use --endpoint-url)\n"
                     f"  3. Use the HuggingFace Space instead (see huggingface_space/)\n"
-                    f"  4. Use local inference with test_model_inference.py (requires GPU)\n"
+                    f"  4. Use local inference with scripts/inference/test_model_inference.py (requires GPU)\n"
                     f"\nOriginal error: {str(e)}"
                 ) from e
     

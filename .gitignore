@@ -101,4 +101,3 @@ wandb_analysis/ledger_snippet_qwen4b.txt
 # Explicitly ignore the specific large files that caused issues
 wandb_analysis/published/*.tar.gz
 Qwen3-30B-ThinkingMachines-Dakota1890/*.tar.gz
-Akkadian/SourceDocuments/publications.csv

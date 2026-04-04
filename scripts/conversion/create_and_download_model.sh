@@ -16,7 +16,7 @@ if [ $? -eq 0 ]; then
     ls -lh "$OUTPUT_ARCHIVE"
     echo ""
     echo "Now download it from a NEW PowerShell window:"
-    echo "  scp -i \$env:USERPROFILE\\.ssh\\prime_rl_key root@<INSTANCE_IP>:~/model_step_400.tar.gz ."
+    echo "  scp -i \$env:USERPROFILE\\.ssh\\prime_rl_key root@<INSTANCE_IP>:~/model_step_400.tar.gz archive/step0_legacy/root_artifacts/model_step_400.tar.gz"
     echo ""
     echo "Or check Prime Intellect dashboard for file download option"
 else

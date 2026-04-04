@@ -102,6 +102,7 @@ Legend:
     - `data/`
       - `grammar_tasks_complete.jsonl`
 - `PIPELINE-CRITICAL` `OpenAIFineTune/`
+  - `README.md`
   - `dakota_train.jsonl`
   - `dakota_valid.jsonl`
 - `PIPELINE-CRITICAL` `run_inference.py`
@@ -131,14 +132,16 @@ Legend:
 - `NARRATIVE/VISUAL` `wandb/`
 - `NARRATIVE/VISUAL` `wandb_analysis/`
 - `NARRATIVE/VISUAL` `wandb_visualizations/`
-- `NARRATIVE/VISUAL` `paper.tex`
 - `NARRATIVE/VISUAL` `docs/papers/`
-- `NARRATIVE/VISUAL` `dakota_rl.html`
+- `NARRATIVE/VISUAL` `docs/papers/paper.tex`
+- `NARRATIVE/VISUAL` `docs/reports/dakota_rl.html`
+- `NARRATIVE/VISUAL` `docs/reports/dakota_rl_outputs/`
 - `NARRATIVE/VISUAL` `CITATION.cff`
 
 - `EXPERIMENTAL/DEAD` `archive/step0_legacy/`
   - `docs/guides/` archived step-0 stale guides
   - `docs/guides_outdated/` archived PrimeIntellect/OpenRouter-era instructions
+  - `packages/dakota-grammar-env/` archived stale root package stub superseded by `environments/dakota_grammar_translation/`
   - `scripts/extraction/` archived duplicate extraction scripts
   - `tests/` archived manual and obsolete tests
   - `root_artifacts/` archived tracked debug/error logs
@@ -148,30 +151,22 @@ Legend:
   - useful evaluation harness, but not wired into the main README pipeline
 - `AMBIGUOUS` `huggingface_space/`
   - active deployment surface, but partially independent from local validation
-- `AMBIGUOUS` `outputs/`
-  - local generated outputs, not part of the canonical source path
+- `CONFIG/INFRA` `prime-rl-framework/`
+  - live external PrimeIntellect checkout with local modifications; kept in place for launch compatibility, but not treated as first-party Dakota code
 - `AMBIGUOUS` `tools/`
   - helper utilities outside the main Dakota chain
-- `AMBIGUOUS` `dakota-grammar-env`
-  - package or artifact name present at repo root; not used in step-0 commands
 - `AMBIGUOUS` `e2b/`
   - external sandboxing notes, not part of the main Dakota training chain
 
-- `NARRATIVE/VISUAL` `Akkadian/`
-  - reference-only comparative project; inventory only in step 0
-- `NARRATIVE/VISUAL` `RailroadEngineer1959/`
-  - reference-only comparative project; inventory only in step 0
-- `NARRATIVE/VISUAL` `Qwen3-RailroadEngineer1959-RL/`
-  - reference-only model artifact
-- `NARRATIVE/VISUAL` `Baguettotron-Dakota1890/`
-  - reference-only adjacent experiment
+- `NARRATIVE/VISUAL` externalized reference projects
+  - moved out of this repo during step-0 cleanup and now maintained in the `Daily` monorepo under `Projects/`
 
 ## Ambiguous Items Requiring Maintainer Judgment
 
-- `downloaded_model_step_400/`
-- `model_step_400.tar.gz`
-- `benchmark_results.jsonl`
-- `test_model_inference.py`
-- `test_space_inference_local.py`
+- `archive/step0_legacy/root_artifacts/downloaded_model_step_400/`
+- `archive/step0_legacy/root_artifacts/model_step_400.tar.gz`
+- `eval/benchmarks/benchmark_results.jsonl`
+- `scripts/inference/test_model_inference.py`
+- `scripts/inference/test_space_inference_local.py`
 
 These exist outside the canonical step-0 path but may still have value as local artifacts or demos.

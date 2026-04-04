@@ -54,6 +54,6 @@ python run_inference.py --prompt "Translate 'my elder brother' to Dakota."
 
 ## Notes
 
-- `Akkadian`, `RailroadEngineer1959`, `Qwen3-RailroadEngineer1959-RL`, and `Baguettotron-Dakota1890` are reference projects in step 0, not the primary cleanup target.
+- `Akkadian`, `RailroadEngineer1959`, `Qwen3-RailroadEngineer1959-RL`, and `Baguettotron-Dakota1890` were externalized during step 0 and now live in the `Daily` monorepo under `Projects/`.
 - Archived Dakota dead ends and stale guides live under `archive/step0_legacy/`.
 - Preserve narrative files, visuals, model cards, and W&B artifacts; clean the engineering surface, not the story.

@@ -5,7 +5,7 @@ Upload a single Tinker checkpoint archive/file to a Hugging Face repo.
 Usage (PowerShell):
   $env:HF_TOKEN='...'
   python scripts/conversion/upload_tinker_checkpoint.py `
-    --file RailroadEngineer1959/outputs/tinker_railroad_run/final_sampler.ckpt `
+    --file path/to/final_sampler.ckpt `
     --repo-id HarleyCooper/Qwen3-4B-RailRoadEngineer1959 `
     --repo-path checkpoint/final_sampler.ckpt
 """

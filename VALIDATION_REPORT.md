@@ -21,11 +21,12 @@ This report captures both the pre-cleanup baseline issues discovered during the 
 | --- | --- | --- | --- |
 | Environment build | `python -m pip install --dry-run -r requirements.txt` | PASS | dependency resolution succeeded with the new `huggingface-hub<1.0` pin |
 | HF inference deps | `python -m pip install --dry-run -r requirements_hf_inference.txt` | PASS | dry-run resolved `huggingface_hub-0.36.2`; `peft` now listed explicitly |
-| Repo harness | `python -m pytest -q` | PASS | `8` tests passed |
+| Repo harness | `python -m pytest -q` | PASS | `9` tests passed |
 | Packaged environment | inline `load_environment(max_examples=3, eval_fraction=0)` | PASS | loaded `3` train examples |
 | Dataset integrity | inline count script | PASS | `1497` rules, `10576` tasks, `980/245` OpenAI splits |
 | SFT baseline conversion | `python scripts/conversion/convert_extracted_to_chat.py --input-file data/step0_sft_smoke.jsonl --output-dir OpenAIFineTune/step0_smoke` | PASS | wrote `4` train and `1` validation example |
 | OpenAI readiness | `python scripts/rl/dakota_openai_finetune.py --check-only` | PASS | files found; `OPENAI_API_KEY` present |
+| OpenAI fine-tune API smoke | inline `OpenAI().fine_tuning.jobs.list(limit=1)` | PASS | fine-tuning endpoint reachable without submitting a paid job |
 | RL launch readiness | `python dakota_rl_training/train.py --check-only` | PASS | local prerequisite check now succeeds from repo checkout |
 | Reward ledger smoke | inline `env.rubric.score(...)` | PASS | returned `0.84` with a populated ledger |
 | Anthropic grammar smoke | `python scripts/extraction/extract_grammar_pages.py --test` | FAIL | Anthropic API returned low-credit error |

@@ -47,7 +47,7 @@ The model loads successfully but generation parameters need tuning:
 - Current issue: Repetitive outputs
 - Solution: Adjust `temperature`, `top_p`, `repetition_penalty`, and stopping criteria
 
-**Quick Test Script**: `test_model_inference.py`
+**Quick Test Script**: `scripts/inference/test_model_inference.py`
 
 **To improve:**
 ```python
@@ -112,7 +112,7 @@ You can deploy your own API server using:
 
 ## Files Created
 
-- `test_model_inference.py` - Local inference test script
+- `scripts/inference/test_model_inference.py` - Local inference test script
 - `huggingface_space/app.py` - Gradio interface for Spaces
 - `huggingface_space/requirements.txt` - Dependencies
 - `huggingface_space/README.md` - Space description

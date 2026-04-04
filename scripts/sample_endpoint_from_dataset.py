@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=str,
-        default="outputs/endpoint_samples.jsonl",
+        default="eval/benchmarks/endpoint_samples.jsonl",
         help="Path to write JSONL results.",
     )
     parser.add_argument(

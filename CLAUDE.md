@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -9,63 +9,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Key Innovations
 
 - **Compositional reward functions** that decompose qualitative linguistic tasks into quantitative metrics (character preservation, morphological accuracy, semantic correctness)
-- **Dakota special character handling** (ŋ, š, ć, ź, ž, ʼ, á, é, í, ó, ú, ḣ, ṡ, etc.) as a verifiable learning signal
-- **Curriculum learning** with difficulty-filtered datasets (easy → medium → hard → advanced)
+- **Dakota special character handling** (Å‹, Å¡, Ä‡, Åº, Å¾, Ê¼, Ã¡, Ã©, Ã­, Ã³, Ãº, á¸£, á¹¡, etc.) as a verifiable learning signal
+- **Curriculum learning** with difficulty-filtered datasets (easy â†’ medium â†’ hard â†’ advanced)
 - Training on both **local PrimeIntellect** framework and **Thinking Machines Tinker** distributed infrastructure
 
 ## Repository Structure
 
 ```
 Dakota1890/
-├── dakota_rl_training/           # Main RL training pipeline
-│   ├── verifiers/                # Environment and reward functions
-│   │   ├── grammar_env.py        # Multi-turn and single-turn environments
-│   │   ├── rubrics.py            # Compositional reward functions
-│   │   └── base.py               # Base environment interfaces
-│   ├── tinker_integration/       # Thinking Machines Tinker integration
-│   │   ├── env.py                # Tinker-compatible environment wrapper
-│   │   ├── dataset.py            # Dataset builder for Tinker
-│   │   ├── types.py              # Type definitions
-│   │   └── publish.py            # Weight publishing utilities
-│   ├── train.py                  # PrimeIntellect local training script
-│   ├── tinker_train.py           # Thinking Machines Tinker training script
-│   ├── datasets/                 # JSONL datasets (grammar_tasks_*.jsonl)
-│   └── outputs/                  # Training outputs, checkpoints, logs
-├── environments/                  # Verifiers-compatible RL environment
-│   └── dakota_grammar_translation/
-│       ├── dakota_grammar_translation/  # Main environment package
-│       │   ├── environment.py    # Environment and rubric implementation
-│       │   └── data/             # Embedded datasets
-│       └── pyproject.toml        # Package config (dakota1890 v0.1.17)
-├── dakota_extraction/            # Grammar extraction from PDF
-│   ├── core/                     # Extraction logic (VLM + API)
-│   ├── schemas/                  # Data schemas
-│   └── run_extraction.py         # Main extraction script
-├── scripts/                       # Analysis, visualization, monitoring
-│   ├── create_tinker_visualizations.py  # Generate training charts
-│   ├── monitor_training.py       # Real-time training monitoring
-│   └── conversion/               # Dataset format conversion
-├── data/                          # Extracted grammar rules and tasks
-├── tests/                         # Test suite
-└── wandb_analysis/               # Weights & Biases analysis
+â”œâ”€â”€ dakota_rl_training/           # Main RL training pipeline
+â”‚   â”œâ”€â”€ verifiers/                # Environment and reward functions
+â”‚   â”‚   â”œâ”€â”€ grammar_env.py        # Multi-turn and single-turn environments
+â”‚   â”‚   â”œâ”€â”€ rubrics.py            # Compositional reward functions
+â”‚   â”‚   â””â”€â”€ base.py               # Base environment interfaces
+â”‚   â”œâ”€â”€ tinker_integration/       # Thinking Machines Tinker integration
+â”‚   â”‚   â”œâ”€â”€ env.py                # Tinker-compatible environment wrapper
+â”‚   â”‚   â”œâ”€â”€ dataset.py            # Dataset builder for Tinker
+â”‚   â”‚   â”œâ”€â”€ types.py              # Type definitions
+â”‚   â”‚   â””â”€â”€ publish.py            # Weight publishing utilities
+â”‚   â”œâ”€â”€ train.py                  # PrimeIntellect local training script
+â”‚   â”œâ”€â”€ tinker_train.py           # Thinking Machines Tinker training script
+â”‚   â”œâ”€â”€ datasets/                 # JSONL datasets (grammar_tasks_*.jsonl)
+â”‚   â””â”€â”€ outputs/                  # Training outputs, checkpoints, logs
+â”œâ”€â”€ environments/                  # Verifiers-compatible RL environment
+â”‚   â””â”€â”€ dakota_grammar_translation/
+â”‚       â”œâ”€â”€ dakota_grammar_translation/  # Main environment package
+â”‚       â”‚   â”œâ”€â”€ environment.py    # Environment and rubric implementation
+â”‚       â”‚   â””â”€â”€ data/             # Embedded datasets
+â”‚       â””â”€â”€ pyproject.toml        # Package config (dakota1890 v0.1.17)
+â”œâ”€â”€ dakota_extraction/            # Grammar extraction from PDF
+â”‚   â”œâ”€â”€ core/                     # Extraction logic (VLM + API)
+â”‚   â”œâ”€â”€ schemas/                  # Data schemas
+â”‚   â””â”€â”€ run_extraction.py         # Main extraction script
+â”œâ”€â”€ scripts/                       # Analysis, visualization, monitoring
+â”‚   â”œâ”€â”€ create_tinker_visualizations.py  # Generate training charts
+â”‚   â”œâ”€â”€ monitor_training.py       # Real-time training monitoring
+â”‚   â””â”€â”€ conversion/               # Dataset format conversion
+â”œâ”€â”€ data/                          # Extracted grammar rules and tasks
+â”œâ”€â”€ tests/                         # Test suite
+â””â”€â”€ wandb_analysis/               # Weights & Biases analysis
 
-RailroadEngineer1959/             # Railroad safety rules extraction and RL
-├── railroad_extraction/          # PDF -> Rules -> Tasks
-│   ├── core/                     # Extraction logic
-│   ├── schemas/                  # Data schemas
-│   └── run_extraction.py         # Main extraction script
-├── railroad_rl_training/         # RL training pipeline
-│   ├── verifiers/                # Environment and reward functions
-│   ├── train.py                  # PrimeIntellect local training script
-│   └── tinker_train.py           # Tinker distributed training script
-└── requirements.txt              # Dependencies
+External reference projects now live in the Daily monorepo under Projects/:
+- Akkadian
+- RailroadEngineer1959
+- Qwen3-RailroadEngineer1959-RL
+- Baguettotron-Dakota1890
+
 
 Core Files:
-├── requirements.txt              # Python dependencies
-├── pytest.ini                    # Test configuration
-├── .env                          # API keys (Anthropic, Tinker, W&B)
-└── README.md                     # Project documentation
+â”œâ”€â”€ requirements.txt              # Python dependencies
+â”œâ”€â”€ pytest.ini                    # Test configuration
+â”œâ”€â”€ .env                          # API keys (Anthropic, Tinker, W&B)
+â””â”€â”€ README.md                     # Project documentation
 ```
+
+Reference-only projects that used to sit at repo root were externalized during step-0 cleanup and now live in the Daily monorepo under Projects/.
 
 ## Training Pipeline Architecture
 
@@ -104,7 +102,7 @@ Uses `prime-rl` framework for local GPU training:
 **Key features**:
 - vLLM inference engine
 - GRPO algorithm implementation
-- Orchestrator pattern (env → rollouts → training)
+- Orchestrator pattern (env â†’ rollouts â†’ training)
 - Local checkpoints and logging
 
 **Command**:
@@ -183,7 +181,7 @@ A parallel project applying the same methodology to 1959 Railroad Operating Rule
 pytest
 
 # Run specific test file
-pytest test_model_inference.py
+pytest scripts/inference/test_model_inference.py
 
 # Run with verbose output
 pytest -v
@@ -224,7 +222,7 @@ python scripts/export_ledger_now.py
 python hf_inference_standalone.py
 
 # Test model inference
-python test_model_inference.py
+python scripts/inference/test_model_inference.py
 ```
 
 ### Environment Package
@@ -246,11 +244,11 @@ vf-eval dakota1890 -n 10
 
 Dakota orthography requires special Unicode characters. The reward function explicitly verifies preservation of:
 
-- Glottal stop: `ʼ`
-- Nasal consonants: `ŋ` (eng)
-- Caron diacritics: `č`, `š`, `ž`
-- Dotted characters: `ḣ`, `ṡ`, `ė`
-- Acute accents: `á`, `é`, `í`, `ó`, `ú`
+- Glottal stop: `Ê¼`
+- Nasal consonants: `Å‹` (eng)
+- Caron diacritics: `Ä`, `Å¡`, `Å¾`
+- Dotted characters: `á¸£`, `á¹¡`, `Ä—`
+- Acute accents: `Ã¡`, `Ã©`, `Ã­`, `Ã³`, `Ãº`
 
 **Critical**: Any code that processes Dakota text must preserve these characters. Use UTF-8 encoding everywhere.
 
@@ -258,7 +256,7 @@ Dakota orthography requires special Unicode characters. The reward function expl
 
 Dakota is an agglutinative language with extensive affix usage:
 
-- **Possessive suffixes**: `-ku` (my), `-ću` (thy), `-tku` (his/her)
+- **Possessive suffixes**: `-ku` (my), `-Ä‡u` (thy), `-tku` (his/her)
 - **Locative prefixes**: `ta-` (at), `ti-` (in)
 - **Plural markers**: `-pi`
 
@@ -342,15 +340,15 @@ Training runs maintain a "reward ledger" that logs component rewards for each ro
 ## Model Training Results
 
 **Qwen3-0.6B (Local)**:
-- 400 steps, composite reward: 0.35 → 0.42
+- 400 steps, composite reward: 0.35 â†’ 0.42
 - Affix accuracy: 97.9%
 - Character preservation: 65%
 
 **Qwen3-30B (Tinker)**:
-- 199 steps, composite reward: 0.105 → 0.317 (peak: 0.442)
+- 199 steps, composite reward: 0.105 â†’ 0.317 (peak: 0.442)
 - Affix accuracy: 100%
 - Character preservation: 69.9%
-- Token efficiency: 210 → 13.28 tokens/turn
+- Token efficiency: 210 â†’ 13.28 tokens/turn
 
 **Published models**:
 - [HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890](https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890)
@@ -410,3 +408,4 @@ This project demonstrates that **qualitative linguistic tasks can be learned via
 4. **Cultural importance**: Supports indigenous language preservation
 
 The compositional reward approach generalizes beyond Dakota to other linguistic structure learning tasks, non-coding qualitative tasks, and structured generation problems.
+

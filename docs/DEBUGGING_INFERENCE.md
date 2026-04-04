@@ -33,7 +33,7 @@ This will print debug info to the logs showing:
 
 Run the test script locally to see if it works:
 ```powershell
-python test_model_inference.py
+python scripts/inference/test_model_inference.py
 ```
 
 If it works locally but not in Space, it's a Space-specific issue.

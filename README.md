@@ -796,7 +796,7 @@ Building on the success of the Dakota grammar pipeline, we are applying the same
     1.  **Extraction**: VLM extracts rules from `Public/1959RailRoadCodeRL.pdf`.
     2.  **Environment**: `RailroadEnv` verifies adherence to safety protocols, signaling rules, and terminology.
     3.  **Reward**: Compositional reward function prioritizing **Safety** (critical), **Procedure** (sequence), and **Terminology** (exact phrasing).
-- **Status**: In active development (see `RailroadEngineer1959/`).
+- **Status**: Externalized from this repo during step-0 cleanup and now maintained in the `Daily` monorepo under `Projects/RailroadEngineer1959/`.
 
 ### Future Research Directions
 
@@ -885,6 +885,12 @@ python scripts/conversion/convert_rules_to_primeintellect.py
 ```bash
 python scripts/rl/dakota_openai_finetune.py --check-only
 # Output: readiness report for OpenAIFineTune/dakota_train.jsonl and dakota_valid.jsonl
+```
+
+### 5b. Launch the OpenAI SFT Baseline
+```bash
+# This submits a paid remote fine-tuning job.
+python scripts/rl/dakota_openai_finetune.py
 ```
 
 ### 6. Launch Training

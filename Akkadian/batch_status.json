@@ -1,8 +1,0 @@
-{
-  "batch_id": "batch_6944caca8a888190b7ba183655f15a0b",
-  "input_file_id": "file-EoRPoaZbruYKg5QGEPBdj2",
-  "status": "validating",
-  "completion_window": "24h",
-  "total_requests": 319,
-  "batch_file": "Akkadian\\data\\grammar_rules\\batch_requests.jsonl"
-}
