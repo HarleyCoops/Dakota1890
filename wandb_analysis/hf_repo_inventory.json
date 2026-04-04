@@ -1,0 +1,43 @@
+{
+  "qwen30b_model": {
+    "repo_id": "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890",
+    "file_count": 14,
+    "visual_files": [
+      "visualizations/comprehensive_dashboard.png",
+      "visualizations/performance_metrics.png",
+      "visualizations/reward_ledger_tinker.png",
+      "visualizations/reward_progression.png",
+      "visualizations/training_metrics.png"
+    ],
+    "json_files": [
+      "adapter_config.json",
+      "config.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "vocab.json"
+    ],
+    "csv_files": [],
+    "synced_visuals": [
+      "C:\\Users\\chris\\Dakota1890\\wandb_visualizations\\qwen30b\\comprehensive_dashboard.png",
+      "C:\\Users\\chris\\Dakota1890\\wandb_visualizations\\qwen30b\\performance_metrics.png",
+      "C:\\Users\\chris\\Dakota1890\\wandb_visualizations\\qwen30b\\reward_ledger_tinker.png",
+      "C:\\Users\\chris\\Dakota1890\\wandb_visualizations\\qwen30b\\reward_progression.png",
+      "C:\\Users\\chris\\Dakota1890\\wandb_visualizations\\qwen30b\\training_metrics.png"
+    ]
+  },
+  "qwen06b_model": {
+    "repo_id": "HarleyCooper/Qwen3-0.6B-Dakota-Grammar-RL",
+    "file_count": 14,
+    "visual_files": [],
+    "json_files": [
+      "added_tokens.json",
+      "config.json",
+      "generation_config.json",
+      "special_tokens_map.json",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "vocab.json"
+    ],
+    "csv_files": []
+  }
+}

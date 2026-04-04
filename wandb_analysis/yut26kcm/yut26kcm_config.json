@@ -1,0 +1,90 @@
+{
+  "log": {
+    "file": true,
+    "level": "info",
+    "log_data": false,
+    "vf_level": "warn"
+  },
+  "ckpt": {
+    "keep": 3,
+    "interval": 100,
+    "resume_step": null,
+    "skip_progress": false,
+    "skip_scheduler": false,
+    "skip_dataloader": false
+  },
+  "data": {
+    "fake": null
+  },
+  "loss": {
+    "kl_tau": 0,
+    "ratio_type": "token",
+    "kl_mask_type": "all",
+    "mask_ratio_low": 0.125,
+    "mask_ratio_high": 8,
+    "ratio_length_norm": false,
+    "sequence_mask_ratio_low": 0
+  },
+  "bench": false,
+  "model": {
+    "ac": {
+      "freq": 1
+    },
+    "cp": 1,
+    "ep": 1,
+    "tp": 1,
+    "attn": "flash_attention_2",
+    "impl": "hf",
+    "name": "Qwen/Qwen3-0.6B",
+    "debug": {
+      "num_layers": null,
+      "random_init": false
+    },
+    "compile": null,
+    "dp_replicate": 1,
+    "experimental": {
+      "lora": null
+    },
+    "reduce_dtype": "float32",
+    "ac_offloading": null,
+    "load_using_meta": false,
+    "trust_remote_code": true,
+    "moe_use_grouped_mm": true,
+    "optimization_dtype": "float32",
+    "reshard_after_forward": true
+  },
+  "optim": {
+    "lr": 1e-06,
+    "type": "adamw",
+    "betas1": 0.9,
+    "betas2": 0.999,
+    "max_norm": 1,
+    "weight_decay": 0.01
+  },
+  "wandb": {
+    "id": null,
+    "name": "dakota-0.6b-ledger-test-400-trainer",
+    "offline": false,
+    "project": "dakota-rl-grammar",
+    "log_extras": null
+  },
+  "weights": {
+    "interval": null,
+    "save_async": true,
+    "save_format": "torch",
+    "save_sharded": false,
+    "save_adapter_separately": false
+  },
+  "max_steps": 400,
+  "scheduler": {
+    "type": "constant"
+  },
+  "output_dir": "/root/dakota_rl_training/outputs/ledger_test_400",
+  "trace_path": null,
+  "max_async_level": 1,
+  "weight_broadcast": {
+    "type": "filesystem"
+  },
+  "dist_timeout_seconds": 600,
+  "memory_profiler_path": null
+}

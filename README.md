@@ -277,18 +277,17 @@ These results provide early evidence for the core methodological idea: transform
 
 ### Visualization Generation
 
-These visualizations were generated using `scripts/create_rl_visualizations.py`, which loads data from Weights & Biases and creates publication-quality plots. To regenerate with updated data:
+These visualizations are now regenerated with `scripts/analysis/refresh_tracking_assets.py`, which refreshes the public W&B histories, inventories the linked Hugging Face model repos, rebuilds the canonical PNG set, and repairs the generic reward-ledger artifacts used in this README. To rerun the refresh:
 
 ```bash
-# For the 1000 step run (default):
-python scripts/create_rl_visualizations.py \
-    --trainer-id 7nikv4vp \
-    --orchestrator-id 29hn8w98 \
-    --project dakota-rl-grammar \
-    --entity christian-cooper-us
+# Refresh the maintained Dakota W&B groups
+python scripts/analysis/refresh_tracking_assets.py
+
+# Refresh and also sync published 30B visuals from Hugging Face
+python scripts/analysis/refresh_tracking_assets.py --sync-hf-visuals
 ```
 
-All visualization code and data are available in the repository for reproducibility and further analysis.
+The refreshed raw inventories are written under `wandb_analysis/`, and the rebuilt story-facing images are written under `wandb_visualizations/`.
 
 ### Reward Ledger: Transparent Reward Decomposition
 

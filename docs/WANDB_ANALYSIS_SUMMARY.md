@@ -40,7 +40,7 @@ All the training configuration settings:
 ### 3. History (Time Series Data)
 Step-by-step metrics logged during training:
 
-- **500 logged steps** of training data
+- **1,000 logged steps** are available from the public trainer run when refreshed via `scan_history()`
 - Metrics tracked include:
   - Loss metrics (mean, std, min, max at each step)
   - Entropy metrics
@@ -48,6 +48,8 @@ Step-by-step metrics logged during training:
   - Probability distributions
   - KL divergence measures
   - Optimization metrics (gradient norms, learning rate)
+
+Earlier local exports in this repo were truncated. The maintained refresh path is now `python scripts/analysis/refresh_tracking_assets.py`.
 
 ### 4. Files & Artifacts
 Files saved with the run:

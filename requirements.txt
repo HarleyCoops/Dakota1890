@@ -10,6 +10,11 @@ google-generativeai>=0.3.0
 # HTTP requests for API calls
 requests>=2.31.0
 
+# Analysis and visualization stack
+numpy>=1.26.0
+pandas>=2.1.0
+matplotlib>=3.8.0
+
 # Image processing for vision tasks
 Pillow>=10.0.0
 

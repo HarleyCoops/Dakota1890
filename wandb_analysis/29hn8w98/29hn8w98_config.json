@@ -1,0 +1,83 @@
+{
+  "env": [
+    {
+      "id": "harleycooper/dakota1890",
+      "args": {},
+      "name": null
+    }
+  ],
+  "log": {
+    "file": true,
+    "level": "info",
+    "log_data": false,
+    "vf_level": "warn"
+  },
+  "val": null,
+  "ckpt": {
+    "keep": 3,
+    "interval": 100,
+    "resume_step": null,
+    "skip_buffer": false,
+    "skip_progress": false
+  },
+  "eval": null,
+  "seed": 42,
+  "bench": false,
+  "model": {
+    "name": "Qwen/Qwen3-0.6B",
+    "trust_remote_code": false
+  },
+  "wandb": {
+    "id": null,
+    "name": "dakota-0.6b-rl-orchestrator",
+    "offline": false,
+    "project": "dakota-rl-grammar",
+    "log_extras": null
+  },
+  "buffer": {
+    "seed": null,
+    "type": "simple",
+    "from_scratch": true
+  },
+  "client": {
+    "timeout": 1200,
+    "base_url": [
+      "http://localhost:8000/v1"
+    ],
+    "api_key_var": "OPENAI_API_KEY",
+    "server_type": "vllm"
+  },
+  "env_mix": {
+    "seed": null,
+    "strategy": "interleave",
+    "probabilities": null,
+    "stopping_strategy": "all_exhausted"
+  },
+  "seq_len": 1536,
+  "sampling": {
+    "seed": null,
+    "max_tokens": 512,
+    "min_tokens": 0,
+    "temperature": 1,
+    "repetition_penalty": 1
+  },
+  "advantage": {
+    "std_norm": null,
+    "neg_clipped": false,
+    "leave_one_out": false,
+    "length_weighted_mean": false
+  },
+  "max_steps": 1000,
+  "batch_size": 256,
+  "output_dir": "/root/dakota-rl-training/outputs",
+  "async_level": 1,
+  "max_concurrent": null,
+  "weight_broadcast": {
+    "type": "filesystem"
+  },
+  "num_train_workers": 4,
+  "mask_env_responses": true,
+  "rollouts_per_example": 8,
+  "mask_truncated_completions": false,
+  "zero_truncated_completions": false
+}
