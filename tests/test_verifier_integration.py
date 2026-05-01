@@ -73,3 +73,17 @@ def test_reward_ledger_is_emitted_for_known_answer() -> None:
     assert ledger["exact_match_raw"] == pytest.approx(1.0)
     assert "char_overlap_raw" in ledger
     assert "difficulty_multiplier" in ledger
+
+
+def test_bracketed_grammar_patterns_are_matched_literally() -> None:
+    """Bracketed Dakota grammar placeholders should not be lost to regex semantics."""
+    env = load_environment(max_examples=2, eval_fraction=0, seed=42)
+    sample = env.dataset[0]
+    assert sample["info"]["verification_pattern"] == "[verb] šni"
+
+    completion = [{"role": "assistant", "content": sample["answer"]}]
+    env.rubric.score(completion, sample["answer"], sample["info"])
+    ledger = env.get_reward_ledger()
+
+    assert ledger is not None
+    assert ledger["pattern_raw"] == pytest.approx(1.0)

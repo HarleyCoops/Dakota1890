@@ -402,11 +402,21 @@ class DakotaGrammarRubric(Rubric):
         score = 0.0
         pattern = (info or {}).get("verification_pattern")
         if pattern:
+            pattern_text = str(pattern)
+            literal_candidates = [pattern_text]
+            if ":" in pattern_text:
+                literal_candidates.append(pattern_text.split(":", 1)[1].strip())
             try:
-                if re.search(pattern, prediction, flags=re.IGNORECASE):
+                if re.search(pattern_text, prediction, flags=re.IGNORECASE):
                     score = 1.0
             except re.error:
-                if pattern.lower() in _normalize(prediction):
+                pass
+            if score < 1.0:
+                normalized_prediction = _normalize(prediction)
+                if any(
+                    _normalize(candidate) and _normalize(candidate) in normalized_prediction
+                    for candidate in literal_candidates
+                ):
                     score = 1.0
         if score < 1.0:
             hints = (info or {}).get("hints", []) or []

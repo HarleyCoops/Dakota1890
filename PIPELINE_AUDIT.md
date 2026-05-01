@@ -29,8 +29,7 @@ The synthetic-QA -> OpenAI fine-tune path remains in the repo as a comparison ba
 - Primary dictionary extractor: `dakota_extraction.core.claude_page_processor` and `advanced_page_processor`, driven by `dakota_extraction.run_extraction` or `scripts/extraction/extract_dakota_dictionary_v2.py`
 - Canonical model in code: Claude Sonnet 4.5 via Anthropic API
 - Alternative Qwen3-VL extraction code exists under `dakota_extraction/tinker_qwen3vl/`, but it is not the maintained path
-- Measured extraction accuracy: `UNRESOLVABLE FROM CODE`
-  - the repo contains claims like `92-95%`, but no reproducible benchmark or gold-set evaluation establishes that number
+- Measured extraction accuracy: outside the current RL-focused audit scope
 - Error taxonomy: `UNRESOLVABLE FROM CODE`
 
 ### Stage 3: Synthetic Dataset Generation

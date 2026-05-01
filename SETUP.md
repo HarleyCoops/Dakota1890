@@ -15,6 +15,34 @@ python -m pip install -r requirements_hf_inference.txt
 python -m pip install -e environments/dakota_grammar_translation
 ```
 
+## Windows / PowerShell
+
+For Windows audit checks, use a Windows venv or the known-good system Python explicitly. The repo ignores `.venv_win/` and `.venv_linux_broken/` so local environment folders do not pollute `git status`.
+
+```powershell
+py -3.12 -m venv .venv_win
+.\.venv_win\Scripts\python.exe -m pip install --upgrade pip
+.\.venv_win\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv_win\Scripts\python.exe -m pip install -r requirements_hf_inference.txt
+.\.venv_win\Scripts\python.exe -m pip install -e .\environments\dakota_grammar_translation
+
+.\scripts\check_windows_tooling.ps1 -Full
+```
+
+If `.venv_win` is incomplete but the system Python already has the project dependencies, run:
+
+```powershell
+.\scripts\check_windows_tooling.ps1 -UseSystemPython -Full
+```
+
+Known Windows host issue: in some Codex desktop sessions `rg` resolves to the bundled `WindowsApps\OpenAI.Codex...\rg.exe` and fails with `Access is denied`. That is a host tooling issue, not a Dakota pipeline issue. Install a normal ripgrep earlier in `PATH`, for example:
+
+```powershell
+winget install BurntSushi.ripgrep.MSVC
+```
+
+Long-running RL training remains WSL/Linux-first because Tinker/PrimeIntellect launch scripts and GPU runtimes are Linux-oriented. Windows/PowerShell is supported for repo audit checks, data validation, OpenAI readiness checks, and non-billing verifier tests.
+
 Notes:
 
 - `requirements.txt` now pins `huggingface-hub<1.0` because the HF inference path depends on a `transformers`-compatible hub version.

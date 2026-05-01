@@ -9,6 +9,10 @@ Runs all three phases:
 
 import subprocess
 import sys
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def run_command(command, description):
@@ -19,9 +23,10 @@ def run_command(command, description):
 
     result = subprocess.run(
         command,
-        shell=True,
+        shell=False,
         capture_output=False,
-        text=True
+        text=True,
+        cwd=PROJECT_ROOT,
     )
 
     if result.returncode != 0:
@@ -71,19 +76,39 @@ def main():
 
     # Phase 1: Extract grammar
     run_command(
-        f"python extract_grammar_pages.py --pages {args.start_image}-{args.end_image} --yes",
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "scripts" / "extraction" / "extract_grammar_pages.py"),
+            "--pages",
+            f"{args.start_image}-{args.end_image}",
+            "--yes",
+        ],
         f"PHASE 1: Extracting grammar from images {args.start_image}-{args.end_image}"
     )
 
     # Phase 2: Organize into RL rules
     run_command(
-        f"python organize_grammar_for_rl.py --input data/grammar_extracted --min-confidence {args.min_confidence}",
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "scripts" / "rl" / "organize_grammar_for_rl.py"),
+            "--input",
+            "data/grammar_extracted",
+            "--min-confidence",
+            str(args.min_confidence),
+        ],
         "PHASE 2: Organizing grammar into RL training rules"
     )
 
     # Phase 3: Create RL environment
     run_command(
-        "python create_grammar_rl_environment.py --rules-dir data/rl_training_rules --demo-episodes 3",
+        [
+            sys.executable,
+            str(PROJECT_ROOT / "scripts" / "rl" / "create_grammar_rl_environment.py"),
+            "--rules-dir",
+            "data/rl_training_rules",
+            "--demo-episodes",
+            "3",
+        ],
         "PHASE 3: Creating RL training environment"
     )
 
