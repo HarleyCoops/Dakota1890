@@ -1,7 +1,7 @@
 """
 Dakota Dictionary Page Processor
 
-This module processes individual dictionary pages using Claude Sonnet 4.5
+This module processes individual dictionary pages using Claude
 to extract structured linguistic data with detailed responses.
 
 Inspired by the Stoney Nakoda language preservation project by @harleycoops.
@@ -22,6 +22,8 @@ except ImportError:
 
 import base64
 
+DEFAULT_ANTHROPIC_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+
 
 class PageProcessor:
     """Process individual dictionary pages to extract structured linguistic data."""
@@ -31,7 +33,7 @@ class PageProcessor:
         api_key: Optional[str] = None,
         output_dir: str = "data/extracted",
         reasoning_dir: str = "data/reasoning_traces",
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = DEFAULT_ANTHROPIC_MODEL,
     ):
         """
         Initialize the page processor.
@@ -85,7 +87,7 @@ class PageProcessor:
         # Encode image
         image_data = self._encode_image(image_path)
 
-        print(f"Analyzing page with Claude Sonnet 4.5...")
+        print(f"Analyzing page with Claude model {self.model}...")
         
         # Call Claude API
         response = self.client.messages.create(
@@ -278,7 +280,7 @@ Provide ONLY the JSON output, no other text."""
         """Save Claude's full response for verification."""
         response_path = self.reasoning_dir / f"page_{page_number:03d}_claude_response.txt"
         with open(response_path, "w", encoding="utf-8") as f:
-            f.write(f"Page {page_number} - Claude Sonnet 4.5 Response\n")
+            f.write(f"Page {page_number} - Claude model {self.model} Response\n")
             f.write(f"{'='*60}\n\n")
             f.write(response_text)
         print(f" Saved response to: {response_path}")

@@ -2,17 +2,18 @@
 
 ## Overview
 
-This pipeline extracts Dakota-English word pairs from the dictionary section (pages 95-440) and converts them into synthetic Q&A pairs for Supervised Fine-Tuning (SFT) training.
+This pipeline extracts Dakota-English word pairs from the dictionary section (pages 95-430) and converts them into synthetic Q&A pairs for supervised training.
 
 ## Book Structure
 
-- **Pages 1-92**: Grammar rules and linguistic notes (already extracted for RL training)
-- **Pages 95-440**: Dictionary entries (Dakota words with English definitions)
+- **Pages 1-92**: Grammar rules and linguistic notes. These are not missing from the Q&A pipeline; they belong to the separate grammar-rule extraction/RL task pipeline.
+- **Pages 95-430**: Vocabulary dictionary entries (Dakota words with English definitions) for Q&A extraction.
+- **Pages 431-441**: Blank, back-cover, circulation-card, or calibration scans; do not include these in paid extraction
 
 ## Pipeline Flow
 
 ```
-Dictionary Images (pages 95-440)
+Dictionary Images (pages 95-430)
     ↓
 [1. Image Conversion] → JP2 → JPEG
     ↓
@@ -130,8 +131,8 @@ python dakota_openai_finetune.py
 
 | Aspect | Dictionary Extraction (SFT) | Grammar Extraction (RL) |
 |--------|----------------------------|-------------------------|
-| **Pages** | 95-440 | 1-92 |
-| **Purpose** | Word-definition pairs for translation | Grammar rules for RL training |
+| **Pages** | 95-430 | 1-92 |
+| **Purpose** | Vocabulary word-definition pairs for Q&A | Grammar rules for RL training |
 | **Output** | `headword` + `definition_primary` | Grammar rules, patterns, examples |
 | **Next Step** | Synthetic Q&A generation | RL task generation |
 | **Training Type** | Supervised Fine-Tuning (SFT) | Reinforcement Learning (RL) |
@@ -154,7 +155,8 @@ All extraction scripts preserve these characters exactly as printed in the 1890 
 
 - **Dictionary extraction**: ~$0.25 per page
   - 20 pages: ~$5
-  - All pages (346): ~$86.50
+  - All content pages (336): ~$84.00
+  - Current completion run after the May 2026 audit: about 98 pages to process/reprocess, or roughly $24.50 at $0.25/page
 - **Synthetic Q&A generation**: Depends on Gemini API pricing
 - **OpenAI fine-tuning**: Based on OpenAI pricing
 

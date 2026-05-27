@@ -72,9 +72,9 @@ This dataset contains **{train_count + valid_count:,}** Dakota-English question-
 
 All data is extracted from:
 - **Book**: Dakota-English Dictionary (1890) by Stephen Return Riggs
-- **Pages**: 95-440 (dictionary entries)
-- **Extraction method**: Vision-Language Model (Claude Sonnet 4.5)
-- **Q&A generation**: Google Gemini 2.5 Flash
+- **Pages**: 95-430 (dictionary entries)
+- **Extraction method**: Vision-Language Model (Claude Sonnet 4.6 default for new extraction)
+- **Q&A generation**: Google Gemini 3.5 Flash default for new generation
 
 ### Data Format
 

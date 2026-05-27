@@ -7,7 +7,7 @@ import tinker
 from dakota_grammar_translation.environment import DakotaGrammarRubric, DEFAULT_SYSTEM_PROMPT
 from tinker_cookbook import renderers
 from tinker_cookbook.completers import StopCondition
-from tinker_cookbook.rl.types import Action, Env, Observation, StepResult
+from tinker_cookbook.rl.types import Action, ActionExtra, Env, Observation, StepResult
 
 from .types import DakotaGrammarExample
 
@@ -41,8 +41,8 @@ class DakotaTinkerEnv(Env):
         prompt = self.renderer.build_generation_prompt(self._base_messages)
         return prompt, self._stop_condition
 
-    async def step(self, action: Action) -> StepResult:
-        message, parse_success = self.renderer.parse_response(action)
+    async def step(self, action: Action, *, extra: ActionExtra | None = None) -> StepResult:
+        message, termination = self.renderer.parse_response(action)
 
         completion: list[Dict[str, Any]] = [*self._base_messages, message]
         reward = float(
@@ -54,7 +54,7 @@ class DakotaTinkerEnv(Env):
         )
 
         ledger = self._rubric.get_last_ledger() or {}
-        metrics = self._format_metrics(ledger, parse_success)
+        metrics = self._format_metrics(ledger, termination)
 
         return StepResult(
             reward=reward,
@@ -64,12 +64,18 @@ class DakotaTinkerEnv(Env):
             metrics=metrics,
         )
 
-    def _format_metrics(self, ledger: Dict[str, Any], parse_success: bool) -> Dict[str, float]:
+    def _parse_success_value(self, termination: Any) -> float:
+        if isinstance(termination, bool):
+            return float(termination)
+        value = getattr(termination, "value", termination)
+        return 0.0 if str(value).lower() == "malformed" else 1.0
+
+    def _format_metrics(self, ledger: Dict[str, Any], termination: Any) -> Dict[str, float]:
         metrics: Dict[str, float] = {}
         for key, value in ledger.items():
             if isinstance(value, (int, float)):
                 metrics[f"ledger/{key}"] = float(value)
-        metrics["ledger/parse_success"] = float(parse_success)
+        metrics["ledger/parse_success"] = self._parse_success_value(termination)
         metrics["ledger/difficulty_multiplier"] = float(
             ledger.get("difficulty_multiplier", 1.0)
         )

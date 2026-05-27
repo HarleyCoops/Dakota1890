@@ -143,7 +143,7 @@ Each extracted entry contains:
 
 ## Next Steps
 
-1. Complete dictionary extraction (pages 95-440) - IN PROGRESS
+1. Complete dictionary extraction (pages 95-430) - IN PROGRESS
 2. Analyze extracted data structure:
    - Count entries by part of speech
    - Identify polysemous words

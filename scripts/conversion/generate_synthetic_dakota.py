@@ -10,7 +10,8 @@ import os
 import re
 import time
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 from tqdm import tqdm
 
@@ -21,17 +22,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+DEFAULT_GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-3.5-flash')
+DEFAULT_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "4096"))
+DEFAULT_THINKING_LEVEL = os.getenv("GEMINI_THINKING_LEVEL", "medium")
+
+
 class DakotaQAGenerator:
-    def __init__(self, extracted_dict_dir: str):
+    def __init__(
+        self,
+        extracted_dict_dir: str,
+        model_name: str = DEFAULT_GEMINI_MODEL,
+        max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
+        thinking_level: str | None = DEFAULT_THINKING_LEVEL,
+        thinking_budget: int | None = None,
+    ):
         load_dotenv()
         api_key = os.getenv('GOOGLE_API_KEY')
         if not api_key:
             raise ValueError("GOOGLE_API_KEY not found in environment variables")
         
-        genai.configure(api_key=api_key)
-        # Use Gemini 2.5 Flash (can be overridden via env var)
-        model_name = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
-        self.model = genai.GenerativeModel(model_name)
+        # Default to the current stable Flash model; can be overridden via CLI or GEMINI_MODEL.
+        logger.info("Using Gemini model: %s", model_name)
+        self.client = genai.Client(api_key=api_key)
+        self.model_name = model_name
         self.extracted_dict_dir = Path(extracted_dict_dir)
         
         if not self.extracted_dict_dir.exists():
@@ -41,6 +54,38 @@ class DakotaQAGenerator:
         self.base_delay = 1.0  # Base delay between requests in seconds
         self.max_retries = 5
         self.max_retry_delay = 300  # Maximum retry delay (5 minutes)
+        self.max_output_tokens = max_output_tokens
+        self.thinking_level = thinking_level if thinking_level and thinking_level != "none" else None
+        self.thinking_budget = thinking_budget
+        if self.thinking_budget is not None:
+            logger.info("Using Gemini thinking budget: %s", self.thinking_budget)
+        elif self.thinking_level:
+            logger.info("Using Gemini thinking level: %s", self.thinking_level)
+        else:
+            logger.info("Using Gemini default thinking behavior")
+
+    def _thinking_config(self) -> types.ThinkingConfig | None:
+        if self.thinking_budget is not None:
+            return types.ThinkingConfig(thinking_budget=self.thinking_budget)
+        if self.thinking_level:
+            return types.ThinkingConfig(thinking_level=self.thinking_level)
+        return None
+
+    def _extract_response_text(self, response) -> str:
+        """Return text from a google-genai response, including part fallback."""
+        if getattr(response, "text", None):
+            return response.text.strip()
+
+        candidates = getattr(response, "candidates", None) or []
+        parts_text: list[str] = []
+        for candidate in candidates:
+            content = getattr(candidate, "content", None)
+            parts = getattr(content, "parts", None) or []
+            for part in parts:
+                text = getattr(part, "text", None)
+                if text:
+                    parts_text.append(text)
+        return "\n".join(parts_text).strip()
 
     def load_dakota_entries(self) -> Generator[Dict, None, None]:
         """Load Dakota dictionary entries from extracted JSON files."""
@@ -160,11 +205,24 @@ class DakotaQAGenerator:
         for attempt in range(self.max_retries):
             try:
                 logger.info(f"Sending request to Google API with {len(entries)} entries... (attempt {attempt + 1}/{self.max_retries})")
-                response = self.model.generate_content(
-                    contents=context + "\n" + prompt
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=context + "\n" + prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        max_output_tokens=self.max_output_tokens,
+                        temperature=0.4,
+                        thinking_config=self._thinking_config(),
+                    ),
                 )
                 logger.info("Received response from Google API.")
-                response_text = response.text.strip()
+                response_text = self._extract_response_text(response)
+                if not response_text:
+                    finish_reason = None
+                    if getattr(response, "candidates", None):
+                        finish_reason = getattr(response.candidates[0], "finish_reason", None)
+                    logger.warning(f"Empty Gemini response text; finish_reason={finish_reason}")
+                    return
                 
                 # Extract JSON array from response
                 if not response_text.startswith('['):
@@ -445,10 +503,45 @@ def main() -> None:
         default=5,
         help="Number of dictionary entries to send per Gemini request.",
     )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_GEMINI_MODEL,
+        help=f"Gemini model to use for Q&A generation (default: {DEFAULT_GEMINI_MODEL}).",
+    )
+    parser.add_argument(
+        "--max-output-tokens",
+        type=int,
+        default=DEFAULT_MAX_OUTPUT_TOKENS,
+        help=f"Gemini max output tokens per request (default: {DEFAULT_MAX_OUTPUT_TOKENS}).",
+    )
+    parser.add_argument(
+        "--thinking-level",
+        choices=["none", "minimal", "low", "medium", "high"],
+        default=DEFAULT_THINKING_LEVEL,
+        help=(
+            "Gemini 3.x thinking level for Q&A generation. Use medium for the full run, "
+            "minimal for cheap smoke tests, or none to omit the setting."
+        ),
+    )
+    parser.add_argument(
+        "--thinking-budget",
+        type=int,
+        default=None,
+        help=(
+            "Optional Gemini 2.5-style thinking budget. If set, this overrides "
+            "--thinking-level."
+        ),
+    )
     args = parser.parse_args()
 
     try:
-        generator = DakotaQAGenerator(args.extracted_dir)
+        generator = DakotaQAGenerator(
+            args.extracted_dir,
+            model_name=args.model,
+            max_output_tokens=args.max_output_tokens,
+            thinking_level=args.thinking_level,
+            thinking_budget=args.thinking_budget,
+        )
         logger.info("Starting Dakota synthetic QA generation...")
         generator.generate_training_set(
             args.output_file,

@@ -1,4 +1,4 @@
-"""Claude Sonnet 4.5 page processor for Dakota dictionary extraction."""
+"""Claude page processor for Dakota dictionary extraction."""
 
 import json
 import os
@@ -21,16 +21,18 @@ from dakota_extraction.schemas.dictionary_schema import (
 )
 from dakota_extraction.core.extraction_prompt import build_extraction_prompt
 
+DEFAULT_ANTHROPIC_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+
 
 class ClaudePageProcessor:
-    """Process dictionary pages with Claude Sonnet 4.5."""
+    """Process dictionary pages with Claude."""
 
     def __init__(
         self,
         api_key: Optional[str] = None,
         output_dir: str = "data/extracted",
         reasoning_dir: str = "data/reasoning_traces",
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = DEFAULT_ANTHROPIC_MODEL,
     ):
         """
         Initialize Claude processor.
@@ -85,7 +87,7 @@ class ClaudePageProcessor:
         # Build specialized prompt
         prompt = build_extraction_prompt(page_context)
 
-        print("Analyzing with Claude Sonnet 4.5...")
+        print(f"Analyzing with Claude model {self.model}...")
         print("Using Dakota dictionary specialized prompt...")
 
         # Call Claude API
@@ -288,7 +290,7 @@ class ClaudePageProcessor:
         """Save Claude's full response."""
         response_path = self.reasoning_dir / f"page_{page_number:03d}_claude_response.txt"
         with open(response_path, "w", encoding="utf-8") as f:
-            f.write(f"Page {page_number} - Claude Sonnet 4.5 Response\n")
+            f.write(f"Page {page_number} - Claude model {self.model} Response\n")
             f.write(f"{'='*70}\n\n")
             f.write(response_text)
         print(f"OK Saved response to: {response_path}")
@@ -342,7 +344,7 @@ def main():
         return
 
     # Extract with Claude
-    print("\nStep 2: Extracting with Claude Sonnet 4.5...")
+    print("\nStep 2: Extracting with Claude...")
     processor = ClaudePageProcessor(
         output_dir="data/extracted",
         reasoning_dir="data/reasoning_traces",

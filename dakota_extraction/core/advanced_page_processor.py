@@ -30,6 +30,9 @@ from dakota_extraction.schemas.dictionary_schema import (
 )
 from dakota_extraction.core.extraction_prompt import build_extraction_prompt
 
+DEFAULT_ANTHROPIC_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+DEFAULT_MAX_TOKENS = int(os.getenv("DAKOTA_EXTRACTION_MAX_TOKENS", "128000"))
+
 
 class AdvancedPageProcessor:
     """Process dictionary pages with full linguistic structure extraction."""
@@ -39,7 +42,7 @@ class AdvancedPageProcessor:
         api_key: Optional[str] = None,
         output_dir: str = "data/extracted",
         reasoning_dir: str = "data/reasoning_traces",
-        model: str = "claude-sonnet-4-5-20250929",
+        model: str = DEFAULT_ANTHROPIC_MODEL,
     ):
         """Initialize processor."""
         self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
@@ -58,7 +61,7 @@ class AdvancedPageProcessor:
         self,
         image_path: Path,
         page_number: int,
-        max_tokens: int = 16000,  # Max output tokens for Claude
+        max_tokens: int = DEFAULT_MAX_TOKENS,
         page_context: str = "",
     ) -> Dict[str, Any]:
         """
@@ -83,14 +86,15 @@ class AdvancedPageProcessor:
         # Build specialized prompt
         prompt = build_extraction_prompt(page_context)
 
-        print(f"Analyzing with Claude Sonnet 4.5...")
+        print(f"Analyzing with Claude model {self.model}...")
         print("Using Dakota dictionary specialized prompt...")
+        print(f"Max output tokens: {max_tokens}")
 
         # Encode image
         image_data = self._encode_image(image_path)
 
-        # Call Claude API
-        response = self.client.messages.create(
+        response_text = ""
+        with self.client.messages.stream(
             model=self.model,
             max_tokens=max_tokens,
             messages=[
@@ -112,13 +116,10 @@ class AdvancedPageProcessor:
                     ],
                 }
             ],
-        )
-
-        # Extract text response
-        response_text = ""
-        for block in response.content:
-            if block.type == "text":
-                response_text += block.text
+        ) as stream:
+            for text in stream.text_stream:
+                response_text += text
+            response = stream.get_final_message()
 
         # Parse response
         extraction = self._parse_response(
@@ -289,7 +290,7 @@ class AdvancedPageProcessor:
         """Save Claude's full response."""
         response_path = self.reasoning_dir / f"page_{page_number:03d}_claude_response.txt"
         with open(response_path, "w", encoding="utf-8") as f:
-            f.write(f"Page {page_number} - Claude Sonnet 4.5 Response\n")
+            f.write(f"Page {page_number} - Claude model {self.model} Response\n")
             f.write(f"{'='*70}\n\n")
             f.write(response_text)
         print(f"Saved response to: {response_path}")
@@ -371,7 +372,7 @@ def main():
     extraction = processor.extract_page(
         image_path=first_image,
         page_number=1,
-        max_tokens=16000,
+        max_tokens=DEFAULT_MAX_TOKENS,
         page_context="First page of dictionary, may contain title/header material",
     )
 

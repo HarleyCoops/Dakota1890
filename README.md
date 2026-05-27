@@ -222,6 +222,19 @@ Performance metrics track computational efficiency: training throughput (tokens 
 
 ![Comprehensive Dashboard (30B Tinker)](wandb_visualizations/qwen30b/comprehensive_dashboard.png)
 
+### Run 4: Reward-Channel Pilot (Tinker, Post-Fix)
+
+- **Project / Run ID**: `dakota-rl-grammar` / [`d44bra91`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/d44bra91)
+- **Base Model**: Qwen/Qwen3-30B-A3B-Instruct-2507 (LoRA rank 32)
+- **Purpose**: Verify that the repaired nested-schema loader and composite reward ledger survive a real Tinker GRPO run.
+- **Scale**: 512 examples, 29 metric rows, task-filtered to `identify_pattern`, `word_translation`, and `reverse_translation`
+- **Cost**: approximately **$0.26** in Tinker credits for the diagnostic run
+- **Result**: `pattern_raw` and `exact_match_raw` were both nonzero in the local metrics audit, and W&B exposes the ledger keys remotely.
+- **Final checkpoint**: `tinker://e8838941-d80a-5225-b3a9-391a03e2dd37:train:0/weights/final`
+- **Ledger CSV**: `wandb_analysis/reward_ledger_tinker_reward_channel_pilot_20260527_133821.csv`
+
+This small paid run is useful because it validated instrumentation before scaling: the old public runs showed flat-zero `pattern_reward`, but the post-fix pilot logs nonzero `env/all/ledger/pattern_raw`, nonzero `test/env/all/ledger/pattern_raw`, and nonzero `test/env/all/ledger/exact_match_raw` through W&B.
+
 ### GRPO for Qualitative Tasks: Early Signals
 
 **This work suggests that GRPO (Group Relative Policy Optimization) can achieve strong learning on qualitative linguistic tasks when rewards are properly decomposed into interpretable components, contingent on continued results.** This is significant because:

@@ -4,8 +4,9 @@ Dakota Dictionary Extraction Pipeline - Updated for Page 95 Start
 Following the Stoney Nakoda approach by @harleycoops
 
 Dictionary Structure:
-- Pages 1-92: Grammar rules and linguistic notes (already extracted for RL training)
-- Pages 95-440: Dictionary entries (extract these for SFT training)
+- Pages 1-92: Grammar rules and linguistic notes (separate RL extraction scope)
+- Pages 95-430: Vocabulary dictionary entries (extract these for Q&A training)
+  Page 430 is printed dictionary page 338. Later scans are blank/back-cover/card material.
 
 This script extracts Dakota words with their English definitions from dictionary pages.
 The extracted pairs (headword + definition_primary) feed into synthetic Q&A generation for SFT.
@@ -48,8 +49,10 @@ except ImportError as e:
 
 # Constants
 DICTIONARY_START_PAGE = 95  # Dictionary entries begin here (after grammar section ends at 92)
-DICTIONARY_END_PAGE = 440   # Last page
+DICTIONARY_END_PAGE = 430   # Last dictionary content scan; 431+ are blank/back matter
 GRAMMAR_PAGES = 92          # Pages 1-92 are grammar (ends at page 92)
+DEFAULT_EXTRACTION_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+DEFAULT_MAX_TOKENS = int(os.getenv("DAKOTA_EXTRACTION_MAX_TOKENS", "128000"))
 
 
 def check_setup():
@@ -93,7 +96,62 @@ def check_setup():
     return True
 
 
-def test_extraction():
+def _parse_page_set(value: str | None) -> set[int]:
+    """Parse a comma-separated page/range list, e.g. 102,144,335-337."""
+    pages: set[int] = set()
+    if not value:
+        return pages
+    for chunk in value.split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if "-" in chunk:
+            first, last = map(int, chunk.split("-", 1))
+            pages.update(range(first, last + 1))
+        else:
+            pages.add(int(chunk))
+    return pages
+
+
+def get_extraction_status(
+    start: int,
+    end: int,
+    force: bool = False,
+    force_pages: set[int] | None = None,
+):
+    """Return pages with valid extraction JSON and pages still needing extraction."""
+    output_dir = Path("data/extracted")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    force_pages = force_pages or set()
+
+    already_extracted = []
+    needs_extraction = []
+
+    for page_num in range(start, end + 1):
+        if force or page_num in force_pages:
+            needs_extraction.append(page_num)
+            continue
+
+        output_file = output_dir / f"page_{page_num:03d}.json"
+        if output_file.exists():
+            try:
+                with open(output_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if data.get('entries') and len(data.get('entries', [])) > 0:
+                        already_extracted.append(page_num)
+                        continue
+            except (json.JSONDecodeError, Exception):
+                pass
+
+        needs_extraction.append(page_num)
+
+    return already_extracted, needs_extraction
+
+
+def test_extraction(
+    model: str = DEFAULT_EXTRACTION_MODEL,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+):
     """Test on page 95 (first dictionary page)."""
     print("\n" + "="*70)
     print(f" TEST MODE: Page {DICTIONARY_START_PAGE} (First Dictionary Page)")
@@ -128,17 +186,19 @@ def test_extraction():
     # Extract with advanced processor
     print("\nExtracting dictionary entries...")
     print("Using Dakota-specialized extraction schema...")
-    print("This will use Claude Sonnet 4.5 to extract dictionary entries...\n")
+    print(f"This will use Claude model {model} to extract dictionary entries...\n")
+    print(f"Max output tokens: {max_tokens}\n")
 
     processor = AdvancedPageProcessor(
         output_dir="data/extracted",
         reasoning_dir="data/reasoning_traces",
+        model=model,
     )
 
     extraction = processor.extract_page(
         image_path=image,
         page_number=DICTIONARY_START_PAGE,
-        max_tokens=16000,
+        max_tokens=max_tokens,
         page_context="First dictionary page - entries begin here after grammar section",
     )
 
@@ -157,7 +217,14 @@ def test_extraction():
     print()
 
 
-def process_range(start: int, end: int):
+def process_range(
+    start: int,
+    end: int,
+    model: str = DEFAULT_EXTRACTION_MODEL,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+    force: bool = False,
+    force_pages: set[int] | None = None,
+):
     """Process a range of pages."""
     print("\n" + "="*70)
     print(f" PROCESSING PAGES {start}-{end}")
@@ -166,36 +233,22 @@ def process_range(start: int, end: int):
     # Validate range
     if start < DICTIONARY_START_PAGE:
         print(f"\nWARNING: Pages 1-{GRAMMAR_PAGES} contain grammar rules!")
-        print(f"Dictionary entries start at page {DICTIONARY_START_PAGE}.")
+        print("They are intentionally handled by the separate grammar extraction pipeline.")
+        print(f"Vocabulary dictionary entries start at page {DICTIONARY_START_PAGE}.")
         print(f"\nRecommended: --pages {DICTIONARY_START_PAGE}-{end}")
 
         confirm = input(f"\nProcess pages {start}-{end} anyway? [y/N]: ")
         if confirm.lower() != 'y':
-            print(f"\nCancelled. Use --pages {DICTIONARY_START_PAGE}-{end} for dictionary entries.")
+            print(f"\nCancelled. Use --pages {DICTIONARY_START_PAGE}-{end} for vocabulary entries.")
             return
 
-    # Check what's already extracted
     output_dir = Path("data/extracted")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    already_extracted = []
-    needs_extraction = []
-    
-    for page_num in range(start, end + 1):
-        output_file = output_dir / f"page_{page_num:03d}.json"
-        if output_file.exists():
-            # Verify it's a valid JSON with entries
-            try:
-                with open(output_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    if data.get('entries') and len(data.get('entries', [])) > 0:
-                        already_extracted.append(page_num)
-                        continue
-            except (json.JSONDecodeError, Exception):
-                # File exists but is invalid, reprocess it
-                pass
-        
-        needs_extraction.append(page_num)
+    already_extracted, needs_extraction = get_extraction_status(
+        start,
+        end,
+        force=force,
+        force_pages=force_pages,
+    )
     
     print("\n" + "="*70)
     print(" EXTRACTION STATUS CHECK")
@@ -203,6 +256,14 @@ def process_range(start: int, end: int):
     print(f"Total pages in range: {end-start+1}")
     print(f"Already extracted: {len(already_extracted)}")
     print(f"Needs extraction: {len(needs_extraction)}")
+    print(f"Extraction model: {model}")
+    print(f"Max output tokens: {max_tokens}")
+    if force:
+        print("Force mode: enabled; existing extraction JSON in this range will be overwritten.")
+    if force_pages:
+        forced_in_range = sorted(page for page in force_pages if start <= page <= end)
+        if forced_in_range:
+            print(f"Force pages: {forced_in_range}")
     
     if already_extracted:
         print(f"\nSkipping already-extracted pages: {min(already_extracted)}-{max(already_extracted)}")
@@ -249,6 +310,7 @@ def process_range(start: int, end: int):
     processor = AdvancedPageProcessor(
         output_dir="data/extracted",
         reasoning_dir="data/reasoning_traces",
+        model=model,
     )
 
     extracted_count = 0
@@ -267,7 +329,7 @@ def process_range(start: int, end: int):
             processor.extract_page(
                 image_path=image_path,
                 page_number=page_num,
-                max_tokens=16000,
+                max_tokens=max_tokens,
             )
             extracted_count += 1
         except Exception as e:
@@ -310,23 +372,24 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Extract Dakota dictionary entries (pages 95+) for SFT training",
+        description="Extract Dakota vocabulary dictionary entries (pages 95+) for Q&A training",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 Dictionary Structure:
-  Pages 1-{GRAMMAR_PAGES}:    Grammar rules (already extracted for RL training)
-  Pages {DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE}: Dictionary entries (extract these for SFT)
+  Pages 1-{GRAMMAR_PAGES}:    Grammar rules (separate RL extraction scope)
+  Pages {DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE}: Vocabulary dictionary entries (extract these for Q&A)
 
 Examples:
   %(prog)s --test                    # Test on page {DICTIONARY_START_PAGE}
   %(prog)s --pages {DICTIONARY_START_PAGE}-114            # First 20 dictionary pages
   %(prog)s --pages {DICTIONARY_START_PAGE}-200            # More pages
   %(prog)s --all-dictionary          # All dictionary pages ({DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE})
+  %(prog)s --pages 380-430 --max-tokens 128000 # Resume dense late pages
 
 Costs:
   ~$0.25 per page
   20 pages: ~$5
-  All dictionary (346 pages): ~$86.50
+  All dictionary (336 pages): ~$84.00
         """
     )
 
@@ -337,6 +400,30 @@ Costs:
                       help="Page range (e.g., 95-110)")
     group.add_argument("--all-dictionary", action="store_true",
                       help=f"Process all dictionary pages ({DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE})")
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_EXTRACTION_MODEL,
+        help=f"Anthropic model to use for extraction (default: {DEFAULT_EXTRACTION_MODEL})",
+    )
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=DEFAULT_MAX_TOKENS,
+        help=(
+            "Maximum output tokens per page. Default follows claude-sonnet-4-6's "
+            f"current Anthropic Models API max_tokens value: {DEFAULT_MAX_TOKENS}."
+        ),
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Reprocess pages even if non-empty extraction JSON already exists.",
+    )
+    parser.add_argument(
+        "--force-pages",
+        default=None,
+        help="Comma-separated page/range list to reprocess even when extraction JSON exists, e.g. 102,144,335.",
+    )
 
     args = parser.parse_args()
 
@@ -349,8 +436,10 @@ Costs:
     if not check_setup():
         sys.exit(1)
 
+    force_pages = _parse_page_set(args.force_pages)
+
     if args.test:
-        test_extraction()
+        test_extraction(model=args.model, max_tokens=args.max_tokens)
 
     elif args.pages:
         if "-" not in args.pages:
@@ -366,32 +455,71 @@ Costs:
         # Helpful suggestions
         if start < DICTIONARY_START_PAGE:
             print(f"\nNote: Dictionary entries start at page {DICTIONARY_START_PAGE}")
-            print(f"   Pages 1-{GRAMMAR_PAGES} contain grammar rules (different structure)")
+            print(f"   Pages 1-{GRAMMAR_PAGES} contain grammar rules (separate extraction scope)")
 
         num_pages = end - start + 1
-        estimated_cost = num_pages * 0.25
-        estimated_time = num_pages * 2  # minutes
+        already_extracted, needs_extraction = get_extraction_status(
+            start,
+            end,
+            force=args.force,
+            force_pages=force_pages,
+        )
+        billable_pages = len(needs_extraction)
+        estimated_cost = billable_pages * 0.25
+        estimated_time = billable_pages * 2  # minutes
 
         print(f"\nProcessing {num_pages} pages ({start}-{end})")
-        print(f"Estimated cost: ${estimated_cost:.2f}")
-        print(f"Estimated time: {estimated_time} minutes")
+        print(f"Already extracted and skipped: {len(already_extracted)}")
+        print(f"Pages needing extraction: {billable_pages}")
+        print(f"Extraction model: {args.model}")
+        print(f"Max output tokens: {args.max_tokens}")
+        if args.force:
+            print("Force mode: enabled; existing extraction JSON in this range will be overwritten.")
+        forced_in_range = sorted(page for page in force_pages if start <= page <= end)
+        if forced_in_range:
+            print(f"Force pages: {forced_in_range}")
+        print(f"Estimated remaining cost: ${estimated_cost:.2f}")
+        print(f"Estimated remaining time: {estimated_time} minutes")
 
         confirm = input("\nContinue? [y/N]: ")
         if confirm.lower() != "y":
             print("Cancelled")
             return
 
-        process_range(start, end)
+        process_range(
+            start,
+            end,
+            model=args.model,
+            max_tokens=args.max_tokens,
+            force=args.force,
+            force_pages=force_pages,
+        )
 
     elif args.all_dictionary:
         num_pages = DICTIONARY_END_PAGE - DICTIONARY_START_PAGE + 1
-        estimated_cost = num_pages * 0.25
-        estimated_hours = (num_pages * 2) / 60
+        already_extracted, needs_extraction = get_extraction_status(
+            DICTIONARY_START_PAGE,
+            DICTIONARY_END_PAGE,
+            force=args.force,
+            force_pages=force_pages,
+        )
+        billable_pages = len(needs_extraction)
+        estimated_cost = billable_pages * 0.25
+        estimated_hours = (billable_pages * 2) / 60
 
         print(f"\nWARNING: Processing ALL dictionary pages ({DICTIONARY_START_PAGE}-{DICTIONARY_END_PAGE})")
         print(f"Total pages: {num_pages}")
-        print(f"Estimated cost: ${estimated_cost:.2f}")
-        print(f"Estimated time: {estimated_hours:.1f} hours")
+        print(f"Already extracted and skipped: {len(already_extracted)}")
+        print(f"Pages needing extraction: {billable_pages}")
+        print(f"Extraction model: {args.model}")
+        print(f"Max output tokens: {args.max_tokens}")
+        if args.force:
+            print("Force mode: enabled; existing extraction JSON in this range will be overwritten.")
+        forced_in_range = sorted(page for page in force_pages if DICTIONARY_START_PAGE <= page <= DICTIONARY_END_PAGE)
+        if forced_in_range:
+            print(f"Force pages: {forced_in_range}")
+        print(f"Estimated remaining cost: ${estimated_cost:.2f}")
+        print(f"Estimated remaining time: {estimated_hours:.1f} hours")
         print("\nThis will:")
         print("  - Use significant API tokens")
         print("  - Take many hours to complete")
@@ -402,7 +530,14 @@ Costs:
             print("Cancelled")
             return
 
-        process_range(DICTIONARY_START_PAGE, DICTIONARY_END_PAGE)
+        process_range(
+            DICTIONARY_START_PAGE,
+            DICTIONARY_END_PAGE,
+            model=args.model,
+            max_tokens=args.max_tokens,
+            force=args.force,
+            force_pages=force_pages,
+        )
 
 
 if __name__ == "__main__":

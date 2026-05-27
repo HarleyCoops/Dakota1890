@@ -1,0 +1,9 @@
+# Stage-specific dependencies for Dakota Tinker RL.
+# The root requirements.txt is not a lock file. Use runtime readiness checks
+# after installing this file, because Tinker and legacy Google clients have
+# incompatible protobuf expectations.
+
+tinker==0.22.1
+tinker-cookbook==0.4.1
+protobuf>=6.31.1,<7
+chz>=0.4.0

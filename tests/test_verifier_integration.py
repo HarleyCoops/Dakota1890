@@ -73,6 +73,29 @@ def test_reward_ledger_is_emitted_for_known_answer() -> None:
     assert ledger["exact_match_raw"] == pytest.approx(1.0)
     assert "char_overlap_raw" in ledger
     assert "difficulty_multiplier" in ledger
+    assert ledger["contrib_exact"] == pytest.approx(
+        ledger["w_exact"] * ledger["exact_match_norm"]
+    )
+    assert ledger["contrib_char"] == pytest.approx(
+        ledger["w_char"] * ledger["char_overlap_norm"]
+    )
+    assert ledger["contrib_pattern"] == pytest.approx(
+        ledger["w_pattern"] * ledger["pattern_norm"]
+    )
+    assert ledger["contrib_affix"] == pytest.approx(
+        ledger["w_affix"] * ledger["affix_norm"]
+    )
+    assert ledger["composite_pre"] == pytest.approx(
+        ledger["contrib_exact"]
+        + ledger["contrib_char"]
+        + ledger["contrib_pattern"]
+        + ledger["contrib_affix"]
+    )
+    assert ledger["composite_with_length"] == pytest.approx(
+        ledger["composite_pre"] * ledger["length_penalty_norm"]
+    )
+    assert ledger["composite_with_difficulty"] == pytest.approx(ledger["reward_scalar"])
+    assert ledger["composite_diff"] == pytest.approx(0.0)
 
 
 def test_bracketed_grammar_patterns_are_matched_literally() -> None:

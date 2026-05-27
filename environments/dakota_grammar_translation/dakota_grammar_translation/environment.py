@@ -492,15 +492,14 @@ class DakotaGrammarRubric(Rubric):
         }
         difficulty_mult = difficulty_multipliers.get(difficulty.lower(), 1.0)
         
-        # Compute composite (weighted sum)
-        # Note: length_penalty_reward returns a multiplier (1.0 = no penalty, <1.0 = penalty)
-        # So we multiply the composite by it, not add/subtract
-        composite_pre = (
-            w_exact * exact_match_norm +
-            w_char * char_overlap_norm +
-            w_pattern * pattern_norm +
-            w_affix * affix_norm
-        )
+        # Compute additive component contributions.
+        # Note: length_penalty_reward returns a multiplier (1.0 = no penalty, <1.0 = penalty),
+        # so length is tracked separately and applied after the weighted sum.
+        contrib_exact = w_exact * exact_match_norm
+        contrib_char = w_char * char_overlap_norm
+        contrib_pattern = w_pattern * pattern_norm
+        contrib_affix = w_affix * affix_norm
+        composite_pre = contrib_exact + contrib_char + contrib_pattern + contrib_affix
         
         # Apply length penalty as multiplier
         composite_with_length = composite_pre * length_penalty_norm
@@ -536,10 +535,17 @@ class DakotaGrammarRubric(Rubric):
             
             # Difficulty
             "difficulty_multiplier": difficulty_mult,
+
+            # Weighted component contributions
+            "contrib_exact": contrib_exact,
+            "contrib_char": contrib_char,
+            "contrib_pattern": contrib_pattern,
+            "contrib_affix": contrib_affix,
             
             # Composites
             "composite_pre": composite_pre,
             "composite_with_length": composite_with_length,
+            "composite_with_difficulty": composite_with_diff,
             "composite_predicted": composite_with_diff,
             
             # Final reward
@@ -548,8 +554,7 @@ class DakotaGrammarRubric(Rubric):
         
         # Consistency check
         diff = abs(reward_scalar - composite_with_diff)
-        if diff > 1e-6:
-            ledger["composite_diff"] = float(diff)
+        ledger["composite_diff"] = float(diff)
         
         # Store ledger for retrieval
         self._last_ledger = ledger

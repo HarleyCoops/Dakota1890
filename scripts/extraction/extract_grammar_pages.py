@@ -23,6 +23,8 @@ from dakota_extraction.core.grammar_extraction_prompt import build_grammar_extra
 # Load environment
 load_dotenv()
 
+DEFAULT_EXTRACTION_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+
 
 def build_grammar_extraction_prompt_with_context(page_number: int):
     """Build specialized prompt for grammar rule extraction."""
@@ -58,7 +60,7 @@ If you find Dakota words being analyzed linguistically, extract the grammatical 
     return base_prompt
 
 
-def extract_grammar_page_with_claude(image_path: Path, page_number: int) -> dict:
+def extract_grammar_page_with_claude(image_path: Path, page_number: int, model: str = DEFAULT_EXTRACTION_MODEL) -> dict:
     """Extract grammar rules from a single page using Claude."""
 
     # Check API key
@@ -76,11 +78,11 @@ def extract_grammar_page_with_claude(image_path: Path, page_number: int) -> dict
     # Build prompt
     prompt = build_grammar_extraction_prompt_with_context(page_number)
 
-    print("  Sending to Claude Sonnet 4.5...")
+    print(f"  Sending to Claude model {model}...")
 
     # Extract with Claude
     response = client.messages.create(
-        model="claude-sonnet-4-5-20250929",
+        model=model,
         max_tokens=16000,
         temperature=0,
         messages=[{
@@ -161,6 +163,11 @@ def main() -> int:
         action="store_true",
         help="Skip confirmation prompts"
     )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_EXTRACTION_MODEL,
+        help=f"Anthropic model to use for grammar extraction (default: {DEFAULT_EXTRACTION_MODEL})",
+    )
 
     args = parser.parse_args()
 
@@ -194,6 +201,7 @@ def main() -> int:
 
     num_pages = end_page - start_page + 1
     print(f"\nProcessing pages {start_page}-{end_page} ({num_pages} pages)")
+    print(f"Extraction model: {args.model}")
     print(f"Estimated cost: ${num_pages * 0.25:.2f}")
     print(f"Estimated time: {num_pages * 2} minutes")
 
@@ -232,7 +240,7 @@ def main() -> int:
             continue
 
         try:
-            extraction = extract_grammar_page_with_claude(image_path, page_num)
+            extraction = extract_grammar_page_with_claude(image_path, page_num, model=args.model)
 
             # Save individual page
             output_file = output_dir / f"grammar_page_{page_num:03d}.json"

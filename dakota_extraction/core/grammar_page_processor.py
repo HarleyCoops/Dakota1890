@@ -1,7 +1,7 @@
 """
 Grammar Page Processor for Claude API
 
-Processes Dakota grammar pages (1-88) using Claude Sonnet 4.5
+Processes Dakota grammar pages (1-88) using Claude
 with the specialized grammar extraction prompt.
 """
 
@@ -26,15 +26,17 @@ from dakota_extraction.schemas.grammar_schema import (
     TaskDifficulty
 )
 
+DEFAULT_ANTHROPIC_MODEL = os.getenv("DAKOTA_EXTRACTION_MODEL") or os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
+
 
 class GrammarPageProcessor:
     """
-    Process Dakota grammar pages using Claude Sonnet 4.5
+    Process Dakota grammar pages using Claude
 
     Optimized for extracting testable grammar rules for RL training
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-sonnet-4-5-20250929"):
+    def __init__(self, api_key: Optional[str] = None, model: str = DEFAULT_ANTHROPIC_MODEL):
         """
         Initialize the grammar page processor
 
@@ -81,7 +83,7 @@ class GrammarPageProcessor:
             prompt = build_grammar_extraction_prompt(page_context)
 
         # Call Claude API
-        print(f"Processing page {page_number} with Claude Sonnet 4.5...")
+        print(f"Processing page {page_number} with Claude model {self.model}...")
         response = self.client.messages.create(
             model=self.model,
             max_tokens=max_tokens,
