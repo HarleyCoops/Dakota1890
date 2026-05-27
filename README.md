@@ -235,6 +235,21 @@ Performance metrics track computational efficiency: training throughput (tokens 
 
 This small paid run is useful because it validated instrumentation before scaling: the old public runs showed flat-zero `pattern_reward`, but the post-fix pilot logs nonzero `env/all/ledger/pattern_raw`, nonzero `test/env/all/ledger/pattern_raw`, and nonzero `test/env/all/ledger/exact_match_raw` through W&B.
 
+### Run 5: Qwen3.6-35B Full Rerun (Thinking Machines)
+
+- **Project / Run ID**: `dakota-rl-grammar` / [`owf98569`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/owf98569)
+- **Base Model**: Qwen/Qwen3.6-35B-A3B (LoRA rank 32)
+- **Steps**: 199 metric rows, ending at step 198
+- **Cost**: **$68.75** in Thinking Machines credits
+- **Tokens**: **82.05 million** tokens
+- **Final sampler checkpoint**: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final`
+- **Composite reward**: 0.1664 -> **0.2297 final**
+- **Character overlap**: 0.1424 -> **0.4027 final**
+- **Pattern reward**: nonzero in 186 of 199 training rows; `identify_pattern` pattern reward peaked at **0.90625**
+- **Exact match**: remained 0.0 throughout the mixed-task full run, confirming it still needs prompt/task-design work rather than reward-plumbing repair
+
+![Qwen3.6 Full Rerun Dashboard](wandb_analysis/qwen36_35b_full_rerun_20260527/qwen36_dakota_full_run_dashboard.png)
+
 ### GRPO for Qualitative Tasks: Early Signals
 
 **This work suggests that GRPO (Group Relative Policy Optimization) can achieve strong learning on qualitative linguistic tasks when rewards are properly decomposed into interpretable components, contingent on continued results.** This is significant because:

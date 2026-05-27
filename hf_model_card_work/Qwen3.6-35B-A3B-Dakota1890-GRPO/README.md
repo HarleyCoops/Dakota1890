@@ -50,6 +50,8 @@ The visual source collage is composed only from local Dakota1890 source scans. I
 - W&B project: [`christian-cooper-us/dakota-rl-grammar`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar)
 - Completed full run: [`owf98569`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/owf98569)
 - Reward-channel pilot: [`d44bra91`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/d44bra91)
+- Thinking Machines cost: **$68.75**
+- Tokens processed: **82.05 million**
 - Final Tinker state path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/weights/final`
 - Final Tinker sampler path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final`
 
@@ -59,7 +61,7 @@ The reward-channel pilot completed before the full run and cost about **$0.26**.
 
 ![Dakota1890 full run dashboard](./assets/qwen36_dakota_full_run_dashboard.png)
 
-The full run completed 199 metric rows, ending at training step 198. The final audit found:
+The full run completed 199 metric rows, ending at training step 198. It cost **$68.75** in Thinking Machines credits and processed **82.05 million tokens**. The final audit found:
 
 - composite reward improved from `0.1664` to `0.2297`;
 - character-overlap reward improved from `0.1424` to `0.4027`;
