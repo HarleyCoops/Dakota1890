@@ -32,7 +32,7 @@ widget:
 
 ![Dakota1890 source collage](./assets/dakota1890_dictionary_collage.png)
 
-This repository is being initialized for a new Dakota1890 reinforcement-learning run on Thinking Machines Tinker. The run is live, the repaired reward ledger is reporting, and the final LoRA adapter weights will be uploaded here after the Tinker checkpoint completes and passes the post-run audit.
+This repository documents the completed Dakota1890 reinforcement-learning run on Thinking Machines Tinker. The repaired reward ledger reported correctly through the run, the final Tinker checkpoint is available, and the Hugging Face PEFT adapter export is the next publication step.
 
 The work starts from Stephen Return Riggs' 1890 Dakota grammar and dictionary materials: scanned pages, extracted grammar rules, dictionary vocabulary, and a verifier environment built to reward short, answer-only Dakota grammar behavior. The goal is not to create a general cultural authority or a fluent speaker replacement. The goal is narrower and more testable: preserve a historical grammar source as machine-readable tasks, train an open model adapter against explicit grammar rewards, and publish the artifacts in a way that makes the provenance and limitations visible.
 
@@ -40,7 +40,7 @@ The visual source collage is composed only from local Dakota1890 source scans. I
 
 ## Current Status
 
-**Training is in progress.** This card is a staging model card for the active full run, not a completed checkpoint announcement.
+**Training completed on May 27, 2026.** This card now includes the audited final run findings and W&B-style result charts.
 
 - HF repo: `HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO`
 - Base model: `Qwen/Qwen3.6-35B-A3B`
@@ -48,10 +48,37 @@ The visual source collage is composed only from local Dakota1890 source scans. I
 - Method: GRPO-style RL with a custom Dakota grammar verifier
 - Adapter type: LoRA, rank 32
 - W&B project: [`christian-cooper-us/dakota-rl-grammar`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar)
-- Active full run: [`owf98569`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/owf98569)
+- Completed full run: [`owf98569`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/owf98569)
 - Reward-channel pilot: [`d44bra91`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/d44bra91)
+- Final Tinker state path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/weights/final`
+- Final Tinker sampler path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final`
 
 The reward-channel pilot completed before the full run and cost about **$0.26**. It verified that the repaired environment can emit nonzero `pattern_raw` and `exact_match_raw` channels locally and in W&B before scaling up.
+
+## Final Run Findings
+
+![Dakota1890 full run dashboard](./assets/qwen36_dakota_full_run_dashboard.png)
+
+The full run completed 199 metric rows, ending at training step 198. The final audit found:
+
+- composite reward improved from `0.1664` to `0.2297`;
+- character-overlap reward improved from `0.1424` to `0.4027`;
+- affix reward stayed high and ended at `1.0000`;
+- all-task `pattern_raw` was nonzero in 186 of 199 logged training rows;
+- `identify_pattern` pattern reward reached `0.90625` and was nonzero in 179 of 199 rows;
+- eval `pattern_raw` remained nonzero, ending at `0.0586`;
+- exact-match reward stayed at `0.0` throughout the mixed-task run;
+- `composite_diff` stayed exactly `0.0`, confirming that the emitted ledger reconstructs the scalar reward.
+
+The key result is that the repaired pattern channel is live in a full paid Tinker run. Exact match remains a task-design and prompting problem for short answer-only completions, not a reward-plumbing failure.
+
+The machine-readable summary and markdown findings are included in [`analysis/final_run_summary.json`](./analysis/final_run_summary.json) and [`analysis/FINAL_RUN_FINDINGS.md`](./analysis/FINAL_RUN_FINDINGS.md).
+
+![Composite reward progression](./assets/qwen36_reward_progression.png)
+
+![Pattern reward channel](./assets/qwen36_pattern_channel.png)
+
+![Reward components](./assets/qwen36_reward_components.png)
 
 ## Source Lineage
 
@@ -180,7 +207,13 @@ Dakota language work should be reviewed with appropriate community and linguisti
 
 ## Usage
 
-Weights are pending. After the final adapter is uploaded, the expected usage pattern will be:
+The Tinker final sampler checkpoint is available now for direct Tinker sampling:
+
+```text
+tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final
+```
+
+The Hugging Face PEFT adapter export is pending. After the adapter is uploaded, the expected usage pattern will be:
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
