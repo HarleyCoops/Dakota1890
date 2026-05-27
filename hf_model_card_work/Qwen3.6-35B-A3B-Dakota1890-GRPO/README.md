@@ -26,13 +26,17 @@ widget:
 
 # Qwen3.6-35B-A3B-Dakota1890-GRPO
 
+<p align="center">
+  <img src="./assets/grammar_source.jpg" alt="Grammar of the Dakota Language source page" width="100%">
+</p>
+
+![Dakota1890 source collage](./assets/dakota1890_dictionary_collage.png)
+
 This repository is being initialized for a new Dakota1890 reinforcement-learning run on Thinking Machines Tinker. The run is live, the repaired reward ledger is reporting, and the final LoRA adapter weights will be uploaded here after the Tinker checkpoint completes and passes the post-run audit.
 
 The work starts from Stephen Return Riggs' 1890 Dakota grammar and dictionary materials: scanned pages, extracted grammar rules, dictionary vocabulary, and a verifier environment built to reward short, answer-only Dakota grammar behavior. The goal is not to create a general cultural authority or a fluent speaker replacement. The goal is narrower and more testable: preserve a historical grammar source as machine-readable tasks, train an open model adapter against explicit grammar rewards, and publish the artifacts in a way that makes the provenance and limitations visible.
 
-![Dakota1890 source collage](./assets/dakota1890_dictionary_collage.png)
-
-The collage above is composed only from local Dakota1890 source scans. It spans cover/front matter, grammar pages, dictionary vocabulary pages, and the late extraction range through scan/page 430. The source manifest is included at [`assets/collage_manifest.md`](./assets/collage_manifest.md).
+The visual source collage is composed only from local Dakota1890 source scans. It spans cover/front matter, grammar pages, dictionary vocabulary pages, and the late extraction range through scan/page 430. The source manifest is included at [`assets/collage_manifest.md`](./assets/collage_manifest.md).
 
 ## Current Status
 
