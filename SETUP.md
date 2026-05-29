@@ -12,6 +12,7 @@ These instructions are the maintained step-0 setup path for reproducing the Dako
 ```bash
 python -m pip install -r requirements.txt
 python -m pip install -r requirements_hf_inference.txt
+python -m pip install -r requirements-tinker.txt
 python -m pip install -e environments/dakota_grammar_translation
 ```
 
@@ -24,6 +25,7 @@ py -3.12 -m venv .venv_win
 .\.venv_win\Scripts\python.exe -m pip install --upgrade pip
 .\.venv_win\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv_win\Scripts\python.exe -m pip install -r requirements_hf_inference.txt
+.\.venv_win\Scripts\python.exe -m pip install -r requirements-tinker.txt
 .\.venv_win\Scripts\python.exe -m pip install -e .\environments\dakota_grammar_translation
 
 .\scripts\check_windows_tooling.ps1 -Full
@@ -47,6 +49,7 @@ Notes:
 
 - `requirements.txt` now pins `huggingface-hub<1.0` because the HF inference path depends on a `transformers`-compatible hub version.
 - `requirements_hf_inference.txt` now includes `peft` for adapter loading.
+- `requirements-tinker.txt` is required for the verified remote Tinker sampler path in `run_inference.py`.
 
 ## Environment Variables
 
@@ -104,10 +107,33 @@ python scripts/conversion/convert_extracted_to_chat.py \
 python scripts/rl/dakota_openai_finetune.py --check-only
 ```
 
+## Remote Inference Smoke
+
+The verified no-local-model inference path is the Thinking Machines sampler:
+
+```powershell
+python run_inference.py `
+  --prompt "Translate 'my elder brother' to Dakota. Return only the answer." `
+  --max-tokens 32 `
+  --temperature 0 `
+  --json
+```
+
+Hugging Face adoption uses the same adapter repo, but currently needs a dedicated endpoint:
+
+```powershell
+python hf_inference_standalone.py `
+  --endpoint-url "https://YOUR-ENDPOINT.endpoints.huggingface.cloud" `
+  --prompt "Translate 'my elder brother' to Dakota. Return only the answer." `
+  --json
+```
+
+See `docs/REMOTE_INFERENCE.md`.
+
 ## Known Constraints
 
 - `scripts/extraction/extract_grammar_pages.py` now exits nonzero when page extraction fails.
-- Local inference still requires a runtime whose installed `huggingface-hub` version matches the pinned requirements; the current sandbox may need a reinstall before `run_inference.py` succeeds.
-- HF remote inference also depends on token permissions for Inference Providers.
+- `run_inference.py` is remote-only and requires `TINKER_API_KEY`.
+- HF shared Inference API currently does not expose a provider mapping for the Qwen3.6 PEFT adapter; use a dedicated HF Inference Endpoint.
 - The OpenAI SFT launcher can submit a paid remote fine-tuning job via `python scripts/rl/dakota_openai_finetune.py`, but step-0 validation only runs the readiness check by default.
 - As of the current step-0 audit, the launcher defaults to `gpt-4.1-mini-2025-04-14` and should be treated as budget-gated remote work.

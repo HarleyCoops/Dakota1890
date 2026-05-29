@@ -1,0 +1,52 @@
+version = "1.0"
+
+[task]
+name = "HarleyCoops/HarleyCoops__Dakota1890-18"
+description = "Add Dakota RL metrics summary and NeurIPS-style paper draft"
+
+[metadata]
+difficulty = "large"
+category = "bugfix"
+keywords = [
+    "Dakota1890",
+    "pr_diff",
+]
+
+[metadata.repo2env]
+pipeline = "pr_diff"
+pipeline_version = "0.3.0"
+repo = "HarleyCoops/Dakota1890"
+ref = "33e22f1ecdd33a4f2145b4b95b98699e5bd55b80"
+reference = "https://github.com/HarleyCoops/Dakota1890/pull/18"
+source_access = "auto"
+built_at = "2026-05-29T01:46:51.301659+00:00"
+reward_kinds = [
+    "diff_similarity",
+]
+spec_version = "0.2.0"
+content_hash = "sha256:3ad16576ddb84fca47b83e4d91ef54e1589bec7ef813b8699f5dd5fc3558bcec"
+
+[metadata.repo2env.pr_diff]
+pr_merged_at = "2025-11-10T20:18:36Z"
+diff_format = "unified"
+context_files = [
+    "docs/papers/grammar_as_verification.md",
+    "wandb_analysis/dakota_rl_metrics_summary.json",
+]
+
+[metadata.repo2env.reward_calibration]
+baseline_reward = 0.0
+loc_changed = 114
+difficulty = "large"
+
+[metadata.repo2env.reproducibility]
+mode = "local_only"
+image_ref = "python:3.12-slim"
+image_tag = "python:3.12-slim"
+image_visibility = "private"
+
+[agent]
+timeout_sec = 1800.0
+
+[verifier]
+timeout_sec = 300.0

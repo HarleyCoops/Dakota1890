@@ -32,7 +32,7 @@ widget:
 
 ![Dakota1890 source collage](./assets/dakota1890_dictionary_collage.png)
 
-This repository documents the completed Dakota1890 reinforcement-learning run on Thinking Machines Tinker. The repaired reward ledger reported correctly through the run, the final Tinker checkpoint is available, and the Hugging Face PEFT adapter export is the next publication step.
+This repository documents the completed Dakota1890 reinforcement-learning run on Thinking Machines Tinker. The repaired reward ledger reported correctly through the run, the final Tinker checkpoint is available, and the Hugging Face PEFT adapter artifacts needed for inference are published alongside this model card.
 
 The work starts from Stephen Return Riggs' 1890 Dakota grammar and dictionary materials: scanned pages, extracted grammar rules, dictionary vocabulary, and a verifier environment built to reward short, answer-only Dakota grammar behavior. The goal is not to create a general cultural authority or a fluent speaker replacement. The goal is narrower and more testable: preserve a historical grammar source as machine-readable tasks, train an open model adapter against explicit grammar rewards, and publish the artifacts in a way that makes the provenance and limitations visible.
 
@@ -52,8 +52,10 @@ The visual source collage is composed only from local Dakota1890 source scans. I
 - Reward-channel pilot: [`d44bra91`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/d44bra91)
 - Thinking Machines cost: **$68.75**
 - Tokens processed: **82.05 million**
-- Final Tinker state path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/weights/final`
 - Final Tinker sampler path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final`
+- Final Tinker state path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/weights/final`
+- Inference adapter weights: [`adapter_model.safetensors`](./adapter_model.safetensors)
+- Adapter config: [`adapter_config.json`](./adapter_config.json)
 
 The reward-channel pilot completed before the full run and cost about **$0.26**. It verified that the repaired environment can emit nonzero `pattern_raw` and `exact_match_raw` channels locally and in W&B before scaling up.
 
@@ -215,7 +217,12 @@ The Tinker final sampler checkpoint is available now for direct Tinker sampling:
 tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final
 ```
 
-The Hugging Face PEFT adapter export is pending. After the adapter is uploaded, the expected usage pattern will be:
+The Hugging Face PEFT adapter for this run lives in this repository:
+
+- [`adapter_model.safetensors`](./adapter_model.safetensors)
+- [`adapter_config.json`](./adapter_config.json)
+
+Use it against the base model `Qwen/Qwen3.6-35B-A3B` with a standard PEFT loading path:
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer

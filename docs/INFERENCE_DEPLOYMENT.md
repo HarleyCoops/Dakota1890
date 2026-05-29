@@ -1,126 +1,69 @@
-# Inference & Deployment Guide for Dakota Grammar RL Model
+# Inference Deployment
 
-## Model Published
- **Model**: [HarleyCooper/Qwen3-0.6B-Dakota-Grammar-RL](https://huggingface.co/HarleyCooper/Qwen3-0.6B-Dakota-Grammar-RL)
+Dakota1890 inference is remote-first. Do not require adopters to load a 35B model locally.
 
-## Inference Options
+## Current Surfaces
 
-### 1. **HuggingFace Spaces** (Recommended for Public Demo)
-**Status**:  Ready to deploy
+| Surface | Script | Status |
+|---|---|---|
+| Thinking Machines / Tinker sampler | `run_inference.py` | Verified working |
+| Hugging Face dedicated endpoint | `hf_inference_standalone.py --endpoint-url ...` | Ready once an endpoint is provisioned |
+| Hugging Face shared Inference API | `hf_inference_standalone.py` | Adapter artifacts are public, but no shared provider mapping is currently available |
 
-I've created a complete HuggingFace Space setup in `huggingface_space/`:
-- `app.py` - Gradio interface
-- `requirements.txt` - Dependencies
-- `README.md` - Space description
+## Primary Endpoint
 
-**To deploy:**
-1. Go to https://huggingface.co/spaces
-2. Click "Create new Space"
-3. Select "Gradio" SDK
-4. Name it: `HarleyCooper/dakota-grammar-rl-inference`
-5. Upload the files from `huggingface_space/`
-6. The Space will automatically build and deploy
+The verified sampler is:
 
-**Features:**
-- Interactive web interface
-- Adjustable temperature and max tokens
-- Example prompts included
-- Free GPU inference (T4) for public spaces
-
-### 2. **Prime Intellect Infrastructure**
-**Status**:  Check availability
-
-Prime Intellect may offer:
-- **Inference endpoints** - Check their dashboard/docs for API endpoints
-- **Model serving** - They may have infrastructure for serving RL-trained models
-- **Custom deployments** - Contact Prime Intellect support
-
-**To check:**
-- Look for "Inference" or "Serving" sections in Prime Intellect dashboard
-- Check their documentation for inference APIs
-- The `infer_30b.toml` config suggests they have inference infrastructure
-
-### 3. **Local/Remote Inference**
-**Status**:  Working (needs parameter tuning)
-
-The model loads successfully but generation parameters need tuning:
-- Current issue: Repetitive outputs
-- Solution: Adjust `temperature`, `top_p`, `repetition_penalty`, and stopping criteria
-
-**Quick Test Script**: `scripts/inference/test_model_inference.py`
-
-**To improve:**
-```python
-outputs = model.generate(
-    **inputs,
-    max_new_tokens=64,
-    temperature=0.3,  # Lower = more focused
-    do_sample=True,
-    top_p=0.9,
-    repetition_penalty=1.2,  # Add this to reduce repetition
-    pad_token_id=tokenizer.eos_token_id,
-    eos_token_id=tokenizer.eos_token_id,
-    stop_strings=["Human:", "User:", "\n\n"],  # Add stopping criteria
-)
+```text
+tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final
 ```
 
-### 4. **HuggingFace Inference API**
-**Status**:  Available
+Run:
 
-You can use HuggingFace's Inference API:
-```python
-from huggingface_hub import InferenceClient
-
-client = InferenceClient()
-response = client.text_generation(
-    "HarleyCooper/Qwen3-0.6B-Dakota-Grammar-RL",
-    prompt="Translate to Dakota: Hello",
-    max_new_tokens=64
-)
+```powershell
+python run_inference.py `
+  --prompt "Translate 'my elder brother' to Dakota. Return only the answer." `
+  --max-tokens 32 `
+  --temperature 0 `
+  --json
 ```
 
-**Pricing**: Free tier available, paid tiers for higher throughput
+Verified output shape:
 
-### 5. **Custom API Server**
-**Status**: Can be built
+```json
+{
+  "backend": "tinker",
+  "responses": ["waŋbluŋiŋ"],
+  "stop_reasons": ["stop"]
+}
+```
 
-You can deploy your own API server using:
-- **FastAPI** + **vLLM** (for efficient serving)
-- **Flask** + **transformers** (simpler setup)
-- **TGI** (Text Generation Inference) - HuggingFace's production server
+## Hugging Face Deployment
 
-## Current Inference Test Results
+Published adapter:
 
- **Model loads successfully** from HuggingFace Hub
- **Chat format works** with system prompts
- **Generation needs tuning** - outputs are repetitive
+```text
+HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO
+```
 
-**Next Steps for Better Inference:**
-1. Experiment with `repetition_penalty` parameter
-2. Add proper stopping criteria
-3. Fine-tune temperature and top_p values
-4. Consider post-processing to extract clean responses
+Base model:
 
-## Recommended Deployment Path
+```text
+Qwen/Qwen3.6-35B-A3B
+```
 
-1. **Short-term**: Deploy HuggingFace Space for public demo
-2. **Medium-term**: Tune generation parameters and update Space
-3. **Long-term**: 
-   - Check Prime Intellect inference options
-   - Or deploy custom API server if needed
-   - Consider using vLLM for production serving
+Use a dedicated HF Inference Endpoint:
 
-## Files Created
+```powershell
+python hf_inference_standalone.py `
+  --endpoint-url "https://YOUR-ENDPOINT.endpoints.huggingface.cloud" `
+  --prompt "Translate 'my elder brother' to Dakota. Return only the answer." `
+  --max-tokens 32 `
+  --json
+```
 
-- `scripts/inference/test_model_inference.py` - Local inference test script
-- `huggingface_space/app.py` - Gradio interface for Spaces
-- `huggingface_space/requirements.txt` - Dependencies
-- `huggingface_space/README.md` - Space description
+The script uses the base tokenizer chat template and disables Qwen thinking by default.
 
-## Notes
+## Adoption Guide
 
-- The model was trained with RL on Dakota grammar tasks
-- It expects chat format with system prompts
-- Generation parameters may need adjustment for best results
-- The model preserves Dakota orthography (special characters)
-
+Use [REMOTE_INFERENCE.md](REMOTE_INFERENCE.md) as the canonical guide for external users.

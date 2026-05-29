@@ -1,0 +1,53 @@
+version = "1.0"
+
+[task]
+name = "HarleyCoops/HarleyCoops__Dakota1890-15"
+description = "Fix doc workflow to skip missing mkdocs and add hyperbolic dependency"
+
+[metadata]
+difficulty = "medium"
+category = "bugfix"
+keywords = [
+    "Dakota1890",
+    "pr_diff",
+]
+
+[metadata.repo2env]
+pipeline = "pr_diff"
+pipeline_version = "0.3.0"
+repo = "HarleyCoops/Dakota1890"
+ref = "3ee7c470253f0394330dac38585f052b5b257981"
+reference = "https://github.com/HarleyCoops/Dakota1890/pull/15"
+source_access = "auto"
+built_at = "2026-05-29T01:46:54.035582+00:00"
+reward_kinds = [
+    "diff_similarity",
+]
+spec_version = "0.2.0"
+content_hash = "sha256:2e1906a83c937e0b3f5bb2ebe59b38a8d53ed6e40ecadd9d5e45a23fbe776f25"
+
+[metadata.repo2env.pr_diff]
+pr_merged_at = "2025-08-17T15:50:51Z"
+diff_format = "unified"
+context_files = [
+    ".github/workflows/documentation.yml",
+    "implementation/examples/hyperbolic_connection.py",
+    "requirements.txt",
+]
+
+[metadata.repo2env.reward_calibration]
+baseline_reward = 0.0
+loc_changed = 34
+difficulty = "medium"
+
+[metadata.repo2env.reproducibility]
+mode = "local_only"
+image_ref = "python:3.12-slim"
+image_tag = "python:3.12-slim"
+image_visibility = "private"
+
+[agent]
+timeout_sec = 1800.0
+
+[verifier]
+timeout_sec = 300.0

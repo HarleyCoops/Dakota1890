@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-"""Standalone Hugging Face inference client for the Dakota 30B adapter."""
+"""Standalone Hugging Face inference client for the Dakota Qwen3.6 adapter."""
 
 import os
 import argparse
 import json
+import sys
 from typing import Optional, Dict, Any
 from huggingface_hub import InferenceClient, login
 from huggingface_hub.utils import HfHubHTTPError
 
-MODEL_ID = "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"
+MODEL_ID = "HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO"
+BASE_MODEL_ID = "Qwen/Qwen3.6-35B-A3B"
 
-DEFAULT_SYSTEM_PROMPT = (
-    "You are a Dakota language expert specializing in the 1890 Dakota-English Dictionary grammar. "
-    "Translate or explain each prompt concisely while preserving Dakota orthography exactly, "
-    "including special characters (ć, š, ŋ, ḣ, ṡ, á, é, í, ó, ú, etc.) and cultural/grammatical nuance."
-)
+DEFAULT_SYSTEM_PROMPT = "Answer Dakota grammar tasks concisely. Return only the answer."
 
 
 def format_chat_messages(system_prompt: str, user_message: str) -> list:
@@ -47,20 +45,24 @@ class DakotaInferenceClient:
     def __init__(
         self,
         model_id: str = MODEL_ID,
+        base_model_id: str = BASE_MODEL_ID,
         endpoint_url: Optional[str] = None,
         token: Optional[str] = None,
-        timeout: int = 120
+        timeout: int = 120,
+        allow_login: bool = True,
     ):
         """
         Initialize the inference client.
         
         Args:
             model_id: HuggingFace model ID
+            base_model_id: Base model repo used for tokenizer chat templating
             endpoint_url: Optional Inference Endpoint URL (if using dedicated endpoints)
             token: Optional HF token (will use login if not provided)
             timeout: Client-side timeout in seconds
         """
         self.model_id = model_id
+        self.base_model_id = base_model_id
         self.endpoint_url = endpoint_url
         self.timeout = timeout
         
@@ -69,8 +71,12 @@ class DakotaInferenceClient:
             self.token = token
         elif os.getenv("HF_TOKEN"):
             self.token = os.getenv("HF_TOKEN")
+        elif os.getenv("HUGGINGFACE_TOKEN"):
+            self.token = os.getenv("HUGGINGFACE_TOKEN")
         elif endpoint_url:
             # Public endpoint usage: no token and no interactive login.
+            self.token = None
+        elif not allow_login:
             self.token = None
         else:
             # Try to login interactively (Inference API path)
@@ -160,11 +166,12 @@ class DakotaInferenceClient:
             if self.mode == "endpoint":
                 # Endpoint handlers expose text-generation; build chat prompt via tokenizer and call text_generation.
                 from transformers import AutoTokenizer
-                tokenizer = AutoTokenizer.from_pretrained(self.model_id, token=self.token)
+                tokenizer = AutoTokenizer.from_pretrained(self.base_model_id, token=self.token)
                 formatted_prompt = tokenizer.apply_chat_template(
                     messages,
                     tokenize=False,
-                    add_generation_prompt=True
+                    add_generation_prompt=True,
+                    enable_thinking=False,
                 )
                 response = self.client.text_generation(
                     formatted_prompt,
@@ -184,11 +191,12 @@ class DakotaInferenceClient:
                 # The verifiers framework automatically calls apply_chat_template()
                 # when message_type="chat" is set (as it was in DakotaGrammarEnv).
                 from transformers import AutoTokenizer
-                tokenizer = AutoTokenizer.from_pretrained(self.model_id, token=self.token)
+                tokenizer = AutoTokenizer.from_pretrained(self.base_model_id, token=self.token)
                 formatted_prompt = tokenizer.apply_chat_template(
                     messages,
                     tokenize=False,
-                    add_generation_prompt=True
+                    add_generation_prompt=True,
+                    enable_thinking=False,
                 )
                 
                 # Call Inference API
@@ -251,6 +259,9 @@ class DakotaInferenceClient:
 
 def main():
     """Main CLI interface."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
     parser = argparse.ArgumentParser(
         description="Run inference on Dakota Grammar RL model using HF infrastructure"
     )
@@ -268,6 +279,12 @@ def main():
         help=f"Model ID (default: {MODEL_ID})"
     )
     parser.add_argument(
+        "--base-model-id",
+        type=str,
+        default=BASE_MODEL_ID,
+        help=f"Base model ID for tokenization (default: {BASE_MODEL_ID})"
+    )
+    parser.add_argument(
         "--endpoint-url",
         type=str,
         default=None,
@@ -283,6 +300,12 @@ def main():
         type=str,
         default=None,
         help="HuggingFace token (optional, uses login if not provided)"
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=120,
+        help="Client timeout in seconds (default: 120)"
     )
     parser.add_argument(
         "--system-prompt",
@@ -340,8 +363,11 @@ def main():
     try:
         client = DakotaInferenceClient(
             model_id=args.model_id,
+            base_model_id=args.base_model_id,
             endpoint_url=args.endpoint_url,
-            token=args.token
+            token=args.token,
+            timeout=args.timeout,
+            allow_login=not args.no_login,
         )
     except Exception as e:
         print(f"Failed to initialize client: {e}")
@@ -396,6 +422,8 @@ def main():
     
     if args.json:
         print(json.dumps(result, indent=2))
+        if "error" in result:
+            return 1
     else:
         if "error" in result:
             print(f"Error: {result['error']}")

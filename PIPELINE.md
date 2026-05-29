@@ -14,8 +14,8 @@ flowchart TD
     F --> G["Packaged Dakota environment<br/>environments/dakota_grammar_translation"]
     G --> H["Local RL checks<br/>dakota_rl_training/train.py --check-only"]
     G --> I["Remote RL path<br/>dakota_rl_training/tinker_train.py"]
-    I --> J["Published adapter<br/>HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"]
-    J --> K["Inference surfaces<br/>run_inference.py<br/>hf_inference_standalone.py<br/>huggingface_space/"]
+    I --> J["Published adapter<br/>HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO"]
+    J --> K["Remote inference surfaces<br/>Tinker sampler via run_inference.py<br/>HF endpoint via hf_inference_standalone.py"]
     D --> L["data/extracted/*.json"]
     L --> M["training_dataset_builder / provenance checks"]
 ```
@@ -41,8 +41,8 @@ flowchart TD
 - Packaged environment: `from dakota_grammar_translation import load_environment`
 - Local RL check: `python dakota_rl_training/train.py --check-only`
 - Remote RL path: `python dakota_rl_training/tinker_train.py ...`
-- Local inference: `python run_inference.py --prompt "..."`
-- HF inference: `python hf_inference_standalone.py --prompt "..."`
+- Tinker sampler inference: `python run_inference.py --prompt "..."`
+- HF endpoint inference: `python hf_inference_standalone.py --endpoint-url "..." --prompt "..."`
 
 ## Current Artifact Counts
 
@@ -54,5 +54,5 @@ flowchart TD
 ## Notes
 
 - The packaged environment is the Dakota Grammar Gym. It wraps the RL task dataset plus the reward rubric and exposes `load_environment()`.
-- The published adapter metadata currently points to `Qwen/Qwen3-30B-A3B-Instruct-2507` with LoRA rank `32`.
+- The current published adapter metadata points to `Qwen/Qwen3.6-35B-A3B` with LoRA rank `32`.
 - The local RL check path uses `Qwen/Qwen3-0.6B` for consumer-hardware validation.

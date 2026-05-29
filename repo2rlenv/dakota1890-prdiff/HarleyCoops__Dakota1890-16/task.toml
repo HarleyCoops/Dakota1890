@@ -1,0 +1,71 @@
+version = "1.0"
+
+[task]
+name = "HarleyCoops/HarleyCoops__Dakota1890-16"
+description = "Add governance docs, offline CI, and reproducible eval kit"
+
+[metadata]
+difficulty = "large"
+category = "bugfix"
+keywords = [
+    "Dakota1890",
+    "pr_diff",
+]
+
+[metadata.repo2env]
+pipeline = "pr_diff"
+pipeline_version = "0.3.0"
+repo = "HarleyCoops/Dakota1890"
+ref = "1976953518a0f75deaec1d55a67f483ad341eee4"
+reference = "https://github.com/HarleyCoops/Dakota1890/pull/16"
+source_access = "auto"
+built_at = "2026-05-29T01:46:53.185742+00:00"
+reward_kinds = [
+    "diff_similarity",
+]
+spec_version = "0.2.0"
+content_hash = "sha256:a89f87a8f87954edc11d28bda6ee9a248a97cac2c3d4fa5307f8111a0540684d"
+
+[metadata.repo2env.pr_diff]
+pr_merged_at = "2025-10-06T23:55:08Z"
+diff_format = "unified"
+context_files = [
+    ".github/workflows/ci.yml",
+    "CITATION.cff",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "DATA_LICENSE.md",
+    "ETHICS.md",
+    "EVALUATION.md",
+    "LICENSE",
+    "QUICK_START_DAKOTA.md",
+    "README.md",
+    "blackfeet_extraction/README.md",
+    "conftest.py",
+    "eval/README.md",
+    "eval/__init__.py",
+    "eval/fixtures/sample_ground_truth.jsonl",
+    "eval/fixtures/sample_predictions.jsonl",
+    "eval/report.md",
+    "eval/run_eval.py",
+    "eval/score_extraction.py",
+    "pytest.ini",
+    "test_offline_eval.py",
+]
+
+[metadata.repo2env.reward_calibration]
+baseline_reward = 0.0
+loc_changed = 666
+difficulty = "large"
+
+[metadata.repo2env.reproducibility]
+mode = "local_only"
+image_ref = "python:3.12-slim"
+image_tag = "python:3.12-slim"
+image_visibility = "private"
+
+[agent]
+timeout_sec = 1800.0
+
+[verifier]
+timeout_sec = 300.0

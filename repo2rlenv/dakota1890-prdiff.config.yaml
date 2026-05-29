@@ -1,0 +1,18 @@
+spec_version: "0.1.0"
+repo:
+  url: "HarleyCoops/Dakota1890"
+  access: "auto"
+pipeline:
+  name: "pr_diff"
+  options:
+    limit: 8
+    max_files_per_pr: 25
+    min_loc_changed: 3
+llm:
+  provider: "anthropic"
+  model: "claude-sonnet-4-6"
+output:
+  destination: "repo2rlenv/dakota1890-prdiff"
+  org: "HarleyCoops"
+  dataset_name: "dakota1890-prdiff"
+  visibility: "public"

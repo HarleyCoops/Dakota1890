@@ -1,0 +1,80 @@
+diff --git a/.github/workflows/documentation.yml b/.github/workflows/documentation.yml
+index 31e313ec..5c4a9ad5 100644
+--- a/.github/workflows/documentation.yml
++++ b/.github/workflows/documentation.yml
+@@ -115,12 +115,12 @@ jobs:
+         labels: documentation
+ 
+     - name: Generate Documentation Site
+-      if: github.event_name == 'push' || github.event_name == 'schedule'
++      if: (github.event_name == 'push' || github.event_name == 'schedule') && hashFiles('mkdocs.yml') != ''
+       run: |
+         mkdocs build || echo "Documentation site build skipped"
+ 
+     - name: Deploy Documentation
+-      if: (github.event_name == 'push' || github.event_name == 'schedule') && success()
++      if: (github.event_name == 'push' || github.event_name == 'schedule') && hashFiles('mkdocs.yml') != '' && success()
+       uses: peaceiris/actions-gh-pages@v3
+       with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+@@ -131,9 +131,20 @@ jobs:
+       uses: actions/github-script@v6
+       with:
+         script: |
+-          github.rest.issues.create({
++          const title = 'Documentation Workflow Failed';
++          const { data: issues } = await github.rest.issues.listForRepo({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+-            title: 'Documentation Workflow Failed',
+-            body: 'The documentation automation workflow has failed. Please check the logs for more details.'
+-          })
++            state: 'open',
++            per_page: 100
++          });
++          if (!issues.find(issue => issue.title === title)) {
++            await github.rest.issues.create({
++              owner: context.repo.owner,
++              repo: context.repo.repo,
++              title,
++              body: 'The documentation automation workflow has failed. Please check the logs for more details.'
++            });
++          } else {
++            core.info('Failure issue already exists');
++          }
+diff --git a/implementation/examples/hyperbolic_connection.py b/implementation/examples/hyperbolic_connection.py
+index 469f7aa0..d105f394 100644
+--- a/implementation/examples/hyperbolic_connection.py
++++ b/implementation/examples/hyperbolic_connection.py
+@@ -1,12 +1,16 @@
+ import os
+ 
+-# Import the HyperbolicClient from the hyperbolic package as per Hyperbolic documentation.
+-# Ensure the package is installed via 'pip install hyperbolic'
+-from hyperbolic import HyperbolicClient
++# Import HyperbolicClient if available; otherwise, set to None to avoid import errors during testing.
++try:
++    from hyperbolic import HyperbolicClient  # type: ignore
++except Exception:
++    HyperbolicClient = None  # type: ignore
+ 
+ 
+ def connect_to_hyperbolic(api_key: str, endpoint: str):
+     """Initialize a connection to the Hyperbolic API and return available models to verify connection."""
++    if HyperbolicClient is None:
++        raise ImportError("HyperbolicClient is not available. Install the hyperbolic package.")
+     client = HyperbolicClient(api_key=api_key, endpoint=endpoint)
+     try:
+         # Example API call: list available models
+diff --git a/requirements.txt b/requirements.txt
+index 2181f23e..d7020009 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -10,6 +10,7 @@ huggingface_hub>=0.19.0
+ runpod>=1.3.0
+ together>=0.2.0
+ replicate>=0.22.0
++hyperbolic>=2.0.0
+ 
+ # Development dependencies
+ pytest>=7.4.0
