@@ -1,4 +1,4 @@
-# Dakota1890: Grammar-to-RL for Low-Resource Languages
+# Dakota1890: A General Grammar-to-RL Pipeline for All Low-Resource Languages
 
 <div align="right">
 
