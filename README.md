@@ -1,4 +1,4 @@
-# Dakota1890: Grammar-to-RL for Low-Resource Language Revitalization
+# Dakota1890: Grammar-to-RL for Low-Resource Languages
 
 <div align="right">
 
@@ -52,6 +52,16 @@ That gives the project a two-stage structure:
 
 - historical source to structured model-training environment
 - community-in-the-loop refinement toward contemporary local use
+
+### Live Dakota RL Update
+
+RL learning on Dakota is now underway in the current 35B run, and the first published adapter from that cycle is live on Hugging Face:
+
+- [`HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO`](https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO)
+
+This is the active model surface for the next round of inference and evaluation. We are now rerunning, auditing, and comparing the Dakota RL path against the supervised baseline built from the same source, with updated results to follow as the rerun analysis settles.
+
+The larger point is not Dakota alone. The evidence so far suggests that grammar-backed reinforcement learning may generalize beyond a single language family: if a low-resource language has a usable historical source and a community-guided second stage, the same method can be reused rather than rebuilt from scratch.
 
 ### Technical Core
 
