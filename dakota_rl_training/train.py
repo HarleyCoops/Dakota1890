@@ -8,6 +8,7 @@ and runs GRPO training with curriculum learning.
 """
 
 import argparse
+import importlib.util
 import logging
 import site
 import sys
@@ -55,15 +56,11 @@ def check_prerequisites() -> tuple[bool, list[str]]:
     if not PRIME_RL_AVAILABLE:
         issues.append("prime_rl not installed. Install with: pip install git+https://github.com/PrimeIntellect-ai/prime-rl.git")
     
-    try:
-        import verifiers as vf
-    except ImportError:
+    if importlib.util.find_spec("verifiers") is None:
         issues.append("verifiers not installed. Install with: pip install git+https://github.com/PrimeIntellect-ai/verifiers.git")
     
     # Check if environment package is installed or available directly from the repo.
-    try:
-        from dakota_grammar_translation import load_environment
-    except ImportError:
+    if importlib.util.find_spec("dakota_grammar_translation") is None:
         issues.append(
             "dakota_grammar_translation environment could not be imported from the repo. "
             "Install with: pip install -e environments/dakota_grammar_translation"

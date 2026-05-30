@@ -1,0 +1,32 @@
+target-version = "py311"
+line-length = 100
+
+extend-exclude = [
+    ".git",
+    ".venv",
+    ".venv_*",
+    "__pycache__",
+    "archive",
+    "dakota_rl_outputs",
+    "dakota_rl_training/outputs",
+    "data",
+    "docs",
+    "e2b",
+    "hf_model_card_work",
+    "OpenAIFineTune",
+    "outputs",
+    "prime-rl-framework",
+    "Public",
+    "Qwen3-30B-ThinkingMachines-Dakota1890",
+    "Qwen3.6-35B-A3B-Dakota1890-GRPO",
+    "repo2rlenv",
+    "scripts/analysis",
+    "scripts/visualization",
+    "scripts/visualize_wandb_run.py",
+    "wandb",
+    "wandb_analysis",
+    "wandb_visualizations",
+]
+
+[lint]
+select = ["F", "E7", "E9"]

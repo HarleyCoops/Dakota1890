@@ -29,7 +29,14 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install ruff
       - name: Ruff check
-        run: ruff check .
+        run: >
+          ruff check
+          dakota_extraction
+          dakota_rl_training
+          environments
+          tests
+          run_inference.py
+          hf_inference_standalone.py
 
   tests:
     name: Offline Tests

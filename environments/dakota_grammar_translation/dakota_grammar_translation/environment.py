@@ -12,7 +12,7 @@ import tempfile
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence
 from urllib.request import urlopen
 
 import verifiers as vf
@@ -453,9 +453,6 @@ class DakotaGrammarRubric(Rubric):
         """
         info = info or {}
         parser = self.parser
-        
-        # Extract prediction once
-        prediction = self._prediction(completion, parser)
         
         # Compute raw component scores
         exact_match_raw = float(self.exact_match_reward(completion, answer, parser, **kwargs))

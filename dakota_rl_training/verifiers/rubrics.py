@@ -134,7 +134,6 @@ class DakotaGrammarRubric(Rubric):
         # Partial credit logic:
         # Find best substring match? Too expensive.
         # Fallback: Check if Levenshtein is small relative to expected length?
-        distance = self._levenshtein(response_norm, expected_norm)
         max_len = max(len(response_norm), len(expected_norm))
 
         if max_len == 0:

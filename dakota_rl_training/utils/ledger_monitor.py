@@ -4,11 +4,10 @@ Custom Monitor for Reward Ledger Logging
 Extends WandbMonitor to also log detailed reward ledger data.
 """
 
-import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from prime_rl.utils.monitor import WandbMonitor, setup_monitor as setup_base_monitor
+from prime_rl.utils.monitor import WandbMonitor
 from prime_rl.utils.config import WandbMonitorConfig
 from prime_rl.utils.logger import get_logger
 

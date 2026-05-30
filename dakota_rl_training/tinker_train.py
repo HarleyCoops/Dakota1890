@@ -10,7 +10,6 @@ import os
 import sys
 from pathlib import Path
 import json
-import glob
 import site
 
 os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
@@ -20,8 +19,7 @@ _orig_sys_path = list(sys.path)
 _site_paths = [site.getusersitepackages(), *site.getsitepackages()]
 _clean_path = [p for p in _orig_sys_path if "dakota_rl_training" not in p]
 sys.path = [p for p in _site_paths if p] + _clean_path
-import verifiers  # type: ignore
-import verifiers.envs.singleturn_env  # type: ignore
+import verifiers  # type: ignore  # noqa: F401
 # Restore sys.path with project paths added
 sys.path = _orig_sys_path
 

@@ -7,6 +7,8 @@ import json
 import sys
 from typing import Any
 
+ADAPTER_NAME = "HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO"
+BASE_MODEL_NAME = "Qwen/Qwen3.6-35B-A3B"
 DEFAULT_MODEL_PATH = (
     "tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/"
     "sampler_weights/final"

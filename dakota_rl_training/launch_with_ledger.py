@@ -34,7 +34,7 @@ from pathlib import Path
 # Add dakota_rl_training to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from dakota_rl_training.train import create_rl_config, check_prerequisites
+from dakota_rl_training.train import check_prerequisites
 from dotenv import load_dotenv
 
 
@@ -145,10 +145,6 @@ def main():
         return 1
     
     print("\nAll prerequisites met!")
-    
-    # Parse GPU IDs
-    trainer_gpu_ids = [int(x.strip()) for x in args.trainer_gpu_ids.split(",")]
-    inference_gpu_ids = [int(x.strip()) for x in args.inference_gpu_ids.split(",")]
     
     # Build uv rl command
     cmd_parts = ["uv", "run", "rl"]

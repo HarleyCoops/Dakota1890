@@ -5,13 +5,11 @@ This module patches the orchestrator's monitor to extract ledger data
 from environment states and log it to W&B and CSV.
 """
 
-import os
-from pathlib import Path
 from typing import Any, Dict, List
 
 # Try to import ledger logging utilities
 try:
-    from dakota_rl_training.utils.ledger_logging import log_step_ledger, extract_ledger_from_info
+    from dakota_rl_training.utils.ledger_logging import extract_ledger_from_info
     LEDGER_AVAILABLE = True
 except ImportError:
     LEDGER_AVAILABLE = False

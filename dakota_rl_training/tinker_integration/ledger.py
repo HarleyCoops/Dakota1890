@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-from typing import Dict, Iterable, Iterator
+from typing import Dict, Iterator
 
 LEDGER_FIELDS = [
     "step",
