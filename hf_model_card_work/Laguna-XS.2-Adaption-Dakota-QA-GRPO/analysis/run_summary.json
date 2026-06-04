@@ -1,0 +1,78 @@
+{
+  "hf_repo": "HarleyCooper/Laguna-XS.2-Adaption-Dakota-QA-GRPO",
+  "training_platform": "Prime Intellect Hosted Training",
+  "dashboard": "https://app.primeintellect.ai/dashboard/training/bbu5xvdv42zh8o6vp955klhy",
+  "run_id": "bbu5xvdv42zh8o6vp955klhy",
+  "smoke_run_id": "l8bs3nhaqitribgit4xoyunu",
+  "base_model": "poolside/Laguna-XS.2",
+  "environment": "harleycooper/adaption-dakota-qa",
+  "dataset": "HarleyCooper/adaption-dakota-english-qa",
+  "method": "GRPO-style hosted RL with Prime Verifiers single-turn environment",
+  "status": "COMPLETED",
+  "created_utc": "2026-06-04 03:09",
+  "started_utc": "2026-06-04 03:12",
+  "completed_utc": "2026-06-04 06:41",
+  "max_steps": 100,
+  "latest_step": 99,
+  "batch_size": 128,
+  "rollouts_per_example": 8,
+  "max_tokens": 768,
+  "learning_rate": 0.0001,
+  "total_tokens": 3957068.0,
+  "total_samples": 12800.0,
+  "total_problems": 1595.0,
+  "cost_usd": 0.0,
+  "first_metrics": {
+    "reward/all/mean": 0.2833,
+    "reward/all/max": 0.502806,
+    "reward/all/min": 0.122646,
+    "metrics/harleycooper/adaption-dakota-qa/char_f1_reward": 0.326565,
+    "metrics/harleycooper/adaption-dakota-qa/dakota_term_reward": 0.255516,
+    "metrics/harleycooper/adaption-dakota-qa/keyword_reward": 0.452124,
+    "metrics/harleycooper/adaption-dakota-qa/length_reward": 0.571849
+  },
+  "final_metrics": {
+    "reward/all/mean": 0.432624,
+    "reward/all/max": 0.652041,
+    "reward/all/min": 0.080169,
+    "metrics/harleycooper/adaption-dakota-qa/char_f1_reward": 0.635267,
+    "metrics/harleycooper/adaption-dakota-qa/dakota_term_reward": 0.420664,
+    "metrics/harleycooper/adaption-dakota-qa/keyword_reward": 0.36771,
+    "metrics/harleycooper/adaption-dakota-qa/length_reward": 0.92452,
+    "filters/all/zero_advantage": 0.0,
+    "empty_rollouts/all": 0.0,
+    "errored_rollouts/all": 0.0
+  },
+  "checkpoints": [
+    {
+      "id": "h0y0un58kea8uro0kqkv1zuz",
+      "adapter_id": "djzuko6ckwuyfgj6p9c6g10s",
+      "step": 50,
+      "status": "READY",
+      "size_bytes": 19913934918,
+      "storage_url": "r2://pi-rft-prod/runs/bbu5xvdv42zh8o6vp955klhy/checkpoints/step_50/"
+    },
+    {
+      "id": "xq30oegs88b6jgk2l77sx1qb",
+      "adapter_id": "h1rwu671te8cmng5rw2p24vf",
+      "step": 75,
+      "status": "READY",
+      "size_bytes": 19913934918,
+      "storage_url": "r2://pi-rft-prod/runs/bbu5xvdv42zh8o6vp955klhy/checkpoints/step_75/"
+    },
+    {
+      "adapter_id": "w1n9h644zkiiqjef1ux6jjr4",
+      "step": null,
+      "status": "READY",
+      "note": "Final completed-run adapter listed by Prime deployments; deploy attempt returned DEPLOY_FAILED at publication time."
+    }
+  ],
+  "inference_model": "poolside/Laguna-XS.2:h1rwu671te8cmng5rw2p24vf",
+  "inference_status": "Prime-hosted inference is live for the step-75 adapter from a local WSL terminal when using prime inference chat with a large max token budget such as --max-tokens 25000. Direct local weight-file inference remains blocked because Prime exposes private R2 checkpoint paths rather than downloadable PEFT adapter files.",
+  "inference_probe": {
+    "prompt": "Given the verb a-kpa'-spa, what are the forms for I suffer patiently and You suffer patiently?",
+    "command": "prime inference chat \"poolside/Laguna-XS.2:h1rwu671te8cmng5rw2p24vf\" \"Given the verb a-kpa'-spa, what are the forms for I suffer patiently and You suffer patiently?\" --max-tokens 25000",
+    "status": "responded",
+    "note": "The adapter produced an answer, but the first manual probe was not linguistically correct against the dataset target; this checkpoint needs evaluation before use as an authoritative Dakota assistant."
+  }
+}

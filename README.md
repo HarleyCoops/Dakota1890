@@ -55,13 +55,16 @@ That gives the project a two-stage structure:
 
 ### Live Dakota RL Update
 
-RL learning on Dakota is now underway in the current 35B run, and the first published adapter from that cycle is live on Hugging Face:
+RL learning on Dakota now has two public Hugging Face surfaces:
 
-- [`HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO`](https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO)
+- [`HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO`](https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO) — the Thinking Machines/Tinker Dakota grammar adapter card.
+- [`HarleyCooper/Laguna-XS.2-Adaption-Dakota-QA-GRPO`](https://huggingface.co/HarleyCooper/Laguna-XS.2-Adaption-Dakota-QA-GRPO) — the Prime Intellect Hosted Training run card for the Adaption Labs Dakota-English QA dataset.
 
-This is the active model surface for the next round of inference and evaluation. We are now rerunning, auditing, and comparing the Dakota RL path against the supervised baseline built from the same source, with updated results to follow as the rerun analysis settles.
+The Prime Laguna run completed on 2026-06-04 using `poolside/Laguna-XS.2`, the `harleycooper/adaption-dakota-qa` verifier environment, and the full `HarleyCooper/adaption-dakota-english-qa` dataset path. It ran 100 hosted RL steps, processed 12,800 samples / 3.96M tokens at $0.00 under Prime's free Laguna offer, and produced non-degenerate reward signal: reward mean rose from 0.283 to 0.433, character-F1 reward from 0.327 to 0.635, and Dakota-term reward from 0.256 to 0.421 with no empty rollouts, errored rollouts, or zero-advantage filtering at the final step. Prime reported READY checkpoints/adapters at step 50, step 75, and final-run adapter listing; the step-75 adapter now works through Prime-hosted inference from WSL as `poolside/Laguna-XS.2:h1rwu671te8cmng5rw2p24vf` when queried with a large token budget such as `--max-tokens 25000`. Direct local weight-file inference is still pending a Prime adapter export/download path, so the HF card publishes the run ledger, metrics, config, rollout samples, and live Prime inference command.
 
-The larger point is not Dakota alone. The evidence so far suggests that grammar-backed reinforcement learning may generalize beyond a single language family: if a low-resource language has a usable historical source and a community-guided second stage, the same method can be reused rather than rebuilt from scratch.
+This is the active model surface for the next round of inference and evaluation. We are now auditing and comparing the Dakota RL paths against the supervised baseline built from the same source, with updated results to follow as deployment/export settles.
+
+The larger point is not Dakota alone. The evidence so far suggests that grammar- and dictionary-backed reinforcement learning may generalize beyond a single language family: if a low-resource language has a usable historical source and a community-guided second stage, the same method can be reused rather than rebuilt from scratch.
 
 ### Technical Core
 

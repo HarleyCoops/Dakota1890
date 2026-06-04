@@ -1,0 +1,27 @@
+name = "adaption-dakota-qa-laguna-smoke"
+model = "poolside/Laguna-XS.2"
+max_steps = 5
+batch_size = 128
+rollouts_per_example = 8
+learning_rate = 1e-4
+
+[sampling]
+max_tokens = 512
+enable_thinking = false
+
+[[env]]
+id = "harleycooper/adaption-dakota-qa"
+args = { max_examples = 256, eval_fraction = 0.1, eval_examples = 32, prompt_field = "enhanced_prompt", seed = 1890 }
+
+[eval]
+interval = 5
+num_examples = 16
+rollouts_per_example = 1
+
+[checkpoints]
+interval = 5
+keep_cloud = 1
+
+[adapters]
+interval = 5
+keep_last = 1

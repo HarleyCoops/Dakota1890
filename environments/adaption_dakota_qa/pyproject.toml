@@ -1,0 +1,38 @@
+[project]
+name = "adaption-dakota-qa"
+description = "Prime Verifiers environment for the Adaption Dakota-English QA dataset."
+version = "0.1.1"
+tags = ["single-turn", "dakota", "qa", "translation", "train", "eval", "rl"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Christian H. Cooper", email = "christian.cooper.us@gmail.com" },
+]
+dependencies = [
+    "verifiers>=0.1.7.post0",
+    "datasets>=2.18",
+]
+readme = "README.md"
+license = { text = "Apache-2.0" }
+keywords = ["dakota", "translation", "qa", "rl", "verifiers", "prime-intellect", "adaption"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Dataset = "https://huggingface.co/datasets/HarleyCooper/adaption-dakota-english-qa"
+Repository = "https://github.com/HarleyCoops/Dakota1890"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["adaption_dakota_qa"]
+include = [
+    "adaption_dakota_qa/data/*.jsonl",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
