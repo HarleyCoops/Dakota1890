@@ -157,7 +157,7 @@ git-filter-repo==2.47.0
 glcontext==3.0.0
 google==3.0.0
 googleapis-common-protos==1.65.0
-google-adk==2.1.0
+google-adk==2.2.0
 google-ai-generativelanguage==0.6.10
 google-api-core==2.24.0
 google-api-python-client==2.166.0
@@ -458,7 +458,7 @@ python-bidi==0.6.7
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-frontmatter==1.1.0
-python-multipart==0.0.31
+python-multipart==0.0.32
 python-pptx==1.0.2
 python-slugify==8.0.4
 pytorch-lightning==2.6.5
