@@ -14,6 +14,65 @@
 ![Python Package](https://img.shields.io/badge/pypi-dakota--grammar--env-blue)
 
 
+
+## Current result: Prime Dakota QA RL is live
+
+**Newest public result:** Prime Intellect hosted RL on the Adaption Labs Dakota-English QA dataset completed successfully and now has a live Prime-hosted inference endpoint.
+
+### Live inference
+
+The working adapter is the step-75 Prime adapter:
+
+```bash
+prime inference chat \
+  "poolside/Laguna-XS.2:h1rwu671te8cmng5rw2p24vf" \
+  "Given the verb a-kpa'-spa, what are the forms for I suffer patiently and You suffer patiently?" \
+  --max-tokens 25000
+```
+
+Important distinction:
+
+- **Prime-hosted inference works from WSL/local terminal.**
+- **Direct local weight-file inference is not yet available** because Prime exposes the checkpoints as private R2 paths rather than downloadable PEFT/LoRA adapter files.
+- The first manual probe responded, but was not linguistically correct on that specific `a-kpa'-spa` example, so this is a live research checkpoint, not an authoritative Dakota assistant.
+
+### Published run card
+
+- Hugging Face model/run card: [`HarleyCooper/Laguna-XS.2-Adaption-Dakota-QA-GRPO`](https://huggingface.co/HarleyCooper/Laguna-XS.2-Adaption-Dakota-QA-GRPO)
+- Prime run dashboard: [`bbu5xvdv42zh8o6vp955klhy`](https://app.primeintellect.ai/dashboard/training/bbu5xvdv42zh8o6vp955klhy)
+- Dataset: [`HarleyCooper/adaption-dakota-english-qa`](https://huggingface.co/datasets/HarleyCooper/adaption-dakota-english-qa)
+- Verifier environment: `harleycooper/adaption-dakota-qa`
+- Base model: `poolside/Laguna-XS.2`
+
+### Training result
+
+The full free Prime run completed on **2026-06-04**:
+
+| Metric | Result |
+|---|---:|
+| Hosted RL steps | 100 |
+| Samples processed | 12,800 |
+| Tokens processed | 3.96M |
+| Cost | $0.00 |
+| Reward mean | 0.283 → 0.433 |
+| Character-F1 reward | 0.327 → 0.635 |
+| Dakota-term reward | 0.256 → 0.421 |
+| Empty rollouts | 0 final |
+| Errored rollouts | 0 final |
+| Zero-advantage filtering | 0 final |
+
+### Artifacts in this repository
+
+- Prime full-run config: [`environments/adaption_dakota_qa/configs/rl/laguna-full-free.toml`](environments/adaption_dakota_qa/configs/rl/laguna-full-free.toml)
+- HF card workspace: [`hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/`](hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/)
+- Run summary JSON: [`hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/analysis/run_summary.json`](hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/analysis/run_summary.json)
+- Compact Prime metrics: [`hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/analysis/prime_metrics_compact.csv`](hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/analysis/prime_metrics_compact.csv)
+- Rollout samples: [`hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/examples/rollouts_step90.md`](hf_model_card_work/Laguna-XS.2-Adaption-Dakota-QA-GRPO/examples/rollouts_step90.md)
+
+The rest of this README preserves the longer Dakota1890 project narrative and the historical RL visualization record.
+
+---
+
 ## What This Repository Is
 
 Dakota1890 is a proof case for a broader claim: a single historical source can be turned into a reproducible training pipeline for low-resource language revitalization.
