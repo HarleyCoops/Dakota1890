@@ -489,7 +489,7 @@ psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
 pyarrow==16.1.0
-pyasn1==0.6.1
+pyasn1==0.6.3
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
 pycairo==1.27.0
@@ -519,7 +519,7 @@ PyMuPDF==1.27.2.3
 PyNaCl==1.5.0
 pynndescent==0.5.13
 pyogrio==0.11.0
-pyOpenSSL==25.3.0
+pyOpenSSL==26.0.0
 pyparsing==3.2.0
 pypdf==6.10.2
 PyPDF2==3.0.1

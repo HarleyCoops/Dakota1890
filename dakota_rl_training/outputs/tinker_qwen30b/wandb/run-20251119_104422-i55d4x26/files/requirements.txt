@@ -420,7 +420,7 @@ psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
 pyarrow==16.1.0
-pyasn1==0.6.1
+pyasn1==0.6.3
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
 pycairo==1.27.0
