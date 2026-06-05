@@ -84,6 +84,55 @@ Because each piece is checkable by code rather than judgment, GRPO gets dense, m
 
 ---
 
+## See the proof
+
+Everything above is the pitch. Below is what it actually looks like — the source book, the training curves, and the reward signal running live.
+
+### The one book
+
+It all starts with a single public-domain scan: Riggs' 1890 *Grammar and Dictionary of the Dakota Language*.
+
+<img src="Public/grammar.jpg" alt="Grammar of the Dakota Language — 1890 title page" width="100%">
+
+The grammar section (pages 31–92) and the dictionary section (pages 93–440) are the entire training corpus. No parallel text, no modern annotations.
+
+| | |
+|---|---|
+| Dictionary entries → `{dakota:english}` pairs | ![Dakota dictionary scan](Public/Dictionary.jpeg) |
+| Morphology and prepositions → extracted rules | ![Dakota prepositions scan](Public/Prepositions.jpg) |
+
+![Dakota1890 dictionary collage](hf_model_card_work/Qwen3.6-35B-A3B-Dakota1890-GRPO/assets/dakota1890_dictionary_collage.png)
+
+### The latest run — Qwen3.6-35B-A3B GRPO
+
+The reward channels of the most recent 35B run, restored end to end: composite reward climbs, the pattern channel goes live after the schema fix, char-overlap rises while affix accuracy stays high, and the ledger audit confirms `composite_diff` stayed at zero.
+
+![Qwen3.6-35B full run dashboard](wandb_analysis/qwen36_35b_full_rerun_20260527/qwen36_dakota_full_run_dashboard.png)
+
+| Composite reward progression | Reward components |
+|---|---|
+| ![Composite reward progression](wandb_analysis/qwen36_35b_full_rerun_20260527/qwen36_reward_progression.png) | ![Reward components](wandb_analysis/qwen36_35b_full_rerun_20260527/qwen36_reward_components.png) |
+
+![Pattern reward channel](wandb_analysis/qwen36_35b_full_rerun_20260527/qwen36_pattern_channel.png)
+
+### The reward, running live
+
+The deterministic reward is not a black box. Every component — character overlap, affix accuracy, semantic match, difficulty multiplier — is logged per step. Here is a single Tinker training step with the full ledger broken out:
+
+<img src="Public/TrainScreenShot.jpg" alt="Live Tinker training metrics, single step with full reward ledger" width="70%">
+
+![Reward ledger reconciliation](wandb_analysis/reward_ledger.png)
+
+### The method, end to end
+
+How grammar rules become an executable reward function, file by file:
+
+![Methodology overview](Public/overview.jpg)
+
+![Dakota grammar gym methodology diagram](docs/diagram.png)
+
+---
+
 ## Source material
 
 Everything derives from one public-domain book:
