@@ -6,7 +6,7 @@ aioboto3==15.5.0
 aiobotocore==2.25.1
 aiofiles==24.1.0
 aiohappyeyeballs==2.4.4
-aiohttp==3.14.0
+aiohttp==3.14.1
 aiohttp-retry==2.9.1
 aioice==0.10.2
 aioitertools==0.13.0
@@ -488,7 +488,7 @@ psutil==7.0.0
 psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
-pyarrow==16.1.0
+pyarrow==23.0.1
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
@@ -617,7 +617,7 @@ sse-starlette==2.2.1
 sspilib==0.3.1
 stability-sdk==0.8.6
 stack-data==0.6.3
-starlette==0.48.0
+starlette==1.0.1
 stdlib-list==0.11.1
 stone==3.3.1
 stoney-nakoda-pipeline==0.1.0
@@ -660,7 +660,7 @@ tomli==2.3.0
 tomli_w==1.2.0
 tomlkit==0.13.2
 toolz==1.0.0
-torch==2.5.1
+torch==2.12.0
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
