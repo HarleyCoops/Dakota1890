@@ -9,7 +9,7 @@
 
 To our knowledge, this is the first time a model of this size has been trained from a **single historical source document** for an **endangered language**.
 
-The model is not right. That is not the point.
+The model is not always right. That is not the point.
 
 This is the working endpoint that modern descendants of Dakota speakers will correct — the way you correct a toddler learning to speak. The toddler has read the 1890 grammar cover to cover. It knows the orthography, the affixes, the morphology of the book. Now the community teaches it the rest. That community-in-the-loop second stage is the idea carried over from the companion **StoneyNakoda** project, where contemporary speakers correct and extend the model's output.
 
