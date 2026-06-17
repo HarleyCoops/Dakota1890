@@ -2,8 +2,8 @@
 -r requirements.txt
 
 # Documentation generation
-mkdocs>=1.5.2
-mkdocs-material>=9.2.0
-mkdocstrings>=0.24.0
-mkdocstrings-python>=1.7.0
-PyYAML>=6.0.1
+mkdocs>=1.6.1
+mkdocs-material>=9.7.6
+mkdocstrings>=1.0.4
+mkdocstrings-python>=2.0.4
+PyYAML>=6.0.3
