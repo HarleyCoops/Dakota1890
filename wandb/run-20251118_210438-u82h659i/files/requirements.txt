@@ -410,7 +410,7 @@ psutil==7.0.0
 psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
-pyarrow==16.1.0
+pyarrow==23.0.1
 pyasn1==0.6.3
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
@@ -564,7 +564,7 @@ tokenizers==0.22.1
 toml==0.10.2
 tomlkit==0.13.2
 toolz==1.0.0
-torch==2.5.1
+torch==2.12.1
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
