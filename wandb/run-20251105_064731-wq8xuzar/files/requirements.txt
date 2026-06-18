@@ -250,7 +250,7 @@ libclang==18.1.1
 license-expression==30.4.4
 lightning-utilities==0.14.3
 linkify-it-py==2.0.3
-litellm==1.56.10
+litellm==1.83.7
 llvmlite==0.45.1
 locket==1.0.0
 loguru==0.7.3
