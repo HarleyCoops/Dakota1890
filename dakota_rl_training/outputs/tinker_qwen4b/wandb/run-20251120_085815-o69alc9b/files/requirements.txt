@@ -36,7 +36,7 @@ beartype==0.22.5
 beautifulsoup4==4.12.3
 biopython==1.86
 bitsandbytes==0.43.3
-black==23.12.1
+black==26.3.1
 bleach==6.4.0
 blinker==1.9.0
 blobfile==3.1.0
@@ -133,14 +133,14 @@ ffmpeg-python==0.2.0
 ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
-fickling==0.1.5
+fickling==0.1.10
 filelock==3.16.1
 filetype==1.2.0
 findpython==0.6.3
 firecrawl-py==1.9.0
 flake8==6.1.0
 FLAML==2.3.2
-Flask==3.1.0
+Flask==3.1.3
 Flask-SQLAlchemy==3.1.1
 flatbuffers==24.3.25
 flax==0.7.5
@@ -154,7 +154,7 @@ future==1.0.0
 gast==0.6.0
 gcloud==0.18.3
 geomet==1.1.0
-geopandas==1.1.1
+geopandas==1.1.2
 gitdb==4.0.11
 GitPython==3.1.43
 git-filter-repo==2.47.0
@@ -168,7 +168,7 @@ google-api-python-client==2.166.0
 google-auth==2.37.0
 google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.2
-google-cloud-aiplatform==1.88.0
+google-cloud-aiplatform==1.133.0
 google-cloud-bigquery==3.27.0
 google-cloud-core==2.4.1
 google-cloud-resource-manager==1.14.0
@@ -183,7 +183,7 @@ google-pasta==0.2.0
 google-resumable-media==2.7.2
 gotrue==2.12.0
 gql==4.0.0
-gradio==5.28.0
+gradio==6.7.0
 gradio_client==1.10.0
 graphql-core==3.2.7
 graphviz==0.20.3
@@ -268,12 +268,12 @@ langchain-google-genai==2.1.2
 langchain-ollama==0.3.0
 langchain-openai==1.1.14
 langchain-text-splitters==1.1.2
-langgraph==0.3.21
+langgraph==1.0.10rc1
 langgraph-bigtool==0.0.2
-langgraph-checkpoint==2.0.23
+langgraph-checkpoint==4.0.0
 langgraph-prebuilt==0.1.7
 langgraph-sdk==0.1.60
-langsmith==0.8.0
+langsmith==0.8.18
 laspy==2.6.1
 latex==0.7.0
 latex2sympy2_extended==1.10.2
@@ -317,7 +317,7 @@ moderngl-window==3.0.3
 monotonic==1.6
 more-itertools==10.7.0
 mpmath==1.3.0
-msgpack==1.1.1
+msgpack==1.2.1
 msrest==0.7.1
 multidict==6.1.0
 multiprocess==0.70.16
@@ -359,7 +359,7 @@ optax==0.1.7
 optree==0.13.1
 opt_einsum==3.4.0
 orbax-checkpoint==0.1.6
-orjson==3.10.16
+orjson==3.11.6
 ormsgpack==1.9.1
 outcome==1.3.0.post0
 packageurl-python==0.17.5
@@ -420,8 +420,8 @@ psutil==7.0.0
 psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
-pyarrow==23.0.1
-pyasn1==0.6.1
+pyarrow==24.0.0
+pyasn1==0.6.3
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
 pycairo==1.27.0
@@ -432,7 +432,7 @@ pycryptodome==3.23.0
 pycryptodomex==3.23.0
 pydantic==2.11.10
 pydantic_core==2.33.2
-pydantic-settings==2.8.1
+pydantic-settings==2.14.2
 pydeck==0.9.1
 pydub==0.25.1
 pyee==12.0.0
@@ -599,7 +599,7 @@ tyro==0.9.19
 tzdata==2025.2
 tzlocal==5.3.1
 uc-micro-py==1.0.3
-ujson==5.12.1
+ujson==5.13.0
 umap-learn==0.5.9.post2
 universal_pathlib==0.3.6
 uritemplate==4.1.1
@@ -618,9 +618,9 @@ webdriver-manager==4.0.2
 webencodings==0.5.1
 websockets==14.1
 websocket-client==1.8.0
-Werkzeug==3.1.1
+Werkzeug==3.1.6
 wget==3.2
-wheel==0.45.1
+wheel==0.46.2
 widgetsnbextension==4.0.15
 win32_setctime==1.2.0
 wrapt==1.17.0
