@@ -3,7 +3,7 @@
 # after installing this file, because Tinker and legacy Google clients have
 # incompatible protobuf expectations.
 
-tinker==0.22.3
+tinker==0.22.4
 tinker-cookbook==0.4.2
 protobuf>=7.35.1,<8
 chz>=0.4.0

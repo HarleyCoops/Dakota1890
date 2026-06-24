@@ -2,7 +2,7 @@
 -r requirements.txt
 
 # Testing
-pytest>=9.1.0
+pytest>=9.1.1
 
 # Code quality
 black>=26.5.1
