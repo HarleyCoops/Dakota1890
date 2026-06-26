@@ -9,126 +9,110 @@ tags:
 - grpo
 - dakota
 - indigenous-languages
+- low-resource-language
 - thinking-machines
 - tinker
-base_model: Qwen/Qwen3-30B-A3B-Instruct-2507
+- peft
+- lora
+base_model: Qwen/Qwen3.6-35B-A3B
 widget:
-  - text: "Translate 'my elder brother' to Dakota."
+  - text: "Translate 'my elder brother' to Dakota. Return only the answer."
 preview_image: grammar.jpg
 ---
 
-# Qwen3-30B-ThinkingMachines-Dakota1890
+# Qwen3.6-35B-A3B-Dakota1890-GRPO
 
-<div align="center">
-  <img src="https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890/resolve/main/visualizations/comprehensive_dashboard.png" width="100%" alt="Dakota RL Dashboard" />
-</div>
+This is the current Dakota1890 reinforcement-learning adapter. It is a LoRA adapter on top of `Qwen/Qwen3.6-35B-A3B`, trained with a custom Dakota grammar verifier built from Stephen Return Riggs' 1890 public-domain Dakota grammar and dictionary.
 
-This model is a **Reinforcement Learning (RL) fine-tune** of Qwen/Qwen3-30B-A3B-Instruct-2507, optimized for **Dakota language grammar and morphology**.
+The model is a research checkpoint, not an authoritative Dakota assistant. The point of the run is to show that one historical grammar-dictionary can be converted into an executable RL environment: grammar rules become verifiable rewards, dictionary/grammar examples become tasks, and the resulting rough model is ready for community correction.
 
-It was trained using the **Thinking Machines Tinker** distributed RL pipeline, leveraging the **GRPO (Group Relative Policy Optimization)** algorithm. The training process used a custom verifier environment built from Stephen Return Riggs' 1890 _Dakota Grammar & Dictionary_.
+## Current Run
 
-## Model Details
+- Hugging Face repo: `HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO`
+- Base model: `Qwen/Qwen3.6-35B-A3B`
+- Method: GRPO-style RL with a deterministic Dakota grammar verifier
+- Adapter: LoRA, rank 32
+- Training platform: Thinking Machines Tinker
+- W&B run: https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/owf98569
+- Final state path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/weights/final`
+- Final sampler path: `tinker://1f23df9c-5d88-59d9-a7e8-dd4e169ea7d0:train:0/sampler_weights/final`
 
-* **Base Model**: Qwen/Qwen3-30B-A3B-Instruct-2507
-* **Architecture**: LoRA Adapter (Rank 32)
-* **Training Method**: GRPO (Group Relative Policy Optimization)
-* **Training Infrastructure**: Thinking Machines Tinker
-* **Language**: Dakota (dak), English (en)
-* **License**: Apache 2.0
+## Final Run Findings
 
-## Training Data & Methodology
+The audited 35B run completed 199 logged metric rows.
 
-The model was trained on a dataset of **10,576 RL tasks** generated from 1,497 extracted Dakota grammar rules. These tasks focus on:
+- Composite reward improved from `0.1664` to `0.2297`.
+- Character-overlap reward improved from `0.1424` to `0.4027`.
+- Affix reward stayed high and ended at `1.0000`.
+- All-task `pattern_raw` was nonzero in 186 of 199 training rows.
+- `identify_pattern` pattern reward reached `0.90625` and was nonzero in 179 of 199 rows.
+- `composite_diff` stayed exactly `0.0`, confirming the logged ledger reconstructs the scalar reward.
 
-1. **Morphology**: Applying prefixes/suffixes (e.g., possessives `-ku`, `-ću`, `-tku`).
-2. **Translation**: Context-aware translation between Dakota and English.
-3. **Character Preservation**: Strict adherence to Dakota orthography (ŋ, š, ć, ź, ž, ʼ).
+Machine-readable findings are in `wandb_analysis/qwen36_35b_full_rerun_20260527/final_run_summary.json`; charts and the markdown audit are in the same directory.
 
-### Reward Function
+## Training Data
 
-The RL training used a composite reward function (`DakotaGrammarRubric`) with the following components:
+The packaged RL environment contains:
 
-* **Character Preservation (20%)**: Verifies correct usage of special Unicode characters.
-* **Affix Accuracy (10%)**: Checks for correct morphological transformations.
-* **Exact Match (40%)**: Rewards precise answers for rigid grammatical tasks.
-* **Pattern Matching (15%)**: Uses regex to verify structural correctness.
-* **Length Penalty (15%)**: Prevents verbosity.
+- 1,497 extracted grammar-rule records
+- 10,576 total RL tasks
+- 1,497 pattern-bearing task rows
+- 514 rows with affix metadata
 
-### Training Dynamics
+Task families include word translation, reverse translation, morphology, pattern identification, positive/negative evidence, exception triggers, syntax, sentence translation, affix insertion, and multi-step morphology.
 
-<div align="center">
-  <img src="https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890/resolve/main/visualizations/reward_progression.png" width="100%" alt="Reward Progression" />
-</div>
+## Reward Function
 
-The model showed significant improvement in both morphological accuracy and character preservation over the course of training.
+The verifier scores outputs with a transparent reward ledger:
 
-## Performance
+- exact match: 40%
+- character overlap: 20%
+- pattern match: 15%
+- affix accuracy: 10%
+- length control: 15%
 
-(Metrics from the final training run)
-
-* **Morphological Accuracy**: 100.0%
-* **Character Preservation**: 61.9% (on strict exact match of all special chars)
-* **Overall Composite Reward**: 0.317
-* **Token Efficiency**: Reduced from ~210 tokens/turn to 13.28 tokens/turn
-
-<div align="center">
-  <img src="https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890/resolve/main/visualizations/training_metrics.png" width="100%" alt="Training Metrics" />
-</div>
+Difficulty multipliers are applied after the component sum. The ledger logs raw values, normalized values, weights, weighted contributions, reconstructed composites, scalar reward, and `composite_diff`.
 
 ## Usage
-
-### With Hugging Face Transformers
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-base_model_name = "Qwen/Qwen3-30B-A3B-Instruct-2507"
-adapter_name = "HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890"
+base_model_name = "Qwen/Qwen3.6-35B-A3B"
+adapter_name = "HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO"
 
-# Load base model
 model = AutoModelForCausalLM.from_pretrained(
     base_model_name,
     device_map="auto",
-    trust_remote_code=True
+    torch_dtype="auto",
+    trust_remote_code=True,
 )
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
-
-# Load adapter
 model = PeftModel.from_pretrained(model, adapter_name)
 
-# Inference
-prompt = "Translate 'my elder brother' to Dakota using the correct possessive suffix."
 messages = [
-    {"role": "system", "content": "You are a Dakota language expert."},
-    {"role": "user", "content": prompt}
+    {"role": "system", "content": "Answer Dakota grammar tasks concisely. Return only the answer."},
+    {"role": "user", "content": "Translate 'my elder brother' to Dakota. Return only the answer."},
 ]
 text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 inputs = tokenizer(text, return_tensors="pt").to(model.device)
-
-outputs = model.generate(**inputs, max_new_tokens=128)
+outputs = model.generate(**inputs, max_new_tokens=64, do_sample=False)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
-### With Thinking Machines Tinker
+## Limitations
 
-This checkpoint is also available directly via the Tinker platform:
-
-```python
-# Tinker path
-tinker_path = "tinker://da1ef918-d67a-5080-b500-dd1256db9ca7:train:0/weights/final"
-```
-
-## Files
-
-* `adapter_model.safetensors`: The LoRA adapter weights.
-* `adapter_config.json`: Adapter configuration.
-* `tinker_metadata.json`: Metadata from the Thinking Machines training run.
+The source is a historical grammar and dictionary from 1890. Outputs can inherit extraction errors, historical framing, outdated language descriptions, and base-model behavior. Dakota language work should be reviewed by appropriate community and linguistic authorities before any teaching or public-use claim.
 
 ## Citation
 
-If you use this model, please cite the original grammar source:
+Primary source:
 
-> Riggs, S. R. (1890). _Dakota Grammar, Texts, and Ethnography_. Washington: Government Printing Office.
+> Riggs, Stephen Return. 1890. *A Dakota-English Dictionary*. Contributions to North American Ethnology, Volume VII. Washington: Government Printing Office.
 
-And the Thinking Machines / PrimeIntellect RL framework.
+Training and tracking:
+
+- Thinking Machines Tinker for the RL training run
+- W&B for experiment tracking and reward-ledger audit trails
+- Dakota1890 repository artifacts for extraction, task generation, and verifier code

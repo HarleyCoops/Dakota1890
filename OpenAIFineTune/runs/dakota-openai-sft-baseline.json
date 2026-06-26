@@ -1,0 +1,22 @@
+{
+  "base_model": "gpt-4.1-2025-04-14",
+  "created_at": "2026-06-10T19:51:44.125795+00:00",
+  "epochs": 3,
+  "error": "Error code: 400 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details.', 'type': 'invalid_request_error', 'param': None, 'code': 'exceeded_quota'}}",
+  "estimated_training_tokens": 1273974,
+  "experiment": "dakota-openai-sft-baseline",
+  "final_job": null,
+  "fine_tuned_model": null,
+  "job_id": null,
+  "result_files": [],
+  "status": "exception",
+  "train_examples": 1956,
+  "train_file": "C:\\Users\\chris\\Dakota1890\\OpenAIFineTune\\dakota_train.jsonl",
+  "train_token_estimate": 424658,
+  "training_file_id": "file-RrwHnibwcmxmVB7EH5tW3D",
+  "updated_at": "2026-06-10T19:51:49.737913+00:00",
+  "valid_examples": 489,
+  "valid_file": "C:\\Users\\chris\\Dakota1890\\OpenAIFineTune\\dakota_valid.jsonl",
+  "valid_token_estimate": 108040,
+  "validation_file_id": "file-PW2BJ69SS5Muo7CwbPcz7T"
+}

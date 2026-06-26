@@ -32,12 +32,12 @@ This is non-billing and validates the local files plus the configured base model
 python scripts/rl/dakota_openai_finetune.py --check-only
 ```
 
-Current step-0 readiness output in this repo:
+Current baseline target:
 
-- default base model: `gpt-4.1-mini-2025-04-14`
-- train split: `980` examples, about `220,983` tokens
-- validation split: `245` examples, about `54,956` tokens
-- estimated trained tokens at `3` epochs: about `662,949`
+- default base model: `gpt-4.1-2025-04-14`
+- train split after full original Dakota conversion: `1,956` examples
+- validation split after full original Dakota conversion: `489` examples
+- estimated trained tokens are emitted by `--check-only`
 
 ## Prelaunch Gate
 
@@ -48,11 +48,13 @@ Before submitting a paid job:
 - confirm current OpenAI pricing before launch
 - keep the run under the current project budget cap
 
-Point-in-time step-0 estimate, dated `2026-04-04`:
+Point-in-time model check, updated `2026-06-10`:
 
-- official OpenAI model-optimization docs list supervised fine-tuning support for `gpt-4.1-2025-04-14`, `gpt-4.1-mini-2025-04-14`, and `gpt-4.1-nano-2025-04-14`
-- the official OpenAI pricing surface currently lists `gpt-4.1 mini` training at about `$5.00 / 1M tokens`
-- with an estimated `662,949` trained tokens at `3` epochs, the Dakota baseline is about `$3.31` in training spend before any later inference usage
+- OpenAI's supervised fine-tuning guide points to model docs for supported models and uses the GPT-4.1 family in examples.
+- Current GPT-5 family model pages mark fine-tuning as not supported.
+- `o4-mini-2025-04-16` is fine-tuning-capable for reinforcement fine-tuning, but this baseline is supervised fine-tuning on chat examples.
+- For the strongest current SFT baseline, use `gpt-4.1-2025-04-14`.
+- Run `3` epochs for the fixed baseline. If validation behavior becomes too narrow or memorized, rerun at `2`; if the model under-follows Dakota forms, rerun at `4`.
 
 Recheck this before launch. Model support and pricing are both time-sensitive.
 
@@ -70,3 +72,24 @@ python scripts/rl/dakota_openai_finetune.py
 ```
 
 The launcher uploads the train/validation files, creates the fine-tuning job, and monitors it to completion.
+
+For an AutoScientist baseline launch where the remote job should continue after
+the local command exits, use:
+
+```bash
+python scripts/rl/dakota_openai_finetune.py --launch-only \
+  --ledger OpenAIFineTune/runs/dakota-openai-sft-baseline.json
+```
+
+The ledger records the base model, split counts, token estimates, uploaded file
+IDs, and OpenAI fine-tuning job ID without storing secrets.
+
+If file upload succeeds but job creation is blocked by quota or billing, reuse
+the uploaded file IDs from the ledger:
+
+```bash
+python scripts/rl/dakota_openai_finetune.py --launch-only \
+  --ledger OpenAIFineTune/runs/dakota-openai-sft-baseline.json \
+  --training-file-id file-... \
+  --validation-file-id file-...
+```

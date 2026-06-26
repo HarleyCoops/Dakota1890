@@ -25,8 +25,6 @@ Each model is published on Hugging Face. The arc runs from a 0.6B proof of conce
 |---|---|---|---|---|
 | [`Qwen3-0.6B-Dakota-Grammar-RL`](https://huggingface.co/HarleyCooper) | 0.6B | GRPO | PrimeIntellect | First proof: grammar rules as a reward signal |
 | [`Qwen3-0.6B-Dakota-Grammar-RL-400`](https://huggingface.co/HarleyCooper) | 0.6B | GRPO | PrimeIntellect | 400-step run; 150% reward improvement |
-| [`Qwen3-30B-Dakota1890`](https://huggingface.co/HarleyCooper) | 30B | GRPO | Tinker | First large-model scale-up |
-| [`Qwen3-30B-ThinkingMachines-Dakota1890`](https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890) | 30B | GRPO | Tinker | 100% affix accuracy, 69.9% char preservation |
 | [`Qwen3.6-35B-A3B-Dakota1890-GRPO`](https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO) | **35B** | **GRPO** | Tinker | **Latest** — published most recently |
 
 The latest model, **Qwen3.6-35B-A3B-Dakota1890-GRPO**, is the current working endpoint — the toddler that has read the book. It is a live research checkpoint, not an authoritative Dakota assistant.
@@ -196,7 +194,6 @@ The larger claim is methodological: if a low-resource language has a usable hist
 ## Links
 
 - **Latest model:** https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO
-- **Previous 30B model:** https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890
 - **Dataset (Dakota QA):** https://huggingface.co/datasets/HarleyCooper/adaption-dakota-english-qa
 - **W&B training logs:** https://wandb.ai/christian-cooper-us
 - **All Hugging Face models:** https://huggingface.co/HarleyCooper

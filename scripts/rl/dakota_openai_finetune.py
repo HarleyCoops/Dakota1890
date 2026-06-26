@@ -10,13 +10,20 @@ import io
 import json
 import logging
 import os
+import re
 import time
-from datetime import datetime
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from openai import OpenAI
 from dotenv import load_dotenv
+
+try:
+    from scripts.rl.dakota_openai_config import DakotaOpenAIConfig, load_dakota_openai_config
+except ModuleNotFoundError:  # Allow direct script execution from the repo root.
+    from dakota_openai_config import DakotaOpenAIConfig, load_dakota_openai_config
 
 try:
     from huggingface_hub import HfApi
@@ -51,17 +58,92 @@ STATUS_TO_INDEX: Dict[str, int] = {
     "expired": -4,
 }
 
-DEFAULT_OPENAI_FINETUNE_MODEL = "gpt-4.1-mini-2025-04-14"
-DEFAULT_OPENAI_FINETUNE_EPOCHS = 3
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _serialize_openai_object(obj: Any) -> Any:
+    """Convert OpenAI SDK objects to plain JSON-serializable structures."""
+
+    if obj is None:
+        return None
+    model_dump = getattr(obj, "model_dump", None)
+    if callable(model_dump):
+        return model_dump(exclude_none=True)
+    if isinstance(obj, (str, int, float, bool)):
+        return obj
+    if isinstance(obj, list):
+        return [_serialize_openai_object(item) for item in obj]
+    if isinstance(obj, tuple):
+        return [_serialize_openai_object(item) for item in obj]
+    if isinstance(obj, dict):
+        return {str(key): _serialize_openai_object(value) for key, value in obj.items()}
+    return str(obj)
+
+
+def _sanitize_error_text(error: Any) -> str:
+    """Remove API-key shaped strings from persisted error messages."""
+
+    text = str(error)
+    return re.sub(r"sk-[A-Za-z0-9_*.-]+", "sk-REDACTED", text)
+
+
+def _has_plausible_openai_key_shape(api_key: Optional[str]) -> bool:
+    """Return whether a value looks like an OpenAI API key without validating it remotely."""
+
+    if not api_key:
+        return False
+    return api_key.startswith("sk-") and len(api_key) >= 40
+
+
+@dataclass
+class BaselineRunLedger:
+    """Durable ledger for a Dakota OpenAI SFT baseline launch."""
+
+    experiment: str
+    base_model: str
+    epochs: int
+    train_file: str
+    valid_file: str
+    train_examples: int
+    valid_examples: int
+    train_token_estimate: int
+    valid_token_estimate: int
+    estimated_training_tokens: int
+    training_file_id: Optional[str] = None
+    validation_file_id: Optional[str] = None
+    job_id: Optional[str] = None
+    status: Optional[str] = None
+    fine_tuned_model: Optional[str] = None
+    result_files: list[Any] = field(default_factory=list)
+    error: Optional[Any] = None
+    created_at: str = field(default_factory=_utc_now)
+    updated_at: str = field(default_factory=_utc_now)
+    final_job: Optional[Any] = None
+
+    def write(self, path: Path) -> None:
+        """Write the ledger as JSON."""
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self.updated_at = _utc_now()
+        path.write_text(
+            json.dumps(asdict(self), indent=2, ensure_ascii=False, sort_keys=True),
+            encoding="utf-8",
+        )
 
 class DakotaOpenAIFineTuner:
     def __init__(self, require_api_key: bool = True):
         """Initialize file paths immediately and the OpenAI client only when needed."""
         # Load environment variables
-        load_dotenv()
+        load_dotenv(override=True)
         self.api_key = os.getenv('OPENAI_API_KEY')
         if require_api_key and not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
+        if require_api_key and not _has_plausible_openai_key_shape(self.api_key):
+            raise ValueError(
+                "OPENAI_API_KEY is present but does not look like a complete OpenAI API key. "
+                "Check C:\\Users\\chris\\Dakota1890\\.env."
+            )
 
         self.client = OpenAI(api_key=self.api_key) if self.api_key else None
         if self.client is not None:
@@ -85,12 +167,10 @@ class DakotaOpenAIFineTuner:
         logger.info(f"Found training file: {self.train_file}")
         logger.info(f"Found validation file: {self.valid_file}")
         
-        # Model selection (can override via env vars).
-        # Default to a currently documented supervised fine-tuning snapshot.
-        self.fine_tune_model = os.getenv(
-            "OPENAI_FINETUNE_MODEL",
-            os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_FINETUNE_MODEL)
-        )
+        self.config: DakotaOpenAIConfig = load_dakota_openai_config()
+        logger.info("\n%s", self.config.diagnostics())
+
+        self.fine_tune_model = self.config.openai_finetune_model
         logger.info("Using fine-tune base model: %s", self.fine_tune_model)
 
         # Hugging Face dataset publishing (optional)
@@ -120,13 +200,20 @@ class DakotaOpenAIFineTuner:
         self.wandb_enabled = bool(self.wandb_api_key and self.wandb_project)
         self.wandb_run = None
 
+    @property
+    def default_ledger_path(self) -> Path:
+        """Return the default run-ledger path for this launch."""
+
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        return self.train_file.parent / "runs" / f"dakota-openai-sft-{timestamp}.json"
+
     def readiness_report(self) -> Dict[str, Any]:
         """Return a non-mutating readiness report for the SFT baseline."""
         train_examples = self._count_lines(self.train_file)
         valid_examples = self._count_lines(self.valid_file)
         train_token_estimate = self._estimate_chat_tokens(self.train_file)
         valid_token_estimate = self._estimate_chat_tokens(self.valid_file)
-        epochs = int(os.getenv("OPENAI_FINETUNE_EPOCHS", str(DEFAULT_OPENAI_FINETUNE_EPOCHS)))
+        epochs = self.config.openai_finetune_epochs
         return {
             "train_file": str(self.train_file),
             "valid_file": str(self.valid_file),
@@ -142,6 +229,7 @@ class DakotaOpenAIFineTuner:
             "estimated_training_tokens": train_token_estimate * epochs,
             "token_estimator": "tiktoken" if tiktoken is not None else "unavailable",
             "openai_api_key_present": bool(self.api_key),
+            "openai_api_key_shape_valid": _has_plausible_openai_key_shape(self.api_key),
             "hf_publish_enabled": bool(self.hf_api),
             "wandb_enabled": self.wandb_enabled,
         }
@@ -312,15 +400,12 @@ class DakotaOpenAIFineTuner:
             raise RuntimeError("OpenAI client is unavailable. Set OPENAI_API_KEY before creating jobs.")
         logger.info("Creating fine-tuning job...")
         
-        # Get hyperparameters from env or use defaults
-        n_epochs = int(os.getenv("OPENAI_FINETUNE_EPOCHS", str(DEFAULT_OPENAI_FINETUNE_EPOCHS)))
-        
         response = self.client.fine_tuning.jobs.create(
             training_file=training_file_id,
             validation_file=validation_file_id,
             model=self.fine_tune_model,
             hyperparameters={
-                "n_epochs": n_epochs
+                "n_epochs": self.config.openai_finetune_epochs
             }
         )
         
@@ -381,9 +466,39 @@ class DakotaOpenAIFineTuner:
             logger.info("Waiting %d seconds before next check...", check_interval)
             time.sleep(check_interval)
 
-    def run_fine_tuning(self):
+    def _build_ledger(self, experiment: str) -> BaselineRunLedger:
+        """Build the initial run ledger from local readiness data."""
+
+        report = self.readiness_report()
+        return BaselineRunLedger(
+            experiment=experiment,
+            base_model=report["base_model"],
+            epochs=report["epochs"],
+            train_file=report["train_file"],
+            valid_file=report["valid_file"],
+            train_examples=report["train_examples"],
+            valid_examples=report["valid_examples"],
+            train_token_estimate=report["train_token_estimate"],
+            valid_token_estimate=report["valid_token_estimate"],
+            estimated_training_tokens=report["estimated_training_tokens"],
+        )
+
+    def run_fine_tuning(
+        self,
+        *,
+        experiment: str = "dakota-openai-sft-baseline",
+        ledger_path: Path | None = None,
+        wait: bool = True,
+        check_interval: int = 60,
+        training_file_id: str | None = None,
+        validation_file_id: str | None = None,
+    ):
         """Run the complete fine-tuning process."""
         dataset_stats: Optional[Dict[str, int]] = None
+        ledger_output = ledger_path or self.default_ledger_path
+        ledger = self._build_ledger(experiment)
+        ledger.write(ledger_output)
+        logger.info("Run ledger: %s", ledger_output)
         try:
             if self.wandb_enabled and not self.wandb_run:
                 self._init_wandb()
@@ -408,24 +523,52 @@ class DakotaOpenAIFineTuner:
             else:
                 logger.info("Skipping Hugging Face dataset publishing step (disabled).")
 
-            # Step 1: Upload files
-            logger.info("Step 1/3: Uploading files to OpenAI")
-            self._wandb_log({"stage_index": 1, "stage": "upload_files"})
-            train_file_id = self.upload_file(self.train_file, "fine-tune")
-            valid_file_id = self.upload_file(self.valid_file, "fine-tune")
-            self._wandb_log({"uploaded_train_file": 1, "uploaded_valid_file": 1})
+            # Step 1: Upload files, or reuse file IDs from a previous failed launch.
+            if training_file_id and validation_file_id:
+                logger.info("Step 1/3: Reusing existing OpenAI fine-tune file IDs")
+                self._wandb_log({"stage_index": 1, "stage": "reuse_files"})
+                train_file_id = training_file_id
+                valid_file_id = validation_file_id
+            else:
+                logger.info("Step 1/3: Uploading files to OpenAI")
+                self._wandb_log({"stage_index": 1, "stage": "upload_files"})
+                train_file_id = self.upload_file(self.train_file, "fine-tune")
+                valid_file_id = self.upload_file(self.valid_file, "fine-tune")
+            ledger.training_file_id = train_file_id
+            ledger.validation_file_id = valid_file_id
+            ledger.status = "files_uploaded"
+            ledger.write(ledger_output)
+            self._wandb_log(
+                {
+                    "uploaded_train_file": 0 if training_file_id else 1,
+                    "uploaded_valid_file": 0 if validation_file_id else 1,
+                }
+            )
             
             # Step 2: Create fine-tuning job
             logger.info("Step 2/3: Creating fine-tuning job")
             job_id = self.create_fine_tuning_job(train_file_id, valid_file_id)
+            ledger.job_id = job_id
+            ledger.status = "submitted"
+            ledger.write(ledger_output)
             if self.wandb_run:
                 self.wandb_run.summary["openai_job_id"] = job_id
             self._wandb_log({"stage_index": 2, "stage": "create_job"})
+
+            if not wait:
+                logger.info("Launch-only requested; job submitted and ledger written.")
+                return ledger
             
             # Step 3: Monitor progress
             logger.info("Step 3/3: Monitoring fine-tuning progress")
             self._wandb_log({"stage_index": 3, "stage": "monitor_progress"})
-            final_job = self.monitor_job_progress(job_id)
+            final_job = self.monitor_job_progress(job_id, check_interval=check_interval)
+            ledger.status = getattr(final_job, "status", None)
+            ledger.fine_tuned_model = getattr(final_job, "fine_tuned_model", None)
+            ledger.result_files = _serialize_openai_object(getattr(final_job, "result_files", [])) or []
+            ledger.error = _serialize_openai_object(getattr(final_job, "error", None))
+            ledger.final_job = _serialize_openai_object(final_job)
+            ledger.write(ledger_output)
             if final_job and self.wandb_run:
                 result_files = getattr(final_job, "result_files", None)
                 if result_files:
@@ -436,10 +579,14 @@ class DakotaOpenAIFineTuner:
             return final_job
 
         except Exception as e:
-            logger.error("Error during fine-tuning process: %s", str(e))
+            sanitized_error = _sanitize_error_text(e)
+            logger.error("Error during fine-tuning process: %s", sanitized_error)
+            ledger.status = "exception"
+            ledger.error = sanitized_error
+            ledger.write(ledger_output)
             if self.wandb_run:
                 self.wandb_run.summary["final_status"] = "exception"
-                self.wandb_run.summary["failure_reason"] = str(e)
+                self.wandb_run.summary["failure_reason"] = sanitized_error
             self._wandb_log({"exception": 1})
             raise
         finally:
@@ -455,6 +602,32 @@ def main() -> None:
         action="store_true",
         help="Validate files and configuration without creating a fine-tuning job.",
     )
+    parser.add_argument(
+        "--launch-only",
+        action="store_true",
+        help="Upload files and create the fine-tuning job, then exit without waiting for completion.",
+    )
+    parser.add_argument(
+        "--ledger",
+        default=None,
+        help="Path to write the run ledger JSON. Defaults to OpenAIFineTune/runs/<timestamp>.json.",
+    )
+    parser.add_argument(
+        "--poll-seconds",
+        type=int,
+        default=60,
+        help="Seconds between status checks when waiting for completion.",
+    )
+    parser.add_argument(
+        "--training-file-id",
+        default=None,
+        help="Reuse an existing OpenAI training file ID instead of uploading dakota_train.jsonl.",
+    )
+    parser.add_argument(
+        "--validation-file-id",
+        default=None,
+        help="Reuse an existing OpenAI validation file ID instead of uploading dakota_valid.jsonl.",
+    )
     args = parser.parse_args()
 
     logger.info("=== Starting Dakota Language Model Fine-Tuning ===")
@@ -466,9 +639,18 @@ def main() -> None:
             logger.info("Readiness report: %s", json.dumps(tuner.readiness_report(), indent=2))
             return
 
-        final_job = tuner.run_fine_tuning()
+        final_job = tuner.run_fine_tuning(
+            ledger_path=Path(args.ledger) if args.ledger else None,
+            wait=not args.launch_only,
+            check_interval=args.poll_seconds,
+            training_file_id=args.training_file_id,
+            validation_file_id=args.validation_file_id,
+        )
 
-        if final_job and hasattr(final_job, 'fine_tuned_model'):
+        if isinstance(final_job, BaselineRunLedger):
+            logger.info("=== Fine-Tuning Job Submitted ===")
+            logger.info("OpenAI job ID: %s", final_job.job_id)
+        elif final_job and hasattr(final_job, 'fine_tuned_model'):
             logger.info("=== Fine-Tuning Process Completed Successfully ===")
             logger.info(f"Fine-tuned model ID: {final_job.fine_tuned_model}")
         else:
@@ -477,7 +659,7 @@ def main() -> None:
         logger.info(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     except Exception as e:
-        logger.error(f"Fatal error: {str(e)}", exc_info=True)
+        logger.error("Fatal error: %s", _sanitize_error_text(e))
         raise
 
 if __name__ == "__main__":

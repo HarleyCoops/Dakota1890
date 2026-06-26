@@ -15,7 +15,16 @@
       "Bash(chcp 65001)",
       "Bash(/dev/null)",
       "Bash(prime env push:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git show *)",
+      "Read(//tmp/**)",
+      "Bash(grep -iE '\\\\.\\(png|jpg|jpeg|gif|svg|webp\\)$')",
+      "Bash(grep -nE '!\\\\[|<img|\\\\.\\(png|jpg|jpeg|gif|svg|webp\\)' /tmp/old_readme.md)",
+      "Bash(grep -iE '\\\\.\\(png|gif|svg|webp\\)$')",
+      "Bash(grep -iE '\\\\.\\(jpg|jpeg\\)$')"
     ],
     "deny": [],
     "ask": []

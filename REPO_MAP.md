@@ -108,8 +108,8 @@ Legend:
 - `PIPELINE-CRITICAL` `run_inference.py`
 - `PIPELINE-CRITICAL` `hf_inference_standalone.py`
 - `PIPELINE-CRITICAL` `MODEL_CARD.md`
-- `PIPELINE-CRITICAL` `Qwen3-30B-ThinkingMachines-Dakota1890/`
-  - deployed adapter/model-card surface kept intact
+- `NARRATIVE/VISUAL` `Qwen3-30B-ThinkingMachines-Dakota1890/`
+  - historical adapter/model-card surface kept intact, but no longer used as the current proof point
 
 - `CONFIG/INFRA` `pytest.ini`
 - `CONFIG/INFRA` `requirements.txt`

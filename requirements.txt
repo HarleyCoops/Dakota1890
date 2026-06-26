@@ -27,6 +27,10 @@ huggingface-hub>=1.21.0
 # Environment variable management
 python-dotenv>=1.2.2
 
+# OpenAI SFT baseline launcher
+openai>=1.109.0
+tiktoken>=0.8.0
+
 # Progress bars and utilities
 tqdm>=4.68.3
 
