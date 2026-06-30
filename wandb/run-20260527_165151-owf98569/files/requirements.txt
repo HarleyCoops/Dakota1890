@@ -321,9 +321,9 @@ langchain-openai==1.1.14
 langchain-text-splitters==1.1.2
 langgraph==1.0.10rc1
 langgraph-bigtool==0.0.2
-langgraph-checkpoint==4.0.0
+langgraph-checkpoint==4.1.1
 langgraph-prebuilt==1.0.5
-langgraph-sdk==0.2.9
+langgraph-sdk==0.3.15
 langsmith==0.8.18
 laspy==2.6.1
 latex==0.7.0
