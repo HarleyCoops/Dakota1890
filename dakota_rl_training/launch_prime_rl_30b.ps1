@@ -42,14 +42,17 @@ Write-Host "  Trainer GPUs: 4,5,6,7"
 Write-Host "  Output Directory: ../dakota_rl_training/outputs/grpo_30b"
 Write-Host ""
 
-# Set W&B API Key
-$env:WANDB_API_KEY = "cee32d77c7edb39a3857ede1c44fa2c7d7f89bb1"
+# Require W&B credentials from the caller's environment.
+if ([string]::IsNullOrWhiteSpace($env:WANDB_API_KEY)) {
+    Write-Error "WANDB_API_KEY is not set. Set it in your environment before launching Prime-RL."
+    exit 1
+}
 
 # Launch Prime-RL training
 uv run rl `
-    --trainer @ ../dakota_rl_training/configs/train_30b.toml `
-    --orchestrator @ ../dakota_rl_training/configs/orch_30b.toml `
-    --inference @ ../dakota_rl_training/configs/infer_30b.toml `
+    --trainer "@" ../dakota_rl_training/configs/train_30b.toml `
+    --orchestrator "@" ../dakota_rl_training/configs/orch_30b.toml `
+    --inference "@" ../dakota_rl_training/configs/infer_30b.toml `
     --trainer-gpu-ids 4,5,6,7 `
     --inference-gpu-ids 0,1,2,3 `
     --output-dir ../dakota_rl_training/outputs/grpo_30b

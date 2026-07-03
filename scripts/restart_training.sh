@@ -1,9 +1,10 @@
 #!/bin/bash
-# Restart GRPO training with actual API keys from .env
+# Restart GRPO training with API keys supplied by the environment.
 
 cd ~/prime-rl
 
-export WANDB_API_KEY="cee32d77c7edb39a3857ede1c44fa2c7d7f89bb1"
+: "${WANDB_API_KEY:?WANDB_API_KEY must be set in the environment before running this script}"
+export WANDB_API_KEY
 export WANDB_PROJECT="dakota-rl-grammar"
 export HF_TOKEN="your_huggingface_token_here"
 
@@ -14,4 +15,3 @@ uv run rl \
   --trainer-gpu-ids 4,5,6,7 \
   --inference-gpu-ids 0,1,2,3 \
   --output-dir ~/dakota-rl-training/outputs
-
