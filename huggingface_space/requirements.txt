@@ -1,4 +1,4 @@
-transformers>=5.12.1
+transformers>=5.13.0
 accelerate>=1.14.0
-gradio>=6.19.0
+gradio>=6.20.0
 torch>=2.12.1
