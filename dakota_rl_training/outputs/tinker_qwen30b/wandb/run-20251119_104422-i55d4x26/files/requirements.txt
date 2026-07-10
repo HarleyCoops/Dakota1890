@@ -329,7 +329,7 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 networkx==3.4.2
 ninja==1.13.0
-nltk==3.9.4
+nltk==3.10.0
 nodeenv==1.9.1
 notion-client==2.3.0
 numba==0.62.1
@@ -388,7 +388,7 @@ pinecone==7.3.0
 pinecone-client==6.0.0
 pinecone-plugin-assistant==1.8.0
 pinecone-plugin-interface==0.0.7
-pip==26.1
+pip==26.1.2
 pip-api==0.0.34
 pip_audit==2.9.0
 pip-requirements-parser==32.0.1
@@ -419,7 +419,7 @@ psutil==7.0.0
 psycopg2-binary==2.9.10
 puremagic==1.28
 pure_eval==0.2.3
-pyarrow==24.0.0
+pyarrow==25.0.0
 pyasn1==0.6.3
 pyasn1_modules==0.4.1
 pyautogen==0.3.1
