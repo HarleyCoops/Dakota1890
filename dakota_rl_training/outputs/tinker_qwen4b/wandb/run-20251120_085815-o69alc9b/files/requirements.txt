@@ -134,7 +134,7 @@ ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
 fickling==0.1.10
-filelock==3.20.3
+filelock==3.30.2
 filetype==1.2.0
 findpython==0.6.3
 firecrawl-py==1.9.0
@@ -304,7 +304,7 @@ matplotlib==3.10.0
 matplotlib-inline==0.1.7
 mauve-text==0.4.0
 mccabe==0.7.0
-mcp==1.27.2
+mcp==1.28.1
 mcp-server-sentry==2025.1.14
 mdit-py-plugins==0.5.0
 mdurl==0.1.2
@@ -484,7 +484,7 @@ realtime==2.4.3
 referencing==0.35.1
 regex==2024.11.6
 replicate==1.0.4
-requests==2.33.0
+requests==2.34.2
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
 retrying==1.4.2
