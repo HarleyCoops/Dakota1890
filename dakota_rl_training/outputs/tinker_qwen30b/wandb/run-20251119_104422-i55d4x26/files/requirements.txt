@@ -134,7 +134,7 @@ ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
 fickling==0.1.10
-filelock==3.30.2
+filelock==3.30.3
 filetype==1.2.0
 findpython==0.6.3
 firecrawl-py==1.9.0
@@ -574,7 +574,7 @@ tokenizers==0.22.1
 toml==0.10.2
 tomlkit==0.13.2
 toolz==1.0.0
-torch==2.12.1
+torch==2.13.0
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
