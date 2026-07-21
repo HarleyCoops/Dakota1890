@@ -130,7 +130,7 @@ ffmpeg-python==0.2.0
 ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
-filelock==3.30.3
+filelock==3.31.2
 filetype==1.2.0
 findpython==0.6.3
 firecrawl-py==1.9.0
@@ -375,7 +375,7 @@ pdfplumber==0.11.7
 peewee==3.18.2
 peft==0.10.0
 pfzy==0.3.4
-pillow==12.2.0
+pillow==12.3.0
 pinecone==7.3.0
 pinecone-client==6.0.0
 pinecone-plugin-assistant==1.8.0
