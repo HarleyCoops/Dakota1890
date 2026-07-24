@@ -106,3 +106,6 @@ Qwen3-30B-ThinkingMachines-Dakota1890/*.tar.gz
 # Local model checkouts are managed outside the parent repo.
 Qwen3-30B-ThinkingMachines-Dakota1890/
 Qwen3.6-35B-A3B-Dakota1890-GRPO/
+
+# Isolated implementation worktrees.
+.worktrees/
