@@ -8,7 +8,7 @@ anthropic>=0.120.2
 # Google Gemini API for Q&A generation. Do not use the deprecated
 # google-generativeai package; it pulls protobuf constraints that conflict with
 # current Tinker.
-google-genai>=2.14.0
+google-genai>=2.16.0
 
 # HTTP requests for API calls
 requests>=2.34.2
@@ -22,13 +22,13 @@ matplotlib>=3.11.1
 Pillow>=12.3.0
 
 # Dataset publishing and model hub integration
-huggingface-hub>=1.25.1
+huggingface-hub>=1.26.0
 
 # Environment variable management
 python-dotenv>=1.2.2
 
 # OpenAI SFT baseline launcher
-openai>=2.50.0
+openai>=2.52.0
 tiktoken>=0.13.0
 
 # Progress bars and utilities
@@ -36,7 +36,7 @@ tqdm>=4.70.0
 
 # Weights & Biases for experiment tracking and logging
 wandb>=0.28.1
-weave>=0.53.3
+weave>=0.53.4
 
 # Thinking Machines / Tinker integration
 # Install RL/Tinker dependencies from requirements-tinker.txt after these base
