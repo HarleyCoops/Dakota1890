@@ -196,7 +196,7 @@ grpcio-tools==1.63.2
 grpc-google-iam-v1==0.14.2
 gunicorn==23.0.0
 h11==0.16.0
-h2==4.3.0
+h2==4.4.1
 h5py==3.12.1
 hf==0.0.8
 hf-xet==1.2.0
@@ -431,7 +431,7 @@ pycryptodome==3.23.0
 pycryptodomex==3.23.0
 pydantic==2.11.10
 pydantic_core==2.33.2
-pydantic-settings==2.14.2
+pydantic-settings==2.15.0
 pydeck==0.9.1
 pydub==0.25.1
 pyee==12.0.0
