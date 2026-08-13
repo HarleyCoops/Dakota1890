@@ -109,3 +109,9 @@ Qwen3.6-35B-A3B-Dakota1890-GRPO/
 
 # Isolated implementation worktrees.
 .worktrees/
+
+# Locked task-review scratch dirs (deny ACLs; excluded from git & agent scans)
+.task4reviewfix/
+.task4reviewtemp/
+.task4-invalid-manifest/
+.superpowers/
