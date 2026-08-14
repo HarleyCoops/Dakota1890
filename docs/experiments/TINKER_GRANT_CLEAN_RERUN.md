@@ -1,6 +1,14 @@
 # Experiment card: grant-clean Dakota Tinker rerun
 
-Language: Dakota grammar and morphology from Stephen Return Riggs, *Dakota-English Dictionary* (1890). Not railroad. Not DeepMath.
+Language: Dakota grammar and morphology from Stephen Return Riggs, *Dakota-English Dictionary* (1890).
+
+## Intended use
+
+The train/eval split and anti-hack probes exist so a later speaker-correction loop is honest. A speaker-correction loop is only honest if the base model is not gaming string overlap.
+
+1. Get a clean, non-hackable reward on older Dakota (Riggs 1890 / Dakota1890) so the model’s outputs are actually correct in that historical variety.
+2. That makes it feasible for modern Dakota speakers to correct the model toward contemporary fluent Dakota (human correction loop), instead of editing reward-hacked parroting.
+3. If Dakota works, apply the same pipeline to the next dictionary set (the dawsom map) and again use modern speakers to correct toward a fluent model.
 
 A judge is an **eval-only overlay**. Its absence does not make the train scalar honest. The published train scalar had its own leaks.
 
