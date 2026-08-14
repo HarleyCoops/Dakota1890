@@ -1,48 +1,29 @@
-# Push to HuggingFace Space
+# Push to HarleyCooper/Dakota1890-Grant-Clean
 
-## Option 1: If Space Already Exists
+Leave [HarleyCooper/Dakota-.6B](https://huggingface.co/spaces/HarleyCooper/Dakota-.6B) alone.
 
-If you've already created the Space on HuggingFace, run:
-
-```powershell
-cd C:\Users\chris\Dakota1890\huggingface_space
-git remote add origin https://huggingface.co/spaces/HarleyCooper/YOUR-SPACE-NAME
-git push -u origin main
-```
-
-Replace `YOUR-SPACE-NAME` with your actual Space name (e.g., `Dakota-Grammar-Demo`).
-
-## Option 2: Push via Web Interface
-
-1. Go to your Space: https://huggingface.co/spaces/HarleyCooper/YOUR-SPACE-NAME
-2. Click "Files and versions" tab
-3. Click "Add file" → "Upload files"
-4. Drag and drop:
-   - `app.py`
-   - `README.md`
-   - `requirements.txt`
-5. Commit changes
-
-## Option 3: Clone Space First (Recommended)
-
-If the Space exists, clone it first:
+## After the Space exists
 
 ```powershell
 cd C:\Users\chris\Dakota1890
-git clone https://huggingface.co/spaces/HarleyCooper/YOUR-SPACE-NAME hf-space-repo
-cd hf-space-repo
-# Copy files from huggingface_space/
-Copy-Item ..\huggingface_space\* .
-git add .
-git commit -m "Update app.py and README"
+git clone https://huggingface.co/spaces/HarleyCooper/Dakota1890-Grant-Clean hf-space-grant-clean
+Copy-Item huggingface_space\* hf-space-grant-clean\ -Force
+cd hf-space-grant-clean
+git add app.py demo.py examples.jsonl requirements.txt README.md
+git commit -m "Deploy grant-clean Dakota1890 CPU Space"
 git push
 ```
 
-## Files Ready to Push
+## Or upload from the Hub UI
 
- `app.py` - Updated with error handling
- `README.md` - Updated with new metadata
- `requirements.txt` - Dependencies
+Files and versions → Upload:
 
-All files are in: `C:\Users\chris\Dakota1890\huggingface_space\`
+- `app.py`
+- `demo.py`
+- `examples.jsonl`
+- `requirements.txt`
+- `README.md`
 
+## Optional secrets
+
+`TINKER_API_KEY` and `TINKER_SAMPLER_PATH` in Space Settings. The example bank works without them.

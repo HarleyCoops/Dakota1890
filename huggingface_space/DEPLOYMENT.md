@@ -1,99 +1,70 @@
-# HuggingFace Space Deployment Checklist
+# Deploy HarleyCooper/Dakota1890-Grant-Clean
 
-##  Space Bundle Ready
+New CPU Gradio Space for the grant-clean 30B Tinker run (`cebp9acs`).
+Do **not** overwrite [HarleyCooper/Dakota-.6B](https://huggingface.co/spaces/HarleyCooper/Dakota-.6B).
+That Space stays the old 0.6B Prime Intellect GPU demo.
 
-All files are prepared in `huggingface_space/`:
--  `app.py` - Gradio interface with proper chat formatting
--  `requirements.txt` - All dependencies specified
--  `README.md` - Space description with metadata
+## What this Space is
 
-##  What You Need from the Instance
+- Hardware: **CPU Basic** (no GPU, no `spaces.GPU`)
+- App: curated holdout examples + gold from frozen `grammar_tasks_heldout.jsonl`
+- Live infer: optional remote Tinker sampler when secrets are set
+- Not hosted here: `Qwen/Qwen3-30B-A3B-Instruct-2507` weights, `owf98569`, or the 0.6B model
 
-**Answer: NOTHING!** 
+## 1. Create the Space
 
-The model is already published on HuggingFace Hub at:
-- `HarleyCooper/Qwen3-0.6B-Dakota-Grammar-RL`
+1. Open https://huggingface.co/spaces
+2. **Create new Space**
+3. Name: `HarleyCooper/Dakota1890-Grant-Clean`
+4. SDK: **Gradio**
+5. Hardware: **CPU Basic**
+6. Visibility: Public
+7. Create Space
 
-The Space will download the model directly from HuggingFace Hub when it builds. You don't need to copy any files from your Prime Intellect instance.
+## 2. Optional secrets (live infer only)
 
-**You can safely turn off your instance** - everything needed is on HuggingFace Hub.
+In the Space **Settings → Secrets**:
 
-##  Deployment Steps
+| Secret | Required | Value |
+| --- | --- | --- |
+| `TINKER_API_KEY` | No | Thinking Machines API key |
+| `TINKER_SAMPLER_PATH` | No | Grant-clean sampler URI |
 
-### 1. Create the Space
-
-1. Visit https://huggingface.co/spaces
-2. Click **"Create new Space"**
-3. Fill in:
-   - **Space name**: `HarleyCooper/Dakota-Grammar-Demo` (or your preferred name)
-   - **SDK**: Select **"Gradio"**
-   - **Hardware**: Select **"GPU"** → Choose **"T4"** or **"A10"** (T4 is enough for 0.6B model)
-   - **Visibility**: Public or Private (your choice)
-4. Click **"Create Space"**
-
-### 2. Upload Files
-
-After the Space is created, you have two options:
-
-**Option A: Drag & Drop (Easiest)**
-1. In the Space file view, drag and drop all files from `huggingface_space/`:
-   - `app.py`
-   - `requirements.txt`
-   - `README.md`
-2. Click **"Commit changes"**
-
-**Option B: Git Push**
-```bash
-cd huggingface_space
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://huggingface.co/spaces/HarleyCooper/Dakota-Grammar-Demo
-git push -u origin main
-```
-
-### 3. Wait for Auto-Deploy
-
-1. Go to the **"Deploy"** tab in your Space
-2. Watch the build logs:
-   - `pip install` will install dependencies
-   - Model will download from HuggingFace Hub
-   - `python app.py` will launch the Gradio interface
-3. When you see **"Running"** status, your Space is live!
-
-### 4. Test the Space
-
-1. Visit your Space URL: `https://huggingface.co/spaces/HarleyCooper/Dakota-Grammar-Demo`
-2. Try the example prompts
-3. Adjust temperature/max tokens as needed
-4. Share the link!
-
-##  Files Included
+Recommended `TINKER_SAMPLER_PATH` (session from `cebp9acs`; `sampler_weights/final` was not confirmed in-repo logs, so set this explicitly if the live path differs):
 
 ```
-huggingface_space/
-├── app.py              # Gradio interface with chat formatting
-├── requirements.txt    # Dependencies (torch, transformers, gradio, etc.)
-└── README.md          # Space description and metadata
+tinker://dc44ca83-ce9e-5c91-a38d-0e866549f397:train:0/sampler_weights/final
 ```
 
-##  Features
+Do not set this to the `owf98569` / `1f23df9c-...` 35B sampler.
 
--  Loads model from HuggingFace Hub automatically
--  Proper chat formatting with system prompts
--  Repetition penalty to avoid loops
--  Adjustable temperature and max tokens
--  Example prompts included
--  Clean response extraction
+Without `TINKER_API_KEY` the Space must still load: examples and gold show, live button explains that sampling is off.
 
-##  Tips
+## 3. Push this folder
 
-- **First build may take 5-10 minutes** (downloading model + dependencies)
-- **GPU T4 is sufficient** for 0.6B model
-- **If build fails**, check logs in Deploy tab
-- **Model is ~1.5GB**, so download time varies
+From the repo, upload only `huggingface_space/`:
 
-##  You're Ready!
+```powershell
+cd C:\Users\chris\Dakota1890
+python -c @"
+from huggingface_hub import HfApi
+api = HfApi()
+api.upload_folder(
+    repo_id='HarleyCooper/Dakota1890-Grant-Clean',
+    repo_type='space',
+    folder_path='huggingface_space',
+    path_in_repo='.',
+    ignore_patterns=['**/__pycache__/**', '*.pyc'],
+    commit_message='Deploy grant-clean Dakota1890 CPU Space',
+)
+"@
+```
 
-Everything is prepared. Just create the Space and upload the files!
+Or copy `app.py`, `demo.py`, `examples.jsonl`, `requirements.txt`, and `README.md` into a clone of the Space repo and `git push`.
 
+## 4. Check the build
+
+1. Open https://huggingface.co/spaces/HarleyCooper/Dakota1890-Grant-Clean
+2. Confirm it starts on CPU with no Tinker key (example dropdown + gold)
+3. After secrets are set, rebuild and try **Run live Tinker sampler** on an EN→Dakota example
+4. Confirm the status text names the grant-clean sampler, not `owf98569` or the 0.6B model id

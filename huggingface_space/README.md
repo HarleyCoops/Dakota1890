@@ -1,141 +1,83 @@
 ---
-title: Dakota Grammar RL Demo
-colorFrom: indigo
+title: Dakota1890 Grant-Clean
+emoji: 🌾
+colorFrom: yellow
 colorTo: gray
 sdk: gradio
-sdk_version: "4.40.0"
+sdk_version: "4.44.0"
+python_version: "3.12"
 app_file: app.py
 pinned: false
 license: apache-2.0
-base_model: Qwen/Qwen3-0.6B
+suggested_hardware: cpu-basic
 tags:
-  - reinforcement-learning
-  - rl
+  - dakota
   - dakota-language
+  - reinforcement-learning
+  - grpo
+  - tinker
+  - low-resource-language
   - grammar
-  - composition-rewards
-  - non-coding
-  - prime-intellect
-  - verifiers
 language:
   - en
   - dak
-pipeline_tag: text-generation
 ---
 
-# Qwen3-0.6B-Dakota-Grammar-RL
+# Dakota1890 grant-clean demo
 
-## Model Description
+Target Space: [`HarleyCooper/Dakota1890-Grant-Clean`](https://huggingface.co/spaces/HarleyCooper/Dakota1890-Grant-Clean).
 
-This model is a reinforcement learning (RL) fine-tuned version of `Qwen/Qwen3-0.6B`, trained specifically for Dakota language grammar and translation tasks using **compositional reward functions** on **non-coding tasks**. This represents a test of the RL pipeline's effectiveness for complex, multi-component reward structures in linguistic domains.
+Public demo of the **grant-clean** Dakota1890 scaffold, not a fluent Dakota model.
 
-### Key Features
+| Field | Value |
+| --- | --- |
+| W&B | [`cebp9acs`](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/cebp9acs) (`dakota1890_grant_clean`) |
+| Base model | `Qwen/Qwen3-30B-A3B-Instruct-2507` |
+| Tinker session | `dc44ca83-ce9e-5c91-a38d-0e866549f397:train:0` |
+| Eval set | frozen holdout v1 `grammar_tasks_heldout.jsonl` (seed 42) |
+| Code | [HarleyCoops/Dakota1890](https://github.com/HarleyCoops/Dakota1890) |
 
-- **Compositional Rewards**: Multi-component reward function combining character preservation, affix accuracy, semantic correctness, pattern matching, and length penalties
-- **Non-Coding Domain**: Demonstrates RL effectiveness beyond code generation tasks
-- **Dakota Language Focus**: Trained on 10,576 grammar tasks extracted from the 1890 Dakota-English Dictionary
-- **Special Character Preservation**: Maintains Dakota orthography (ć, š, ŋ, ḣ, ṡ, á, é, í, ó, ú, etc.)
+This Space is **CPU-only**. It does **not** download or host the 30B model. A public Space cannot host that. Live generation is optional: when `TINKER_API_KEY` is set as a Space secret, the UI calls the existing remote Tinker sampler (same chat-template + sampling pattern as `run_inference.py` in the repo). When the key is missing, the Space still works: curated holdout prompts with gold, task type, and difficulty.
 
-## Training Details
+## Honest framing
 
-### Training Data
+The 1890 Riggs *Dakota-English Dictionary* grammar is a historical scaffold that modern Dakota speakers can correct. It is not contemporary fluent Dakota, and this demo is not a replacement for speakers.
 
-- **Source**: 1890 Dakota-English Dictionary grammar section (pages 1-88)
-- **Tasks**: 10,576 training tasks covering:
-  - Morphology (affix application, word formation)
-  - Translation (Dakota ↔ English)
-  - Reverse translation
-  - Syntax (sentence structure)
-  - Pattern identification
-- **Difficulty Levels**: Easy (1,973), Medium (5,294), Hard (1,172), Advanced (2,137)
+On the grant-clean run, **eval exact match rose on English-glossary tasks**. **English→Dakota is still weak.** A correct glossary item is not evidence of fluent generation.
 
-### Training Procedure
+This Space is **not** the old 0.6B Prime Intellect GPU demo. That story stays on [HarleyCooper/Dakota-.6B](https://huggingface.co/spaces/HarleyCooper/Dakota-.6B). It is also **not** the later 35B adapter run `owf98569`, which is a different, hackable run.
 
-- **Framework**: Prime Intellect RL (prime-rl)
-- **Base Model**: Qwen/Qwen3-0.6B
-- **Training Steps**: 1,000 steps
-- **Batch Size**: 256
-- **Sequence Length**: 1,536 tokens
-- **Rollouts per Example**: 8
-- **Learning Rate**: 1e-6
-- **Checkpoint Interval**: Every 100 steps (kept 3 most recent)
-- **GPUs**: 
-  - Trainer: GPUs 4,5,6,7
-  - Inference: GPUs 0,1,2,3
+## Optional live sampler
 
-### Reward Function Composition
+Set these Hugging Face Space secrets (neither is required for the example bank):
 
-The model was trained using a **compositional reward function** with the following components:
+- `TINKER_API_KEY` — enables remote sampling
+- `TINKER_SAMPLER_PATH` — optional override of the sampler URI
 
-1. **Exact Match Reward** (40% weight): Binary reward for exact normalized match
-2. **Character Overlap Reward** (20% weight): F1 score for Dakota special character preservation
-3. **Pattern Reward** (15% weight): Verification pattern matching and hint coverage
-4. **Affix Reward** (10% weight): Accuracy of required morphological affixes
-5. **Length Penalty Reward** (15% weight): Penalizes overly verbose responses (linear decay for responses >3x expected length)
+In-repo training logs do not include a `cebp9acs` `checkpoints.jsonl`. The default URI follows the Tinker `sampler_weights/final` convention on the grant-clean session:
 
-This multi-component approach allows the model to learn nuanced linguistic patterns while maintaining grammatical correctness and orthographic accuracy.
+`tinker://dc44ca83-ce9e-5c91-a38d-0e866549f397:train:0/sampler_weights/final`
 
-### Environment
+If the live path differs, set `TINKER_SAMPLER_PATH`. Do not point this Space at `owf98569` or a 0.6B checkpoint.
 
-- **Environment**: `harleycooper/dakota1890` (v0.1.17)
-- **Framework**: Verifiers-compatible RL environment
-- **Parser**: DakotaTranslationParser (preserves Dakota orthography)
+Live defaults: temperature `0`, max tokens `64`, last-line / `\\boxed{...}` extraction.
 
-## Evaluation
+## Example bank
 
-### Training Metrics
+Twelve prompts copied from the frozen `cebp9acs` eval set (`dakota_rl_training/datasets/grammar_tasks_heldout.jsonl`). Gold is unchanged. The list leads with English→Dakota (`reverse_translation`), then Dakota→English and morphology.
 
-- **Final Entropy**: 0.2126 (mean), 0.00813 (median)
-- **Inference Probabilities**: 0.87743 (mean), 0.99876 (median)
-- **Throughput**: 7,800 tokens/s
-- **Model FLOPS Utilization (MFU)**: 2.6%
-- **Peak Memory**: 11.5 GiB
+## Local run
 
-### W&B Run
-
-- **Project**: dakota-rl-grammar
-- **Run Name**: dakota-0.6b-rl
-- **View**: [W&B Run](https://wandb.ai/christian-cooper-us/dakota-rl-grammar/runs/7nikv4vp)
-
-## Intended Use
-
-This model is intended for:
-- Research on RL for non-coding linguistic tasks
-- Testing compositional reward functions in RL pipelines
-- Dakota language grammar and translation tasks
-- Demonstrating RL effectiveness beyond code generation domains
-
-## Limitations
-
-- Small model size (0.6B parameters) limits capacity for complex grammar rules
-- Trained on historical dictionary data (1890) which may not reflect modern Dakota usage
-- Limited to single-turn and multi-turn chat formats
-- Requires Dakota language knowledge for proper evaluation
-
-## Ethical Considerations
-
-- Trained on historical linguistic data from indigenous language documentation
-- Should be used respectfully and in consultation with Dakota language communities
-- Not intended to replace human language experts or native speakers
-
-## Citation
-
-```bibtex
-@misc{dakota1890-rl-2024,
-  title={Qwen3-0.6B-Dakota-Grammar-RL: A Compositional Reward RL Test for Non-Coding Tasks},
-  author={Christian H. Cooper},
-  year={2024},
-  url={https://huggingface.co/harleycooper/Qwen3-0.6B-Dakota-Grammar-RL}
-}
+```powershell
+cd huggingface_space
+python -m pip install -r requirements.txt
+python app.py
 ```
 
-## Acknowledgments
+Without `TINKER_API_KEY`, the UI still shows prompts and gold. With the key:
 
-- Base model: Qwen/Qwen3-0.6B by Alibaba Cloud
-- Training framework: Prime Intellect RL
-- Source material: 1890 Dakota-English Dictionary by Stephen Return Riggs
-- Environment: Dakota1890 RL environment
-
-## Model Card Contact
-
-For questions or issues, please contact: Raise an Issue in the Repo
+```powershell
+$env:TINKER_API_KEY = "..."
+$env:TINKER_SAMPLER_PATH = "tinker://dc44ca83-ce9e-5c91-a38d-0e866549f397:train:0/sampler_weights/final"
+python app.py
+```
