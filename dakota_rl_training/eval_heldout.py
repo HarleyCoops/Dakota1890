@@ -48,7 +48,8 @@ def score_row(
         "gold": gold,
         "model_output": output,
         "answer_span": scored["answer_span"],
-        "semantic": scored["semantic"],
+        "exact_match": scored["exact_match"],
+        "semantic": scored["exact_match"],
         "char": scored["char"],
         "special_char": scored["special_char"],
         "affix": scored["affix"],
@@ -84,11 +85,16 @@ def score_row(
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     if not rows:
         return {"n": 0}
-    keys = ["semantic", "char", "affix", "special_char", "reward_scalar"]
+    keys = ["exact_match", "char", "affix", "reward_scalar"]
     summary: dict[str, Any] = {"n": len(rows)}
     for key in keys:
         values = [float(row[key]) for row in rows]
         summary[f"mean_{key}"] = sum(values) / len(values)
+    summary["mean_semantic"] = summary["mean_exact_match"]
+    specials = [float(row["special_char"]) for row in rows if float(row["special_char"]) >= 0]
+    if specials:
+        summary["mean_special_char"] = sum(specials) / len(specials)
+        summary["n_special_char"] = len(specials)
     judged = [row for row in rows if row.get("judge_correct") is not None]
     if judged:
         summary["mean_judge_correct"] = sum(float(row["judge_correct"]) for row in judged) / len(judged)

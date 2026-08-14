@@ -88,17 +88,18 @@ env = load_environment(
 
 ### Metrics
 
-Grant-clean train reward (v0.1.18) scores an extracted final-answer span, not the whole chain of thought. Difficulty multipliers are logged and are **not** applied to the GRPO scalar. See [`docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`](../../docs/experiments/TINKER_GRANT_CLEAN_RERUN.md).
+Live Tinker weights (v0.1.18): `exact_match` 0.40, `char_overlap` 0.20, `pattern` 0.15, `affix` 0.10, length as a multiplier. This is **not** the leftover 40/40/20 semantic rubric. A judge is eval-only and is not required for an honest train scalar. See [`docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`](../../docs/experiments/TINKER_GRANT_CLEAN_RERUN.md).
 
 | Ledger field | Meaning |
 | ------ | ------- |
-| `semantic_raw` / `exact_match_raw` | Exact normalized match of the extracted span to gold |
-| `char_overlap_raw` | Character F1 of the span vs gold |
-| `special_char_raw` | Special-character F1 on the span |
-| `affix_raw` | Gold affixed token(s) present in the span (not any word with the suffix) |
+| `exact_match_raw` | Exact normalized match of the extracted span to gold |
+| `char_overlap_raw` | All-character F1 of the span vs gold (train term) |
+| `special_char_raw` | Eval specials-only F1 (`-1` if gold has no specials) |
+| `affix_raw` | Gold affixed token in the span; empty required list is 0.0 |
+| `pattern_raw` | Span-only pattern match; hints do not pay |
 | `length_penalty_raw` | Multiplier; empty or much-too-long completions are penalized |
-| `reward_scalar` | Unweighted composite used for GRPO (`composite_unweighted`) |
-| `composite_with_difficulty` | Analysis only; do not treat as the train signal |
+| `reward_scalar` | Unweighted composite used for GRPO |
+| `difficulty_multiplier` | Log tag only |
 | `judge_*` | Optional eval-only judge (`-1` during Tinker training) |
 
 ## Dakota Language Notes

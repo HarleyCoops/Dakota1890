@@ -14,10 +14,11 @@ SPECIAL_CHARS = set("ćšŋḣṡáéíóúķśṅźėčžʼ")
 
 PASS_THRESHOLD = 0.5
 
-# Same component weights as the published Tinker environment rubric.
+# Live Tinker environment weights (published 30B path).
 # Length is a multiplier, not an additive term, so the weighted sum maxes at 0.85.
+# semantic_accuracy_reward is unused on this path and is not a weight.
 WEIGHTS = {
-    "semantic": 0.4,
+    "exact": 0.4,
     "char": 0.2,
     "pattern": 0.15,
     "affix": 0.1,
@@ -113,13 +114,17 @@ def _special_char_f1(span: str, gold: str, expected_chars: list[str] | None) -> 
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_score(span: str, gold: str) -> float:
+def exact_match_score(span: str, gold: str) -> float:
     """Exact normalized match of the extracted span. Buried gold is not 1.0."""
     if not span.strip() or not gold.strip():
         return 0.0
     if normalize(span) == normalize(gold):
         return 1.0
     return 0.0
+
+
+# Leftover name from the unused 40/40/20 rubric. Not a Tinker train weight.
+semantic_score = exact_match_score
 
 
 def _affix_bearing_tokens(text: str, affix: str) -> list[str]:
@@ -146,9 +151,13 @@ def _affix_bearing_tokens(text: str, affix: str) -> list[str]:
 
 
 def affix_score(span: str, gold: str, required_affixes: list[str]) -> float:
-    """Require the gold's affixed token(s) in the span, not any word with the affix."""
+    """Require the gold's affixed token(s) in the span.
+
+    An empty ``required_affixes`` list is not a free 1.0. Most Dakota JSONL
+    rows have no affix metadata; paying 1.0 there was the live Tinker hack.
+    """
     if not required_affixes:
-        return 1.0
+        return 0.0
     span_tokens = {normalize(token) for token in span.split() if token.strip()}
     hits = 0
     for affix in required_affixes:
@@ -167,38 +176,38 @@ def character_score(span: str, gold: str) -> float:
 
 
 def special_char_score(span: str, gold: str, expected_chars: list[str] | None) -> float:
+    """Eval-only specials F1. ``-1.0`` means the gold has no special characters."""
+    expected = list(expected_chars or [])
+    if not expected and not any(char in SPECIAL_CHARS for char in gold):
+        return -1.0
     if not span.strip():
         return 0.0
-    return _special_char_f1(span, gold, expected_chars)
+    return _special_char_f1(span, gold, expected or None)
 
 
 def pattern_score(span: str, info: dict[str, Any]) -> float:
+    """Span-only pattern match. Hints never pay. Missing pattern is 0.0, not 1.0."""
     pattern = (info or {}).get("verification_pattern")
-    hints = list((info or {}).get("hints") or [])
-    if not pattern and not hints:
+    if not pattern:
+        return 0.0
+    pattern_text = str(pattern)
+    if not pattern_text.strip():
+        return 0.0
+    literal_candidates = [pattern_text]
+    if ":" in pattern_text:
+        literal_candidates.append(pattern_text.split(":", 1)[1].strip())
+    try:
+        if re.search(pattern_text, span, flags=re.IGNORECASE):
+            return 1.0
+    except re.error:
+        pass
+    normalized_span = normalize(span)
+    if any(
+        normalize(candidate) and normalize(candidate) in normalized_span
+        for candidate in literal_candidates
+    ):
         return 1.0
-    score = 0.0
-    if pattern:
-        pattern_text = str(pattern)
-        literal_candidates = [pattern_text]
-        if ":" in pattern_text:
-            literal_candidates.append(pattern_text.split(":", 1)[1].strip())
-        try:
-            if re.search(pattern_text, span, flags=re.IGNORECASE):
-                score = 1.0
-        except re.error:
-            pass
-        if score < 1.0:
-            normalized_span = normalize(span)
-            if any(
-                normalize(candidate) and normalize(candidate) in normalized_span
-                for candidate in literal_candidates
-            ):
-                score = 1.0
-    if score < 1.0 and hints:
-        covered = sum(1 for hint in hints if hint.lower() in span.lower())
-        score = max(score, covered / len(hints))
-    return float(score)
+    return 0.0
 
 
 def length_penalty(completion: str, gold: str, max_length_ratio: float = 3.0) -> float:
@@ -222,7 +231,7 @@ def score_train_reward(
     info = dict(task_info or {})
     raw = completion_text(completion)
     span = extract_final_answer(raw)
-    semantic = semantic_score(span, gold)
+    exact = exact_match_score(span, gold)
     char = character_score(span, gold)
     special_char = special_char_score(span, gold, list(info.get("special_chars") or []))
     affix = affix_score(span, gold, list(info.get("required_affixes") or []))
@@ -231,30 +240,31 @@ def score_train_reward(
     difficulty = str(info.get("difficulty", "intermediate"))
     difficulty_mult = DIFFICULTY_WEIGHTS.get(difficulty.lower(), 1.0)
 
-    contrib_exact = WEIGHTS["semantic"] * semantic
+    contrib_exact = WEIGHTS["exact"] * exact
     contrib_char = WEIGHTS["char"] * char
     contrib_pattern = WEIGHTS["pattern"] * pattern
     contrib_affix = WEIGHTS["affix"] * affix
     composite_pre = contrib_exact + contrib_char + contrib_pattern + contrib_affix
     composite_unweighted = composite_pre * length
     composite_with_difficulty = composite_unweighted * difficulty_mult
-    passed = composite_unweighted >= PASS_THRESHOLD
+    # Competence gate is exact span match. Length still scales the GRPO scalar.
+    passed = exact == 1.0
 
     ledger = {
         "answer_span_len": float(len(span)),
-        "exact_match_raw": semantic,
-        "semantic_raw": semantic,
+        "exact_match_raw": exact,
+        "semantic_raw": exact,
         "char_overlap_raw": char,
         "special_char_raw": special_char,
         "pattern_raw": pattern,
         "affix_raw": affix,
         "length_penalty_raw": length,
-        "exact_match_norm": semantic,
+        "exact_match_norm": exact,
         "char_overlap_norm": char,
         "pattern_norm": pattern,
         "affix_norm": affix,
         "length_penalty_norm": length,
-        "w_exact": WEIGHTS["semantic"],
+        "w_exact": WEIGHTS["exact"],
         "w_char": WEIGHTS["char"],
         "w_pattern": WEIGHTS["pattern"],
         "w_affix": WEIGHTS["affix"],
@@ -280,7 +290,8 @@ def score_train_reward(
 
     return {
         "answer_span": span,
-        "semantic": semantic,
+        "exact_match": exact,
+        "semantic": exact,
         "char": char,
         "special_char": special_char,
         "affix": affix,

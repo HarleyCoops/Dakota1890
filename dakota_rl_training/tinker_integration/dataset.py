@@ -144,7 +144,7 @@ class DakotaGrammarDatasetBuilder(RLDatasetBuilder):
     seed: int = 0
     difficulty_filter: Sequence[str] | None = None
     task_filter: Sequence[str] | None = None
-    include_hints: bool = True
+    include_hints: bool = False
     eval_group_size: int = 1
 
     async def __call__(self) -> tuple[RLDataset, RLDataset | None]:

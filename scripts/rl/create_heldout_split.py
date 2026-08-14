@@ -45,14 +45,17 @@ def main() -> int:
         "heldout_fraction": HELD_OUT_FRACTION,
         "algorithm": SPLIT_ALGORITHM,
         "used_for_grpo": False,
+        "leaked_gold_stripped_at_load": True,
         "train_count": len(split.train),
         "heldout_count": len(split.heldout),
         "heldout_ids": [row["task_id"] for row in split.heldout],
         "train_ids": [row["task_id"] for row in split.train],
+        "prompt_overlap_excluded_from_train": True,
     }
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(split.heldout)} held-out rows to {heldout_path}")
+    print(f"Train rows after prompt-overlap exclusion: {len(split.train)}")
     print(f"Wrote manifest to {manifest_path}")
     return 0
 

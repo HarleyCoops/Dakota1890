@@ -1,81 +1,71 @@
 # Experiment card: grant-clean Dakota Tinker rerun
 
-Language: Dakota grammar and morphology from Stephen Return Riggs, *Dakota-English Dictionary* (1890). This card is not about railroad operating rules or DeepMath.
+Language: Dakota grammar and morphology from Stephen Return Riggs, *Dakota-English Dictionary* (1890). Not railroad. Not DeepMath.
 
-## Hypothesis
+A judge is an **eval-only overlay**. Its absence does not make the train scalar honest. The published train scalar had its own leaks.
 
-The published Thinking Machines / Tinker run on `Qwen3-30B-A3B-Instruct-2507` (about 199 steps; reported composite 0.105 → 0.317, peak 0.442; affix accuracy 100%; character preservation about 70%; tokens/turn 210 → 13; weights at [HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890](https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890)) is consistent with **reward hacking and/or mode collapse**, not necessarily Dakota competence.
+## Frozen 30B grant baseline
 
-A policy can raise the old train scalar without producing the gold Dakota form as its answer. If the grant-clean reward is used, those probes fail, and a competent policy must still pass exact gold plus a held-out split that never enters GRPO advantages.
+Do not replace this with the later 35B run `owf98569` (pattern was live; `exact_match` stayed 0.0 for all 199 steps).
 
-## What the published loop actually scored
-
-Two rubrics existed. They are not the same.
-
-| Path | Used by published Tinker loop? | Semantic | Affix | Characters | Length | Difficulty |
-| --- | --- | --- | --- | --- | --- | --- |
-| `environments/dakota_grammar_translation/.../environment.py` | **Yes** (`DakotaTinkerEnv` → `DakotaGrammarRubric.score`) | Exact match on the **full** assistant string (CoT + gold is not an exact match) | Affix present on **any** word (`\w+ku\b`) | Character F1 of the **full** string vs gold | Hardwired `1.0` | Multiplier 1.0–2.0 applied to `reward_scalar` |
-| `dakota_rl_training/verifiers/rubrics.py` | No (PrimeIntellect helper / docs) | Gold **substring** of the full response → 1.0 | Same affix-anywhere check | Special-character **recall** (one `ŋ` is enough) | Hardwired `1.0` | Same inflation |
-
-Diagnosis vs those paths:
-
-1. **Gold stuffed in CoT.** True for the unused `verifiers/rubrics.py` substring rule. The Tinker rubric did **not** give exact-match 1.0 for gold buried in fluff, but `pattern_reward` / hints still searched the full string, and affix-anywhere still paid.
-2. **Affix on the wrong stem.** True on **both** paths.
-3. **Character sprinkle.** True for `verifiers/rubrics.py` recall. The Tinker path used full-string char F1, which already punishes long English plus one `ŋ`, but did not require the gold form in an answer span.
-4. **Length penalty disabled.** True on **both** paths. Collapsing completion length is therefore not evidence of a length cost.
-5. **Difficulty multipliers on the train scalar.** True on **both** paths. An advanced item that is only partly hacked can outscore a correct basic item.
-
-Affix 100% plus tokens/turn collapsing to ~13 is therefore **consistent with** affix-anywhere plus short templated outputs. It is not, by itself, evidence that the policy learned Dakota morphology.
-
-There was already an optional random `eval_fraction=0.1` split inside `build_dataset_bundle`, but it was not a checked-in file, and providing `--eval-path` previously left those items **inside the train set**.
-
-## New train reward (cheap, deterministic)
-
-Implemented in `dakota_grammar_translation/train_reward.py` and used by the Tinker environment rubric. No extra GPU judge at train time.
-
-- Extract a final-answer span: last `\\boxed{...}`, else last `final answer is/:` line, else last non-empty line, else the whole string.
-- **Semantic:** exact normalized match of that span to gold. Gold as a substring of a longer span is 0.0.
-- **Affix:** the gold token that bears the affix (e.g. `suŋkaku`) must appear in the span. `wicaštaku` does not score.
-- **Characters:** character F1 of the span vs gold, plus a logged special-character F1. Sprinkle-once on the wrong span fails.
-- **Length:** real multiplier. Empty → 0. Completions longer than `3×` gold length decay as `3 / ratio`.
-- **GRPO scalar:** weighted components × length. **Difficulty is logged only** (`composite_with_difficulty`) and does not change `reward_scalar`.
-- Ledger always reports unweighted `semantic_raw`, `char_overlap_raw`, `affix_raw`, `special_char_raw`, and `judge_*` (`-1` when the judge was not run).
-
-Hack probes live in `dakota_rl_training/datasets/hack_probes.jsonl`. Gold-stuffed CoT, char-sprinkle, affix-on-wrong-stem, and empty must fail; exact gold must pass. The old `verifiers/rubrics.py` heuristics (kept as `legacy_reward.py`) still pass gold-stuffed CoT and affix-on-wrong-stem.
-
-## Held-out eval (not used for GRPO)
-
-- File: `dakota_rl_training/datasets/grammar_tasks_heldout.jsonl`
-- Manifest: `dakota_rl_training/datasets/splits/SPLIT_MANIFEST.json`
-- Seed `42`, fraction `0.1`, 1,058 held-out rows, no train overlap
-- `DakotaTinkerEnv` eval groups use `eval_group_size=1`; `compute_group_rewards` returns zeros so only per-step **train** rewards enter advantages
-- Offline scorer: `python dakota_rl_training/eval_heldout.py` (hack probes by default)
-
-## Optional external judge (eval only)
-
-`dakota_grammar_translation/judge.py` → JSON `{correct, morphology_ok, meaning_ok, orthography_ok, rationale}`.
-
-| Variable | Role |
+| Field | Value |
 | --- | --- |
-| `QWEN_JUDGE_MODEL` | Default `Qwen/Qwen3-8B` (swap to a Max / other Qwen checkpoint as needed) |
-| `QWEN_JUDGE_BASE_URL` or `OPENAI_BASE_URL` | OpenAI-compatible endpoint |
-| `QWEN_JUDGE_API_KEY` or `OPENAI_API_KEY` | Optional bearer token |
+| W&B | `christian-cooper-us/dakota-rl-grammar` run `i55d4x26` |
+| Weights | [HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890](https://huggingface.co/HarleyCooper/Qwen3-30B-ThinkingMachines-Dakota1890) |
+| Model | `Qwen/Qwen3-30B-A3B-Instruct-2507` |
+| batch / group / lr / LoRA | 48 / 16 / 4e-5 / 32 |
+| max_tokens / temperature | 384 / 0.9 |
+| steps | 199 |
+| include_hints | True |
+| KL | 0 |
+| composite | 0.105 → 0.317 (peak 0.442) |
+| char F1 (all characters vs gold) | 0.265 → 0.619 (peak 0.699) |
+| affix | 0.957 → 1.000 |
+| exact_match | 0.001 → 0.100 |
+| tokens/turn | 210 → 13.28 |
 
-`tinker_train.py` and `tinker_integration/env.py` do not import the judge. Enable it only on `eval_heldout.py --enable-judge`.
+Those figures are the published run. This card does not invent a rerun.
+
+## Live scorer (what Tinker actually called)
+
+`DakotaTinkerEnv` imports `dakota_grammar_translation.environment.DakotaGrammarRubric`.
+
+`dakota_rl_training/verifiers/rubrics.py` (40/40/20 `semantic_accuracy_reward`) and `verifiers/grammar_env.py` are PrimeIntellect leftovers. They were **not** on the published Tinker path. `semantic_accuracy_reward` is not a train weight.
+
+Published `score()` weights:
+
+| Component | Weight | Published behavior |
+| --- | --- | --- |
+| `exact_match` | 0.40 | Full-string normalized equality |
+| `char_overlap` | 0.20 | Character-level F1 vs **all** gold characters |
+| `pattern` | 0.15 | Regex **or** literal substring of `info.pattern` **or** hint coverage |
+| `affix` | 0.10 | Affix on any word; **empty `required_affixes` → 1.0** (10,062 / 10,576 rows) |
+| `length` | 0.15 listed | `return 1.0`; used as a multiplier, not added into the sum |
+| then | × `difficulty_mult` | 1.0–2.0 on the GRPO scalar |
+
+## Hacks closed on that live rubric
+
+1. Empty `required_affixes` scores **0.0**, not 1.0.
+2. Train default is `include_hints=False`. Hint echo does not pay `pattern`.
+3. Pattern is span-only, and only if a verification pattern exists (missing pattern → 0.0). Prompts have leaked `Examples:` / `Pattern:` gold stripped at load (520 rows had the gold pattern in the prompt).
+4. Train `char_overlap` stays all-character F1 (the live 0.20 term). **Eval** reports `special_char_raw` (specials-only F1; `-1` if the gold has no specials).
+5. `difficulty_multiplier` is a ledger tag. It does not change `reward_scalar`.
+6. Real length penalty: empty → 0; longer than 3× gold decays as `3 / ratio`. Default `max_tokens=384` matches the baseline; the system prompt asks for a last-line / boxed answer.
+7. Frozen held-out JSONL, stratified by `task_type × difficulty`, seed 42, ~10%. Train drops matching prompts. Not used for GRPO advantages.
+8. Judge (`QWEN_JUDGE_*` / OpenAI-compatible, default `Qwen/Qwen3-8B`) is eval-only. `tinker_train.py` and `tinker_integration/env.py` do not import it.
+
+Exact match is scored on the extracted span (`\\boxed{}` / `final answer is` / last line). Gold buried in CoT is not `exact_match` 1.0. Affix requires the gold token (`suŋkaku`), not `wicaštaku`.
 
 ## Metrics to report on a rerun
 
-Report these **separately**. Do not quote a difficulty-inflated composite as the headline.
+Report these separately. Do not headline a difficulty-inflated composite.
 
-- Held-out `semantic_raw` / exact-span match
-- Held-out `affix_raw` (gold-token affix)
-- Held-out `char_overlap_raw` and `special_char_raw`
-- Held-out `length_penalty_raw` and tokens/turn
-- Hack-probe pass/fail table
-- Judge rates if an endpoint was configured (`judge_correct`, `morphology_ok`, `meaning_ok`, `orthography_ok`)
-- `composite_unweighted` as the train scalar; `composite_with_difficulty` only as analysis
-
-This card does not invent rerun numbers. The figures in the first section are the **already published** run.
+- Held-out `exact_match_raw`
+- Held-out `affix_raw` (0.0 when the row has no required affixes)
+- Train `char_overlap_raw` (all-char F1) and eval `special_char_raw` (specials-only)
+- `pattern_raw`, `length_penalty_raw`, tokens/turn
+- Hack-probe table
+- Judge fields only if an endpoint was configured
 
 ## How to reproduce the Tinker rerun
 
@@ -91,14 +81,16 @@ python dakota_rl_training/tinker_train.py \
   --batch-size 48 \
   --group-size 16 \
   --learning-rate 4e-5 \
-  --lora-rank 64 \
-  --max-tokens 256 \
-  --wandb-project thinking-machines-qwen3-30b \
-  --wandb-name grant-clean-span-reward \
+  --lora-rank 32 \
+  --max-tokens 384 \
+  --temperature 0.9 \
+  --kl-penalty-coef 0.0 \
+  --wandb-project dakota-rl-grammar \
+  --wandb-name grant-clean-live-rubric \
   --ledger-csv wandb_analysis/reward_ledger_tinker_grant_clean.csv
 ```
 
-After training, score probes without Tinker:
+`--include-hints` is off unless passed. After training:
 
 ```bash
 python dakota_rl_training/eval_heldout.py \
@@ -108,12 +100,9 @@ python dakota_rl_training/eval_heldout.py \
 
 ## What would falsify “the model learned Dakota”
 
-Any one of these is enough to reject the competence claim for a rerun:
-
-- Hack probes `gold_stuffed_cot`, `char_sprinkle`, or `affix_wrong_stem` pass the train reward.
-- Held-out exact-span match stays near the published-run composite while affix-anywhere-style outputs dominate.
-- Tokens/turn collapse while held-out semantic match does not rise.
-- A configured judge reports low `morphology_ok` / `orthography_ok` on held-out items that the train scalar marks as passed.
-- Train and held-out IDs overlap.
-
-A competent result looks like: exact gold still passes, the four attack probes fail, held-out semantic/affix/char rise **together**, and length does not collapse to a single templated suffix.
+- `gold_stuffed_cot`, hint-echo, or `affix_wrong_stem` pass the train reward
+- Empty-affix rows still show affix 1.0
+- Held-out `exact_match` stays near 0.10 while affix/pattern look saturated
+- Tokens/turn collapse while held-out exact match does not rise
+- A configured judge reports low `morphology_ok` / `orthography_ok` on items the train scalar marks passed
+- Train and held-out prompts overlap

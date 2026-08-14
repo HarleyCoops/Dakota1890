@@ -164,38 +164,20 @@ TOPLOC remains available on PrimeIntellect; on Tinker the rubric itself enforces
 - Binary reward (correct/incorrect)
 - Use for: simple transformations
 
-### Reward Functions
+### Reward Functions (live Tinker path)
 
-**`DakotaGrammarRubric`** provides multiple reward strategies:
+Tinker scores `dakota_grammar_translation.environment.DakotaGrammarRubric`, not the leftover 40/40/20 `semantic_accuracy_reward` in `verifiers/rubrics.py`. Protocol: [`docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`](../docs/experiments/TINKER_GRANT_CLEAN_RERUN.md).
 
-1. **`character_preservation_reward`** (0.0-1.0)
-   - Verifies Dakota special characters: ŋ, š, ć, ź, ž, ʼ
-   - Critical for language preservation!
+| Component | Weight | Grant-clean behavior |
+| --- | --- | --- |
+| `exact_match` | 0.40 | Extracted answer span vs gold. Gold buried in CoT is 0. |
+| `char_overlap` | 0.20 | All-character F1 of the span vs gold (train). Eval also logs specials-only F1. |
+| `pattern` | 0.15 | Span-only. No hint echo. Missing pattern is 0, not 1. |
+| `affix` | 0.10 | Gold affixed token in the span. **Empty `required_affixes` is 0, not 1.** |
+| `length` | multiplier | Empty → 0; completions longer than 3× gold decay. |
+| `difficulty_multiplier` | log tag | Not applied to the GRPO scalar. |
 
-2. **`affix_accuracy_reward`** (0.0-1.0)
-   - Checks required affixes: -ku, -ću, -tku, ta-, ti-
-   - Regex-based prefix/suffix detection
-
-3. **`semantic_accuracy_reward`** (0.0-1.0)
-   - Exact match for morphology
-   - Word overlap for translation
-   - Levenshtein distance for near-matches
-
-4. **`composite_reward`** (0.0-2.0)
-   - Weighted combination of above
-   - Difficulty multiplier (basic=1.0x, expert=2.0x)
-   - Task-type specific weights:
-     - Morphology: 40% char + 40% affix + 20% semantic
-     - Translation: 30% char + 70% semantic
-     - Reverse: 50% char + 50% semantic
-
-5. **`progressive_reward`** (multi-turn)
-   - Rewards improvement across turns
-   - Encourages learning from feedback
-
-6. **`curriculum_bonus`**
-   - Bonus for attempting harder tasks
-   - Encourages progression basic → expert
+A missing judge does not make this honest; the leaks above were in the deterministic scalar.
 
 ### Task Types (from actual extraction)
 

@@ -28,9 +28,13 @@ from dakota_grammar_translation.legacy_reward import (  # noqa: E402
 )
 from dakota_grammar_translation.train_reward import (  # noqa: E402
     PASS_THRESHOLD,
+    WEIGHTS,
+    exact_match_score,
     extract_final_answer,
+    pattern_score,
     score_train_reward,
 )
+from dakota_grammar_translation.prompts import strip_leaked_supervision  # noqa: E402
 
 
 KINSHIP_TASK = {
@@ -97,6 +101,50 @@ def test_legacy_character_pays_sprinkled_eng() -> None:
     assert legacy_character_preservation(CHAR_SPRINKLE, ["ŋ"]) == pytest.approx(1.0)
 
 
+def test_empty_required_affixes_do_not_score_one() -> None:
+    info = dict(INFO)
+    info["required_affixes"] = []
+    result = score_train_reward(EXACT_GOLD, GOLD, info)
+    assert result["affix"] == pytest.approx(0.0)
+    assert result["exact_match"] == pytest.approx(1.0)
+    assert result["passed"] is True
+
+
+def test_hint_echo_does_not_pay_pattern() -> None:
+    info = dict(INFO)
+    info["verification_pattern"] = None
+    info["hints"] = ["suŋkaku", "ŋ", "Dawid"]
+    echoed = "suŋkaku ŋ Dawid"
+    result = score_train_reward(echoed, GOLD, info)
+    assert pattern_score(echoed, info) == pytest.approx(0.0)
+    assert result["pattern"] == pytest.approx(0.0)
+    assert result["exact_match"] == pytest.approx(0.0)
+
+
+def test_gold_in_cot_is_not_exact_match() -> None:
+    result = _new(GOLD_STUFFED_COT)
+    assert result["answer_span"] != GOLD
+    assert GOLD.lower() in GOLD_STUFFED_COT.lower()
+    assert result["exact_match"] == pytest.approx(0.0)
+    assert exact_match_score(result["answer_span"], GOLD) == pytest.approx(0.0)
+
+
+def test_train_scalar_uses_live_tinker_weights_not_semantic_rubric() -> None:
+    assert WEIGHTS == {"exact": 0.4, "char": 0.2, "pattern": 0.15, "affix": 0.1}
+    assert "semantic" not in WEIGHTS
+
+
+def test_strip_leaked_pattern_examples_from_prompt() -> None:
+    prompt = (
+        "Identify the grammatical pattern in this Dakota rule:\n\n"
+        "Negation with šni\n\n"
+        "Examples:\n  - [verb] šni\n"
+    )
+    cleaned = strip_leaked_supervision(prompt, gold="[verb] šni", pattern="[verb] šni")
+    assert "[verb] šni" not in cleaned
+    assert "Negation with šni" in cleaned
+
+
 def test_new_semantic_does_not_pay_buried_gold() -> None:
     result = _new(GOLD_STUFFED_COT)
     assert result["answer_span"] != GOLD
@@ -136,7 +184,7 @@ def test_hack_probes_new_reward_fails_attacks_and_passes_exact_gold() -> None:
     for name, response in probes.items():
         result = _new(response)
         if name == "exact_gold":
-            assert result["semantic"] == pytest.approx(1.0)
+            assert result["exact_match"] == pytest.approx(1.0)
             assert result["affix"] == pytest.approx(1.0)
             assert result["char"] == pytest.approx(1.0)
             assert result["reward_scalar"] >= PASS_THRESHOLD
@@ -150,7 +198,7 @@ def test_legitimate_final_answer_span_still_scores() -> None:
     for response in (BOXED_GOLD, FINAL_ANSWER_GOLD):
         result = _new(response)
         assert result["answer_span"] == GOLD
-        assert result["semantic"] == pytest.approx(1.0)
+        assert result["exact_match"] == pytest.approx(1.0)
         assert result["passed"] is True
 
 

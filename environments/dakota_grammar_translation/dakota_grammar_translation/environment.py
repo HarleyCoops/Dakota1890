@@ -23,6 +23,7 @@ from verifiers.parsers.parser import Parser
 from verifiers.rubrics.rubric import Rubric
 from verifiers.types import Messages
 
+from .prompts import strip_leaked_supervision
 from .splits import assign_stable_task_id, exclude_eval_overlap
 from .train_reward import (
     affix_score,
@@ -118,7 +119,7 @@ def _prepare_records(
     entries: Sequence[dict[str, Any]],
     difficulties: Optional[Sequence[str]] = None,
     task_types: Optional[Sequence[str]] = None,
-    include_hints: bool = True,
+    include_hints: bool = False,
 ) -> list[dict[str, Any]]:
     """Prepare records for dataset creation with filtering."""
     allowed_difficulties = {d.lower() for d in difficulties or []}
@@ -144,13 +145,19 @@ def _prepare_records(
         answer = str(entry.get("answer") or entry.get("ideal_answer", "")).strip()
         if not prompt or not answer:
             continue
+        verification_pattern = (
+            entry.get("verification_pattern")
+            or entry_info.get("verification_pattern")
+            or entry_info.get("pattern")
+        )
+        prompt = strip_leaked_supervision(
+            prompt,
+            gold=answer,
+            pattern=str(verification_pattern) if verification_pattern else None,
+        )
         info = {
             "rule_id": entry.get("rule_id") or entry_info.get("rule_id"),
-            "verification_pattern": (
-                entry.get("verification_pattern")
-                or entry_info.get("verification_pattern")
-                or entry_info.get("pattern")
-            ),
+            "verification_pattern": verification_pattern,
             "difficulty": difficulty,
             "task_type": task_type,
             "special_chars": entry_info.get("special_chars", []),
@@ -282,7 +289,7 @@ def build_dataset_bundle(
     seed: Optional[int] = None,
     difficulty_filter: Optional[Sequence[str]] = None,
     task_filter: Optional[Sequence[str]] = None,
-    include_hints: bool = True,
+    include_hints: bool = False,
 ) -> DatasetBundle:
     """Public wrapper for constructing Dakota grammar datasets."""
 
@@ -313,7 +320,7 @@ class DakotaTranslationParser(Parser):
 
 
 class DakotaGrammarRubric(Rubric):
-    """Grant-clean Dakota rubric: span-scored, deterministic, no judge."""
+    """Live Tinker Dakota rubric: span-scored, deterministic train signal."""
 
     def __init__(self, parser: Optional[Parser] = None):
         parser = parser or DakotaTranslationParser()
@@ -444,7 +451,7 @@ def load_environment(
     system_prompt: Optional[str] = None,
     sampling_args: Optional[Dict[str, Any]] = None,
     seed: Optional[int] = None,
-    include_hints: bool = True,
+    include_hints: bool = False,
 ) -> vf.Environment:
     """
     Load the Dakota grammar translation environment.
@@ -460,7 +467,7 @@ def load_environment(
         system_prompt: Override the default system prompt.
         sampling_args: Optional sampling overrides passed to verifiers.
         seed: RNG seed used when performing internal splits.
-        include_hints: Keep or drop hint metadata in the info payload.
+        include_hints: Off by default. Hint echo must not pay pattern reward.
 
     Returns:
         A configured verifiers `Environment` instance.
