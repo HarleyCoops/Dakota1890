@@ -83,7 +83,7 @@ Do not run this from CI or a coding agent unless a human is paying for Tinker.
 python dakota_rl_training/tinker_train.py \
   --model-name Qwen/Qwen3-30B-A3B-Instruct-2507 \
   --log-path dakota_rl_training/outputs/tinker_qwen30b_grant_clean \
-  --dataset-path dakota_rl_training/datasets/grammar_tasks_complete.jsonl \
+  --dataset-path dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl \
   --eval-path dakota_rl_training/datasets/grammar_tasks_heldout.jsonl \
   --eval-every 20 \
   --batch-size 48 \
@@ -114,3 +114,47 @@ python dakota_rl_training/eval_heldout.py \
 - Tokens/turn collapse while held-out exact match does not rise
 - A configured judge reports low `morphology_ok` / `orthography_ok` on items the train scalar marks passed
 - Train and held-out prompts overlap
+
+## Train JSONL repair (data only)
+
+The grant-clean 30B run `cebp9acs` (`dakota1890_grant_clean`) trained on
+`grammar_tasks_complete.jsonl` and evaluated on
+`grammar_tasks_heldout.jsonl` (seed 42). Anti-hack worked: empty
+`required_affixes` score 0.0. The train signal was still starved because most
+affix labels could never pay and ~1,168 exception/evidence rows had placeholder
+gold.
+
+This is a **data repair**, not a rubric change and not a Tinker relaunch. The
+live scorer in `environments/dakota_grammar_translation/.../environment.py` is
+unchanged. Empty affix lists still score 0.0.
+
+| File | Role |
+| --- | --- |
+| `dakota_rl_training/datasets/grammar_tasks_complete.jsonl` | Frozen v1 source (10,576 rows). `cebp9acs` train file. |
+| `dakota_rl_training/datasets/grammar_tasks_heldout.jsonl` | Frozen holdout v1 (1,060 rows, seed 42). `cebp9acs` eval. **Do not overwrite.** |
+| `dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl` | Repaired train JSONL. Default `--dataset-path` for new runs. |
+| `dakota_rl_training/datasets/grammar_tasks_heldout_v2.jsonl` | Same v1 prompts/rows after the same repair (placeholders dropped). Future eval only. |
+| `dakota_rl_training/datasets/splits/REPAIR_REPORT.json` | Before/after counts from the builder. |
+
+Regenerate v2 (does not touch v1 files):
+
+```bash
+python scripts/rl/repair_grammar_tasks.py
+```
+
+The builder uses only attested in-repo Dakota (Riggs rule examples, page-061
+morphology table, existing gold). It does not invent forms.
+
+| Metric | v1 complete | v2 complete |
+| --- | ---: | ---: |
+| Rows | 10,576 | 9,287 |
+| Nonempty `required_affixes` | 514 | 285 |
+| Scorable affix rows (affix token in gold) | 179 | 285 |
+| Fully scorable (every listed affix in gold) | 70 | 285 |
+| Placeholder gold | 1,278 | 0 |
+| `reverse_translation` rows | 2,137 | 2,130 |
+| `reverse_translation` with Dakota gold | 1,528 marker (2,097 lexicon-attested) | 2,130 |
+
+Holdout v1 is byte-identical to the `cebp9acs` eval set. A later speaker-correction
+loop should train on v2 and may keep v1 as the frozen comparison eval, or switch
+eval to holdout v2 once that comparison is no longer needed.

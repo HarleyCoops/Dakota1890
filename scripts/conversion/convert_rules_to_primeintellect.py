@@ -556,7 +556,14 @@ def main():
     output_dir = Path("dakota_rl_training/datasets")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    output_file = output_dir / "grammar_tasks_complete.jsonl"
+    output_file = output_dir / "grammar_tasks_complete_raw.jsonl"
+    frozen_complete = output_dir / "grammar_tasks_complete.jsonl"
+    if frozen_complete.exists():
+        print(
+            f"\nNote: leaving frozen {frozen_complete.name} untouched. "
+            "Raw converter output is grammar_tasks_complete_raw.jsonl. "
+            "Repair with: python scripts/rl/repair_grammar_tasks.py"
+        )
 
     with open(output_file, 'w', encoding='utf-8') as f:
         for task in all_tasks:

@@ -68,10 +68,10 @@ def check_prerequisites() -> tuple[bool, list[str]]:
     
     # Check if datasets exist
     datasets_dir = Path("dakota_rl_training/datasets")
-    if not (datasets_dir / "grammar_tasks_complete.jsonl").exists():
+    if not (datasets_dir / "grammar_tasks_complete_v2.jsonl").exists():
         issues.append(
-            f"Dataset not found: {datasets_dir}/grammar_tasks_complete.jsonl. "
-            "Run: python convert_rules_to_primeintellect.py"
+            f"Dataset not found: {datasets_dir}/grammar_tasks_complete_v2.jsonl. "
+            "Run: python scripts/rl/repair_grammar_tasks.py"
         )
     
     return len(issues) == 0, issues
@@ -120,7 +120,7 @@ def create_rl_config(
     
     # Default dataset path
     if env_dataset_path is None:
-        env_dataset_path = str(Path("dakota_rl_training/datasets/grammar_tasks_complete.jsonl").resolve())
+        env_dataset_path = str(Path("dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl").resolve())
     
     # Trainer config
     trainer_config = RLTrainerConfig(

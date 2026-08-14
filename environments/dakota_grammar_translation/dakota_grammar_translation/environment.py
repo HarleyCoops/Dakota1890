@@ -47,13 +47,13 @@ DEFAULT_SYSTEM_PROMPT = (
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 # Default dataset packaged with environment
-DEFAULT_DATASET = PACKAGE_ROOT / "data" / "grammar_tasks_complete.jsonl"
+DEFAULT_DATASET = PACKAGE_ROOT / "data" / "grammar_tasks_complete_v2.jsonl"
 # Fallback sample dataset (for development/testing)
 FALLBACK_DATASET = PACKAGE_ROOT / "data" / "sample_tasks.jsonl"
 # Legacy repo path (for local development)
-REPO_DATASET = Path(__file__).resolve().parents[3] / "dakota_rl_training" / "datasets" / "grammar_tasks_complete.jsonl"
+REPO_DATASET = Path(__file__).resolve().parents[3] / "dakota_rl_training" / "datasets" / "grammar_tasks_complete_v2.jsonl"
 # GitHub URL for hosted evals
-GITHUB_DATASET_URL = "https://raw.githubusercontent.com/HarleyCoops/Dakota1890/main/dakota_rl_training/datasets/grammar_tasks_complete.jsonl"
+GITHUB_DATASET_URL = "https://raw.githubusercontent.com/HarleyCoops/Dakota1890/main/dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl"
 
 
 def _load_jsonl(path: Path | str) -> list[dict[str, Any]]:

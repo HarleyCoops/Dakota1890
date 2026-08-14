@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -32,9 +33,23 @@ def load_jsonl(path: Path) -> list[dict]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite the frozen cebp9acs holdout v1. Default is to refuse.",
+    )
+    args = parser.parse_args()
     source = ROOT / "dakota_rl_training" / "datasets" / "grammar_tasks_complete.jsonl"
     heldout_path = ROOT / "dakota_rl_training" / "datasets" / "grammar_tasks_heldout.jsonl"
     manifest_path = ROOT / "dakota_rl_training" / "datasets" / "splits" / "SPLIT_MANIFEST.json"
+    if heldout_path.exists() and not args.force:
+        print(
+            f"Refusing to overwrite frozen holdout v1: {heldout_path}\n"
+            "That file is the cebp9acs eval set. Pass --force only if you intend to replace it.\n"
+            "To rebuild a repaired sibling, run: python scripts/rl/repair_grammar_tasks.py"
+        )
+        return 2
     rows = load_jsonl(source)
     split = split_entries(rows, seed=SPLIT_SEED, heldout_fraction=HELD_OUT_FRACTION)
     write_jsonl(heldout_path, split.heldout)

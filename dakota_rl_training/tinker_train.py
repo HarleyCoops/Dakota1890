@@ -52,7 +52,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Train Dakota grammar RL policy on Tinker.")
     parser.add_argument("--model-name", default="Qwen/Qwen3-30B-A3B-Instruct-2507", help="Base model to fine-tune.")
     parser.add_argument("--log-path", default="dakota_rl_training/outputs/tinker_run", help="Directory for logs/checkpoints.")
-    parser.add_argument("--dataset-path", default=None, help="Optional override JSONL dataset.")
+    parser.add_argument(
+        "--dataset-path",
+        default="dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl",
+        help="Train JSONL. Default is the repaired v2 file. Holdout v1 stays the eval default.",
+    )
     parser.add_argument(
         "--eval-path",
         default="dakota_rl_training/datasets/grammar_tasks_heldout.jsonl",
