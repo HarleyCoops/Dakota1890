@@ -1,7 +1,7 @@
 [project]
 name = "dakota1890"
 description = "Verifiers-compatible environment for Dakota grammar and translation RL training (Dakota1890 project)."
-version = "0.1.17"
+version = "0.1.18"
 requires-python = ">=3.10"
 authors = [
     { name = "Christian H. Cooper", email = "christian@dakota.notyet" },

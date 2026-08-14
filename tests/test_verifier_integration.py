@@ -13,6 +13,9 @@ ENVIRONMENT_PACKAGE = ROOT / "environments" / "dakota_grammar_translation"
 if str(ENVIRONMENT_PACKAGE) not in sys.path:
     sys.path.insert(0, str(ENVIRONMENT_PACKAGE))
 
+pytest.importorskip("verifiers")
+pytest.importorskip("datasets")
+
 from dakota_grammar_translation import load_environment
 from dakota_grammar_translation.environment import _prepare_records
 
@@ -94,7 +97,12 @@ def test_reward_ledger_is_emitted_for_known_answer() -> None:
     assert ledger["composite_with_length"] == pytest.approx(
         ledger["composite_pre"] * ledger["length_penalty_norm"]
     )
-    assert ledger["composite_with_difficulty"] == pytest.approx(ledger["reward_scalar"])
+    assert ledger["reward_scalar"] == pytest.approx(ledger["composite_unweighted"])
+    assert ledger["composite_with_difficulty"] == pytest.approx(
+        ledger["composite_unweighted"] * ledger["difficulty_multiplier"]
+    )
+    assert ledger["semantic_raw"] == pytest.approx(ledger["exact_match_raw"])
+    assert ledger["judge_correct"] == pytest.approx(-1.0)
     assert ledger["composite_diff"] == pytest.approx(0.0)
 
 

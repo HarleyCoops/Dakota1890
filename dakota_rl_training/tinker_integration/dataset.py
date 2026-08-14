@@ -45,7 +45,8 @@ class DakotaGrammarEnvGroupBuilder(EnvGroupBuilder):
         ]
 
     async def compute_group_rewards(self, trajectory_group, env_group):
-        # Use per-step rewards only; ledger already captures decomposition.
+        # Per-step train rewards only. Held-out eval datasets are scored by
+        # Tinker's eval loop and must not contribute GRPO advantages.
         return [(0.0, {}) for _ in trajectory_group]
 
     def logging_tags(self) -> list[str]:
@@ -143,7 +144,7 @@ class DakotaGrammarDatasetBuilder(RLDatasetBuilder):
     seed: int = 0
     difficulty_filter: Sequence[str] | None = None
     task_filter: Sequence[str] | None = None
-    include_hints: bool = True
+    include_hints: bool = False
     eval_group_size: int = 1
 
     async def __call__(self) -> tuple[RLDataset, RLDataset | None]:

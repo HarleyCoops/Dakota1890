@@ -145,22 +145,9 @@ TINKER_API_KEY=your_key_here
 
 ### 4. Reward Function Composition
 
-The `DakotaGrammarRubric` in `dakota_rl_training/verifiers/rubrics.py` implements compositional rewards:
+The **live Tinker scorer** is `dakota_grammar_translation.environment.DakotaGrammarRubric` (imported by `tinker_integration/env.py`). The 40/40/20 `semantic_accuracy_reward` in `dakota_rl_training/verifiers/rubrics.py` is a PrimeIntellect leftover and is not on the published Tinker path.
 
-**Component weights (morphology tasks)**:
-- Character preservation: 40%
-- Affix accuracy: 40%
-- Semantic correctness: 20%
-
-**Component weights (translation tasks)**:
-- Character preservation: 30%
-- Semantic correctness: 70%
-
-**Difficulty multipliers**:
-- Basic: 1.0x
-- Intermediate: 1.2x
-- Advanced: 1.5x
-- Expert: 2.0x
+**Live train weights**: exact_match 0.40, char_overlap 0.20 (all-char F1), pattern 0.15, affix 0.10, length as a multiplier. Difficulty is a ledger tag, not a GRPO bump. Empty `required_affixes` is 0.0. Hints are off at train time. See `docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`.
 
 ### 5. Railroad Engineer 1959 (New)
 

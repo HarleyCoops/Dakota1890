@@ -1,17 +1,33 @@
 """
 Reward Functions (Rubrics) for Dakota Grammar RL Training
 
-Based on actual extraction from page 61:
-- Special character preservation (ŋ, š, ć, ź, ž, ʼ)
-- Morphological accuracy (affixes: -ku, -ću, -tku, ta-, ti-)
-- Semantic correctness (word/sentence translation)
-- Difficulty-adjusted rewards (basic → expert)
+Delegates to the grant-clean train reward used by the Tinker environment:
+span extraction, gold-token affix checks, restored length penalty, and
+unweighted ledger components. Historical heuristics live in
+``dakota_grammar_translation.legacy_reward``.
 """
 
+from __future__ import annotations
+
+import sys
+from pathlib import Path
 from typing import List, Dict, Any
-import re
 
 from .base import Rubric
+
+_ENV_PKG = Path(__file__).resolve().parents[2] / "environments" / "dakota_grammar_translation"
+if str(_ENV_PKG) not in sys.path:
+    sys.path.insert(0, str(_ENV_PKG))
+
+from dakota_grammar_translation.train_reward import (  # noqa: E402
+    affix_score,
+    character_score,
+    extract_final_answer,
+    length_penalty as train_length_penalty,
+    score_train_reward,
+    semantic_score,
+    special_char_score,
+)
 
 
 class DakotaGrammarRubric(Rubric):
@@ -20,8 +36,9 @@ class DakotaGrammarRubric(Rubric):
     def __init__(self):
         super().__init__()
         self.special_chars = set("ćšŋḣṡáéíóúķśṅźėčžʼ")
+        self._last_ledger: Dict[str, float] | None = None
 
-        # Difficulty multipliers (from actual extraction)
+        # Logged only. Not applied to the GRPO scalar.
         self.difficulty_weights = {
             "basic": 1.0,
             "intermediate": 1.2,
@@ -35,28 +52,11 @@ class DakotaGrammarRubric(Rubric):
         expected_chars: List[str],
         **kwargs
     ) -> float:
-        """
-        Reward for preserving Dakota special characters
-
-        Critical for Dakota language preservation!
-        Returns 0.0-1.0
-        """
-        if not expected_chars:
-            return 1.0  # No special chars required
-
-        response_chars = set(c for c in response if c in self.special_chars)
-        expected_set = set(expected_chars)
-
-        # If expected set is empty, nothing to match
-        if not expected_set:
-            return 1.0
-
-        intersection = response_chars & expected_set
-        
-        # Recall-based: penalize missing characters, but allow extras (for reasoning)
-        # Old: return len(intersection) / len(expected_set) if union else 0.0 (IoU penalizes reasoning)
-        # New: Recall = intersection / expected
-        return len(intersection) / len(expected_set)
+        span = extract_final_answer(response)
+        gold = str(kwargs.get("expected") or kwargs.get("gold") or "")
+        if gold:
+            return character_score(span, gold)
+        return special_char_score(span, "".join(expected_chars or []), list(expected_chars or []))
 
     def affix_accuracy_reward(
         self,
@@ -64,35 +64,9 @@ class DakotaGrammarRubric(Rubric):
         required_affixes: List[str],
         **kwargs
     ) -> float:
-        """
-        Reward for correct affix application
-
-        Based on actual patterns:
-        - Suffixes: -ku, -ću, -tku (kinship)
-        - Prefixes: ta-, ti-, to- (possessive)
-        """
-        if not required_affixes:
-            return 1.0  # No affixes required
-
-        correct_count = 0
-        for affix in required_affixes:
-            affix_clean = affix.strip("-")
-
-            # Check if affix appears correctly
-            if affix.startswith("-") and not affix.endswith("-"):
-                # Suffix
-                if re.search(rf'\w+{re.escape(affix_clean)}\b', response):
-                    correct_count += 1
-            elif affix.endswith("-") and not affix.startswith("-"):
-                # Prefix
-                if re.search(rf'\b{re.escape(affix_clean)}\w+', response):
-                    correct_count += 1
-            else:
-                # Standalone or infix - just check presence
-                if affix_clean in response:
-                    correct_count += 1
-
-        return correct_count / len(required_affixes) if required_affixes else 1.0
+        span = extract_final_answer(response)
+        gold = str(kwargs.get("expected") or kwargs.get("gold") or "")
+        return affix_score(span, gold, list(required_affixes or []))
 
     def semantic_accuracy_reward(
         self,
@@ -101,54 +75,7 @@ class DakotaGrammarRubric(Rubric):
         task_type: str = "morphology",
         **kwargs
     ) -> float:
-        """
-        Reward for semantic correctness
-
-        Different strategies for different task types
-        """
-        response_norm = response.strip().lower()
-        expected_norm = expected.strip().lower()
-
-        # Substring check (Primary Logic)
-        # This allows for verbosity/reasoning as long as the answer is present.
-        if expected_norm in response_norm:
-            return 1.0
-
-        # For translation tasks, allow word overlap
-        if task_type in ["word_translation", "sentence_translation"]:
-            response_words = set(response_norm.split())
-            expected_words = set(expected_norm.split())
-
-            if not expected_words:
-                return 0.0
-
-            # Overlap ratio (Recall)
-            # intersection / expected (allows extras)
-            intersection = response_words & expected_words
-            return len(intersection) / len(expected_words)
-
-        # For morphology, fallback to Levenshtein on substrings (simplified to raw Lev for now if no exact match)
-        # But realistically, if the exact form isn't there, it's wrong.
-        # We can keep partial credit if they are CLOSE to the answer.
-        
-        # Partial credit logic:
-        # Find best substring match? Too expensive.
-        # Fallback: Check if Levenshtein is small relative to expected length?
-        max_len = max(len(response_norm), len(expected_norm))
-
-        if max_len == 0:
-            return 1.0
-
-        # If response is huge (reasoning), distance is huge. 
-        # So Levenshtein only makes sense if response is short.
-        # If response is long and doesn't contain substring, score is likely 0.
-        # We can return 0 here safely.
-        
-        # But let's allow for slight typos in the target word within a long response?
-        # That's hard to detect without sliding window.
-        # For now, simple substring match is the biggest fix.
-        
-        return 0.0
+        return semantic_score(extract_final_answer(response), expected)
 
     def length_penalty(
         self,
@@ -157,11 +84,7 @@ class DakotaGrammarRubric(Rubric):
         max_length_ratio: float = 3.0,
         **kwargs
     ) -> float:
-        """
-        Length penalty disabled for small-model Tinker runs (always 1.0).
-        """
-        return 1.0
-
+        return train_length_penalty(response, expected, max_length_ratio=max_length_ratio)
 
     def composite_reward(
         self,
@@ -170,61 +93,9 @@ class DakotaGrammarRubric(Rubric):
         task_info: Dict[str, Any],
         **kwargs
     ) -> float:
-        """
-        Composite reward combining all factors
-
-        Weights based on task type:
-        - Morphology: 40% chars, 40% affixes, 20% semantic
-        - Translation: 30% chars, 0% affixes, 70% semantic
-        - Reverse translation: 50% chars, 0% affixes, 50% semantic
-
-        INCLUDES LENGTH PENALTY to prevent degenerate long outputs
-        """
-        task_type = task_info.get("task_type", "morphology")
-        difficulty = task_info.get("difficulty", "intermediate")
-
-        # Calculate component rewards
-        char_reward = self.character_preservation_reward(
-            response,
-            task_info.get("special_chars", [])
-        )
-
-        affix_reward = self.affix_accuracy_reward(
-            response,
-            task_info.get("required_affixes", [])
-        )
-
-        semantic_reward = self.semantic_accuracy_reward(
-            response,
-            expected,
-            task_type
-        )
-
-        # Weight by task type
-        if task_type == "morphology":
-            weights = {"char": 0.4, "affix": 0.4, "semantic": 0.2}
-        elif task_type in ["word_translation", "sentence_translation"]:
-            weights = {"char": 0.3, "affix": 0.0, "semantic": 0.7}
-        elif task_type == "reverse_translation":
-            # Reverse translation needs both chars AND semantics
-            weights = {"char": 0.5, "affix": 0.0, "semantic": 0.5}
-        else:
-            weights = {"char": 0.33, "affix": 0.33, "semantic": 0.34}
-
-        # Composite reward
-        base_reward = (
-            weights["char"] * char_reward +
-            weights["affix"] * affix_reward +
-            weights["semantic"] * semantic_reward
-        )
-
-        # Apply length penalty (prevents degenerate long outputs)
-        length_mult = self.length_penalty(response, expected)
-
-        # Apply difficulty multiplier
-        difficulty_mult = self.difficulty_weights.get(difficulty, 1.0)
-
-        return base_reward * length_mult * difficulty_mult
+        result = score_train_reward(response, expected, task_info)
+        self._last_ledger = result["ledger"]
+        return float(result["reward_scalar"])
 
     def binary_reward(
         self,
