@@ -1,0 +1,44 @@
+{
+  "source_complete": "dakota_rl_training/datasets/grammar_tasks_complete.jsonl",
+  "repaired_complete": "dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl",
+  "frozen_heldout_v1": "dakota_rl_training/datasets/grammar_tasks_heldout.jsonl",
+  "repaired_heldout_v2": "dakota_rl_training/datasets/grammar_tasks_heldout_v2.jsonl",
+  "heldout_v1_untouched": true,
+  "page061_rows_appended": 77,
+  "before": {
+    "rows": 10576,
+    "nonempty_required_affixes": 514,
+    "scorable_affix_rows": 179,
+    "fully_scorable_affix_rows": 70,
+    "placeholder_rows": 1278,
+    "reverse_translation_rows": 2137,
+    "reverse_translation_dakota_gold": 2097,
+    "reverse_translation_marker_gold": 1528
+  },
+  "after": {
+    "rows": 9287,
+    "nonempty_required_affixes": 285,
+    "scorable_affix_rows": 285,
+    "fully_scorable_affix_rows": 285,
+    "placeholder_rows": 0,
+    "reverse_translation_rows": 2130,
+    "reverse_translation_dakota_gold": 2130,
+    "reverse_translation_marker_gold": 1541
+  },
+  "heldout_v2": {
+    "rows": 925,
+    "nonempty_required_affixes": 28,
+    "scorable_affix_rows": 28,
+    "fully_scorable_affix_rows": 28,
+    "placeholder_rows": 0,
+    "reverse_translation_rows": 212,
+    "reverse_translation_dakota_gold": 212,
+    "reverse_translation_marker_gold": 160
+  },
+  "notes": [
+    "Empty required_affixes still score 0.0 on the live rubric.",
+    "Holdout v1 is the cebp9acs eval set and was not overwritten.",
+    "Holdout v2 applies the same repair to the v1 rows (seed 42 split identity).",
+    "No Dakota forms were invented; gold rewrites use attested in-repo strings only."
+  ]
+}

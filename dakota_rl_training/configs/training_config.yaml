@@ -41,7 +41,7 @@ environments:
     type: "MultiTurnEnv"
     class: "DakotaGrammarEnv"
     max_turns: 3
-    dataset: "datasets/grammar_tasks_complete.jsonl"  # 10,576 tasks from 1,497 organized rules
+    dataset: "datasets/grammar_tasks_complete_v2.jsonl"  # repaired train JSONL; holdout v1 stays frozen
     rubric: "DakotaGrammarRubric"
     reward_method: "composite_reward"
 
@@ -49,7 +49,7 @@ environments:
   - name: "dakota_morphology_simple"
     type: "SingleTurnEnv"
     class: "DakotaMorphologyEnv"
-    dataset: "datasets/grammar_tasks_complete.jsonl"  # 10,576 tasks from 1,497 organized rules
+    dataset: "datasets/grammar_tasks_complete_v2.jsonl"  # repaired train JSONL; holdout v1 stays frozen
     rubric: "DakotaGrammarRubric"
     reward_method: "binary_reward"
     filter_task_type: "morphology"  # Only morphology tasks

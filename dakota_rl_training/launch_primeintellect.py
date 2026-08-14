@@ -176,7 +176,7 @@ def main():
         print(f"\n[INFO] Using curriculum learning - starting with: {dataset_path.name}")
     else:
         # Use complete dataset
-        dataset_path = Path(__file__).parent / "datasets" / "grammar_tasks_complete.jsonl"
+        dataset_path = Path(__file__).parent / "datasets" / "grammar_tasks_complete_v2.jsonl"
 
     if not dataset_path.exists():
         print(f"[ERROR] Dataset not found: {dataset_path}")
