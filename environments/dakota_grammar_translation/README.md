@@ -88,12 +88,18 @@ env = load_environment(
 
 ### Metrics
 
-| Metric | Meaning |
+Grant-clean train reward (v0.1.18) scores an extracted final-answer span, not the whole chain of thought. Difficulty multipliers are logged and are **not** applied to the GRPO scalar. See [`docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`](../../docs/experiments/TINKER_GRANT_CLEAN_RERUN.md).
+
+| Ledger field | Meaning |
 | ------ | ------- |
-| `character_preservation_reward` | Reward for preserving Dakota special characters (ć, š, ŋ, etc.) |
-| `affix_accuracy_reward` | Reward for correct affix application (prefixes/suffixes) |
-| `semantic_accuracy_reward` | Reward for semantic correctness (translation quality) |
-| `composite_reward` | Weighted combination of all metrics |
+| `semantic_raw` / `exact_match_raw` | Exact normalized match of the extracted span to gold |
+| `char_overlap_raw` | Character F1 of the span vs gold |
+| `special_char_raw` | Special-character F1 on the span |
+| `affix_raw` | Gold affixed token(s) present in the span (not any word with the suffix) |
+| `length_penalty_raw` | Multiplier; empty or much-too-long completions are penalized |
+| `reward_scalar` | Unweighted composite used for GRPO (`composite_unweighted`) |
+| `composite_with_difficulty` | Analysis only; do not treat as the train signal |
+| `judge_*` | Optional eval-only judge (`-1` during Tinker training) |
 
 ## Dakota Language Notes
 

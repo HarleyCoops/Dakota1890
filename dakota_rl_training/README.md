@@ -121,7 +121,11 @@ python dakota_rl_training/tinker_train.py \
   --max-tokens 256 --learning-rate 4e-5
 ```
 
-This command wraps [`tinker_cookbook.rl.train`](https://tinker-docs.thinkingmachines.ai/rl/rl-loops) with our `DakotaTinkerEnv`. The same `DakotaGrammarRubric` runs inside every rollout, so we still compute exact match/char overlap/affix/length penalties and stream them to Tinker metrics (`ledger/*`). After every run, the script automatically emits `wandb_analysis/reward_ledger_tinker.csv`, fixing the missing Reward Ledger data from the last PrimeIntellect runs.
+This command wraps [`tinker_cookbook.rl.train`](https://tinker-docs.thinkingmachines.ai/rl/rl-loops) with our `DakotaTinkerEnv`. The grant-clean `DakotaGrammarRubric` scores an extracted final-answer span (not buried gold in CoT), checks affixes against the gold token, restores a real length penalty, and logs unweighted component scores. Difficulty multipliers are **not** applied to the GRPO scalar. Default `--eval-path` is the registered held-out split (`datasets/grammar_tasks_heldout.jsonl`, seed 42), which is excluded from train and is not used for GRPO advantages.
+
+Protocol, hack probes, and falsifiers: [`docs/experiments/TINKER_GRANT_CLEAN_RERUN.md`](../docs/experiments/TINKER_GRANT_CLEAN_RERUN.md).
+
+After every run, the script emits `wandb_analysis/reward_ledger_tinker.csv`.
 
 ### 3. Publish weights using the official format
 
