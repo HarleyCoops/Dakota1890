@@ -83,6 +83,9 @@ def test_space_bundle_is_cpu_only() -> None:
     assert "transformers" not in app_text
     assert "transformers" not in req_text
     assert "torch" not in req_text
+    assert "tinker" not in req_text
+    assert req_text.strip() == "gradio>=5.20.0,<6"
+    assert 'sdk_version: "5.29.0"' in readme
     assert "Qwen3-0.6B-Dakota-Grammar-RL" not in readme
     assert "HarleyCooper/Dakota1890-Grant-Clean" in readme
     assert "cebp9acs" in readme

@@ -8,6 +8,7 @@ That Space stays the old 0.6B Prime Intellect GPU demo.
 
 - Hardware: **CPU Basic** (no GPU, no `spaces.GPU`)
 - App: curated holdout examples + gold from frozen `grammar_tasks_heldout.jsonl`
+- Deps: Gradio 5 only (`gradio>=5.20.0,<6`). Do **not** add `tinker` to `requirements.txt` — optional import already handles a missing package; installing Tinker on a CPU Space is the next crash.
 - Live infer: optional remote Tinker sampler when secrets are set
 - Not hosted here: `Qwen/Qwen3-30B-A3B-Instruct-2507` weights, `owf98569`, or the 0.6B model
 
