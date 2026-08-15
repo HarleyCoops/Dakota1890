@@ -158,3 +158,12 @@ morphology table, existing gold). It does not invent forms.
 Holdout v1 is byte-identical to the `cebp9acs` eval set. A later speaker-correction
 loop should train on v2 and may keep v1 as the frozen comparison eval, or switch
 eval to holdout v2 once that comparison is no longer needed.
+
+## v3 train merge (Adaptive rows + reverse upsample)
+
+A later local launch (2026-08-14) trained on v3: all v2 rows, plus Adaptive
+rows that are not already in v2 and whose prompt is not in holdout v1, then a
+second copy of every `reverse_translation` row. That recipe is
+`scripts/rl/merge_grammar_tasks_v3.py`. The Adaptive filtered file is not in
+this repo, so v3 JSONL is not regenerated here. See
+`docs/experiments/TINKER_GRANT_CLEAN_V3.md`.
