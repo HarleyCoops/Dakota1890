@@ -14,7 +14,7 @@ import math
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Sequence
 from urllib.request import urlopen
 
 import verifiers as vf
