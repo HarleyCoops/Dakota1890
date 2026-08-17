@@ -610,7 +610,7 @@ SpeechRecognition==3.11.0
 SQLAlchemy==2.0.40
 sqlalchemy-spanner==1.17.1
 sqlmodel==0.0.38
-sqlparse==0.5.4
+sqlparse==0.6.0
 srt==3.5.3
 sseclient-py==1.8.0
 sse-starlette==2.2.1
