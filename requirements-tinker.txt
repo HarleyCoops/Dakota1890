@@ -4,6 +4,6 @@
 # incompatible protobuf expectations.
 
 tinker==0.25.0
-tinker-cookbook==0.5.3
+tinker-cookbook==0.5.4
 protobuf>=7.35.1,<8
 chz>=0.4.0
