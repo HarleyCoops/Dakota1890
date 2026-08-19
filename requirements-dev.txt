@@ -7,6 +7,6 @@ pytest>=9.1.1
 # Code quality
 black>=26.5.1
 flake8>=7.3.0
-mypy>=2.3.0
+mypy>=2.3.1
 types-requests>=2.33.0.20260712
 types-Pillow>=10.2.0.20240822
