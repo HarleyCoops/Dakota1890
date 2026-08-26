@@ -1,4 +1,4 @@
-huggingface_hub>=1.27.0,<2.0
-transformers>=5.15.0
+huggingface_hub>=1.28.0,<2.0
+transformers>=5.15.1
 peft>=0.20.0
 
