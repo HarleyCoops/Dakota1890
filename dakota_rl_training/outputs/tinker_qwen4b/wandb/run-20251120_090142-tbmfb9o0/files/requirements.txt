@@ -329,7 +329,7 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 networkx==3.4.2
 ninja==1.13.0
-nltk==3.10.0
+nltk==3.10.3
 nodeenv==1.9.1
 notion-client==2.3.0
 numba==0.62.1
