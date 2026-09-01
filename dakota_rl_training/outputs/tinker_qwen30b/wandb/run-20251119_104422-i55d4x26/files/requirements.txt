@@ -578,10 +578,10 @@ torch==2.13.0
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
-tornado==6.5.7
+tornado==6.5.8
 tqdm==4.67.0
 traitlets==5.14.3
-transformers==5.5.0
+transformers==5.10.1
 transformers-stream-generator==0.0.5
 trio==0.28.0
 trio-websocket==0.11.1
