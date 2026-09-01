@@ -521,7 +521,7 @@ pynndescent==0.5.13
 pyogrio==0.11.0
 pyOpenSSL==26.0.0
 pyparsing==3.2.0
-pypdf==6.15.0
+pypdf==6.16.1
 PyPDF2==3.0.1
 pypdfium2==4.30.0
 pyperclip==1.9.0
