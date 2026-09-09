@@ -1,5 +1,5 @@
 absl-py==2.1.0
-accelerate==1.10.1
+accelerate==1.14.0
 affine==2.4.0
 aioboto3==15.5.0
 aiobotocore==2.25.1
