@@ -3,41 +3,41 @@
 # runtime with the readiness checks before paid extraction or RL runs.
 
 # Anthropic API for Claude Sonnet 4.6+ (primary VLM)
-anthropic>=1.4.0
+anthropic>=1.5.0
 
 # Google Gemini API for Q&A generation. Do not use the deprecated
 # google-generativeai package; it pulls protobuf constraints that conflict with
 # current Tinker.
-google-genai>=2.22.0
+google-genai>=2.23.0
 
 # HTTP requests for API calls
 requests>=2.34.2
 
 # Analysis and visualization stack
 # Keep these installable on CI's Python 3.11.
-numpy>=2.5.2,<2.6
+numpy>=2.5.3,<2.6
 pandas>=3.0.5
-matplotlib>=3.11.1
+matplotlib>=3.11.2
 
 # Image processing for vision tasks
 Pillow>=12.3.0
 
 # Dataset publishing and model hub integration
-huggingface-hub>=1.30.0
+huggingface-hub>=1.31.0
 
 # Environment variable management
 python-dotenv>=1.2.3
 
 # OpenAI SFT baseline launcher
-openai>=3.8.0
+openai>=3.13.0
 tiktoken>=0.14.0
 
 # Progress bars and utilities
-tqdm>=4.70.0
+tqdm>=4.70.1
 
 # Weights & Biases for experiment tracking and logging
-wandb>=0.29.0
-weave>=0.53.8
+wandb>=0.30.0
+weave>=0.53.9
 
 # Thinking Machines / Tinker integration
 # Install RL/Tinker dependencies from requirements-tinker.txt after these base
