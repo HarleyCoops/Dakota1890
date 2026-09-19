@@ -15,7 +15,7 @@ annotated-types==0.7.0
 anthropic==0.42.0
 anthropic-cli==0.2.3
 antlr4-python3-runtime==4.13.2
-anyio==4.9.0
+anyio==4.14.2
 arcgis==2.4.1.1
 asttokens==3.0.0
 astunparse==1.6.3
@@ -134,7 +134,7 @@ ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
 fickling==0.1.10
-filelock==4.0.0
+filelock==4.0.1
 filetype==1.2.0
 findpython==0.6.3
 firecrawl-py==1.9.0
