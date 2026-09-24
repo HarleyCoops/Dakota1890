@@ -45,7 +45,7 @@ One book becomes a self-contained training loop. No parallel corpus, no separate
   Grammar rules           1,497 rules across morphology, syntax, phonology,
         │                 conjugation, particles, translation
         ▼
-  RL tasks                10,576 verifiable tasks (≈5.5 per rule):
+  RL tasks                10,576 verifiable tasks (≈7.1 per rule):
         │                 morphology, translation, reverse translation,
         │                 syntax analysis, pattern ID
         ▼
