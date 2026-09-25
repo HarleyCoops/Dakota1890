@@ -89,6 +89,32 @@ def test_extract_final_answer_prefers_boxed_then_final_then_last_line() -> None:
     assert extract_final_answer("") == ""
 
 
+def test_extract_final_answer_empty_marker_does_not_indexerror() -> None:
+    """Whitespace-only FINAL_ANSWER_RE captures must not crash scoring.
+
+    Grant-clean v3b (W&B h67qxtne) died when the last match was
+    ``Final answer is`` / ``Final answer:`` followed only by whitespace:
+    ``group(1).strip()`` was ``""`` and ``splitlines()[0]`` raised
+    ``IndexError``. Walk earlier matches, then the last non-empty line.
+    """
+    no_span = extract_final_answer("reasoning about the suffix\nFinal answer is")
+    assert no_span == "Final answer is"
+
+    whitespace_only = extract_final_answer("reasoning about the suffix\nFinal answer:   ")
+    assert whitespace_only == "Final answer:"
+
+    # ``(?:is|:)`` is exclusive, so "is:" leaves the colon in the capture.
+    normal = extract_final_answer("reasoning about the suffix\nFinal answer is: foo")
+    assert normal == ": foo"
+
+    earlier = extract_final_answer("Final answer is Dawid suŋkaku\nFinal answer is   ")
+    assert earlier == "Dawid suŋkaku"
+
+    scored = score_train_reward("Final answer:   \n", GOLD, INFO)
+    assert scored["answer_span"] == "Final answer:"
+    assert scored["passed"] is False
+
+
 def test_legacy_semantic_pays_gold_substring_in_fluff() -> None:
     assert legacy_semantic_accuracy(GOLD_STUFFED_COT, GOLD) == pytest.approx(1.0)
 
