@@ -59,11 +59,29 @@ def completion_text(completion: Any) -> str:
     return str(completion)
 
 
+def _first_nonempty_line(span: str) -> str:
+    """Return the first non-empty line of ``span``, or ``""``.
+
+    Never indexes ``splitlines()`` when the span is empty after strip. A
+    whitespace-only ``Final answer is`` / ``Final answer:`` capture used to
+    raise ``IndexError`` and kill Tinker group rollouts (W&B ``h67qxtne``).
+    """
+    cleaned = span.strip()
+    if not cleaned:
+        return ""
+    lines = cleaned.splitlines()
+    if not lines:
+        return ""
+    return lines[0].strip()
+
+
 def extract_final_answer(text: str) -> str:
     """Return the span that should be scored as the model's answer.
 
-    Priority: last ``\\boxed{...}``, then last ``final answer is/`` line,
-    then the last non-empty line, then the stripped text.
+    Priority: last ``\\boxed{...}``, then last non-empty ``final answer is/``
+    capture, then the last non-empty line, then the stripped text.
+    Empty ``FINAL_ANSWER_RE`` captures are skipped so the scorer can fall
+    through instead of crashing.
     """
     if not text or not str(text).strip():
         return ""
@@ -71,8 +89,10 @@ def extract_final_answer(text: str) -> str:
     if boxed:
         return boxed[-1].group(1).strip()
     finals = list(FINAL_ANSWER_RE.finditer(text))
-    if finals:
-        return finals[-1].group(1).strip().splitlines()[0].strip()
+    for match in reversed(finals):
+        span = _first_nonempty_line(match.group(1))
+        if span:
+            return span
     lines = [line.strip() for line in str(text).strip().splitlines() if line.strip()]
     if not lines:
         return ""
