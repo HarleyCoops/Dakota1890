@@ -449,7 +449,7 @@ PyNaCl==1.6.2
 pynndescent==0.5.13
 pyogrio==0.11.0
 pyparsing==3.2.0
-pypdf==6.16.1
+pypdf==6.19.0
 PyPDF2==3.0.1
 pypdfium2==4.30.0
 pyperclip==1.9.0
@@ -578,7 +578,7 @@ torch==2.13.0
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
-tornado==6.5.8
+tornado==6.5.9
 tqdm==4.67.0
 traitlets==5.14.3
 transformers==5.10.1
@@ -608,7 +608,7 @@ uv==0.11.15
 uvicorn==0.34.0
 verifiers==0.1.7.post0
 vertexai==1.71.1
-virtualenv==20.36.1
+virtualenv==21.7.13
 wandb==0.23.0
 watchdog==6.0.0
 watchfiles==1.1.0
