@@ -152,7 +152,7 @@ gcloud==0.18.3
 geomet==1.1.0
 geopandas==1.1.2
 gitdb==4.0.11
-GitPython==3.1.59
+GitPython==3.1.62
 git-filter-repo==2.47.0
 glcontext==3.0.0
 google==3.0.0
@@ -431,7 +431,7 @@ PyGithub==2.5.0
 pyglet==2.1.0
 PyGLM==2.7.3
 Pygments==2.21.0
-PyJWT==2.14.0
+PyJWT==2.15.0
 pylatexenc==2.10
 pylerc==4.0
 Pympler==1.1
@@ -568,7 +568,7 @@ torch==2.13.0
 torchaudio==2.5.1
 torchmetrics==0.10.3
 torchvision==0.20.1
-tornado==6.5.8
+tornado==6.5.9
 tqdm==4.67.0
 traitlets==5.14.3
 transformers==5.10.1
@@ -598,7 +598,7 @@ uv==0.11.15
 uvicorn==0.34.0
 verifiers==0.1.7.post0
 vertexai==1.71.1
-virtualenv==20.36.1
+virtualenv==21.7.12
 wandb==0.23.0
 watchdog==6.0.0
 watchfiles==1.1.0
