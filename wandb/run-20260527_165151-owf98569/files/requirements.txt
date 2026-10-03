@@ -106,7 +106,7 @@ dash==3.2.0
 dask==2024.12.1
 dask-expr==1.1.21
 data==0.4
-datasets==3.2.0
+datasets==5.0.1
 daytona==0.117.0
 daytona_api_client==0.117.0
 daytona_api_client_async==0.117.0
@@ -133,7 +133,7 @@ docutils==0.22
 dol==0.3.20
 dropbox==12.0.2
 duckduckgo_search==7.2.0
-dulwich==1.2.5
+dulwich==1.2.9
 e2b==2.21.1
 e2b-code-interpreter==1.0.3
 earthengine-api==1.7.4
@@ -227,7 +227,7 @@ google-pasta==0.2.0
 google-resumable-media==2.7.2
 gotrue==2.12.0
 gql==4.0.0
-gradio==6.15.1
+gradio==6.16.0
 gradio_client==1.10.0
 graphql-core==3.2.7
 graphviz==0.20.3
