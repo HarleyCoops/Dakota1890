@@ -3,12 +3,12 @@
 # runtime with the readiness checks before paid extraction or RL runs.
 
 # Anthropic API for Claude Sonnet 4.6+ (primary VLM)
-anthropic>=1.8.0
+anthropic>=1.11.0
 
 # Google Gemini API for Q&A generation. Do not use the deprecated
 # google-generativeai package; it pulls protobuf constraints that conflict with
 # current Tinker.
-google-genai>=2.25.0
+google-genai>=2.28.0
 
 # HTTP requests for API calls
 requests>=2.34.2
@@ -23,13 +23,13 @@ matplotlib>=3.11.2
 Pillow>=12.3.0
 
 # Dataset publishing and model hub integration
-huggingface-hub>=2.0.0
+huggingface-hub>=2.1.1
 
 # Environment variable management
-python-dotenv>=1.2.3
+python-dotenv>=1.2.4
 
 # OpenAI SFT baseline launcher
-openai>=3.19.2
+openai>=3.24.0
 tiktoken>=0.14.0
 
 # Progress bars and utilities
