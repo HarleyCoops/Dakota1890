@@ -1,0 +1,35 @@
+{
+  "source_complete_v2": "dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl",
+  "adaptive_filtered": "dakota_rl_training/datasets/adaption_adapted_v2_filtered.jsonl",
+  "frozen_heldout_v1": "dakota_rl_training/datasets/grammar_tasks_heldout.jsonl",
+  "merged_complete_v3": "dakota_rl_training/datasets/grammar_tasks_complete_v3.jsonl",
+  "heldout_v1_untouched": true,
+  "live_rubric_unchanged": true,
+  "v3_jsonl_written": false,
+  "adaptive_filtered_present": false,
+  "constructed_in_this_checkout": false,
+  "local_launch_date": "2026-08-14",
+  "recipe": "scripts/rl/merge_grammar_tasks_v3.py",
+  "before": {
+    "v2_rows": 9287,
+    "adaptive_filtered": 523,
+    "holdout_v1_rows": 1060
+  },
+  "after": {
+    "adaptive_already_in_v2": 192,
+    "adaptive_holdout_blocked": 0,
+    "adaptive_new": 331,
+    "v3_unique_rows": 9618,
+    "reverse_translation_unique": 2265,
+    "v3_train_rows_after_reverse_upsample": 11883,
+    "holdout_v1_rows": 1060
+  },
+  "notes": [
+    "Placeholder report for the 2026-08-14 maintainer-machine launch.",
+    "adaption_adapted_v2_filtered.jsonl is not in this repo, so v3 JSONL was not regenerated here.",
+    "v3 = all v2 rows + Adaptive rows whose (prompt, answer) is new and whose prompt is not in holdout v1, then reverse_translation 2x.",
+    "Holdout v1 is the cebp9acs eval set and was not overwritten.",
+    "The live DakotaGrammarRubric is unchanged. Empty required_affixes still score 0.0.",
+    "No Dakota forms were invented in this checkout."
+  ]
+}
