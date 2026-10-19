@@ -58,7 +58,7 @@ chess==1.11.2
 chex==0.1.7
 chz==0.3.0
 cint==1.0.0
-claude-agent-sdk==0.1.5
+claude-agent-sdk==0.2.121
 claude-code-sdk==0.0.10
 cleo==2.1.0
 click==8.1.8
@@ -588,7 +588,7 @@ trio-websocket==0.11.1
 trl==0.23.1
 trove-classifiers==2025.5.9.12
 truststore==0.10.1
-Twisted==26.4.0rc2
+Twisted==26.4.0
 typeguard==4.4.2
 typer==0.15.1
 typer-slim==0.20.0
