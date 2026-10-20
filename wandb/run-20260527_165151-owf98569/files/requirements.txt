@@ -63,7 +63,7 @@ bun==0.0.8
 CacheControl==0.14.3
 cached-property==2.0.1
 cachetools==5.5.0
-certifi==2025.1.31
+certifi==2026.10.19
 cffi==2.0.0
 cfgv==3.4.0
 chardet==5.2.0
@@ -451,7 +451,7 @@ peewee==3.18.2
 peft==0.18.0
 pfzy==0.3.4
 pikepdf==10.3.0
-pillow==12.3.0
+pillow==13.0.0
 pinecone==7.3.0
 pinecone-client==6.0.0
 pinecone-plugin-assistant==1.8.0
