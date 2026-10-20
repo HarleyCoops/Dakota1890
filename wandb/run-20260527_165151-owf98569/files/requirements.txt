@@ -456,7 +456,7 @@ pinecone==7.3.0
 pinecone-client==6.0.0
 pinecone-plugin-assistant==1.8.0
 pinecone-plugin-interface==0.0.7
-pip==26.2
+pip==26.2.2
 pip-api==0.0.34
 pip_audit==2.9.0
 pip-requirements-parser==32.0.1
@@ -694,7 +694,7 @@ universal_pathlib==0.3.6
 uritemplate==4.1.1
 urllib3==2.8.0
 uuid_utils==0.11.1
-uv==0.11.15
+uv==0.13.4
 uvicorn==0.34.0
 verifiers==0.1.8
 vertexai==1.71.1
