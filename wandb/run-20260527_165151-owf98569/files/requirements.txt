@@ -47,7 +47,7 @@ beartype==0.22.5
 beautifulsoup4==4.14.3
 biopython==1.87
 bitsandbytes==0.43.3
-black==26.3.1
+black==26.10.1
 bleach==6.4.0
 blender-mcp==1.6.5
 blinker==1.9.0
@@ -191,7 +191,7 @@ geomet==1.1.0
 geopandas==1.1.2
 geopy==2.5.0
 gitdb==4.0.11
-GitPython==3.2.0
+GitPython==3.2.1
 git-filter-repo==2.47.0
 glcontext==3.0.0
 google==3.0.0
@@ -229,7 +229,7 @@ gotrue==2.12.0
 gql==4.0.0
 gradio==6.16.0
 gradio_client==1.10.0
-graphql-core==3.2.7
+graphql-core==3.2.12
 graphviz==0.20.3
 greenlet==3.1.1
 griffe==1.14.0
@@ -411,7 +411,7 @@ opencv-contrib-python==4.10.0.84
 opencv-python==4.11.0.86
 opencv-python-headless==4.11.0.86
 openpyxl==3.1.5
-opentelemetry-api==1.42.1
+opentelemetry-api==1.45.1
 opentelemetry-exporter-gcp-logging==1.11.0a0
 opentelemetry-exporter-gcp-monitoring==1.11.0a0
 opentelemetry-exporter-gcp-trace==1.9.0
@@ -521,7 +521,7 @@ pynndescent==0.5.13
 pyogrio==0.11.0
 pyOpenSSL==26.0.0
 pyparsing==3.2.0
-pypdf==6.19.0
+pypdf==6.21.1
 PyPDF2==3.0.1
 pypdfium2==4.30.0
 pyperclip==1.9.0
@@ -698,7 +698,7 @@ uv==0.13.4
 uvicorn==0.34.0
 verifiers==0.1.8
 vertexai==1.71.1
-virtualenv==21.14.2
+virtualenv==21.14.9
 wadler_lindig==0.1.7
 wandb==0.23.0
 watchdog==6.0.0
