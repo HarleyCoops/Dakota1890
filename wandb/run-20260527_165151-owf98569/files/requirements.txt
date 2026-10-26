@@ -63,7 +63,7 @@ bun==0.0.8
 CacheControl==0.14.3
 cached-property==2.0.1
 cachetools==5.5.0
-certifi==2026.10.19
+certifi==2026.10.23
 cffi==2.0.0
 cfgv==3.4.0
 chardet==5.2.0
@@ -156,7 +156,7 @@ fastapi==0.118.3
 fastavro==1.11.1
 fastjsonschema==2.21.1
 fastkml==1.4.0
-fastmcp==3.4.10
+fastmcp==4.1.4
 fastuuid==0.14.0
 feedparser==6.0.12
 ffmpeg-python==0.2.0
@@ -164,7 +164,7 @@ ffmpy==0.5.0
 fhaviary==0.28.0
 fhlmi==0.41.0
 fickling==0.1.10
-filelock==4.2.1
+filelock==4.2.4
 filetype==1.2.0
 findpython==0.6.3
 fire==0.7.1
@@ -589,7 +589,7 @@ semver==3.0.4
 sentencepiece==0.2.1
 sentry-sdk==2.25.1
 setproctitle==1.3.5
-setuptools==84.1.0
+setuptools==84.2.1
 sgmllib3k==1.0.0
 shapely==2.0.6
 shellingham==1.5.4
