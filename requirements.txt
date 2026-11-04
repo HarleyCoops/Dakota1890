@@ -8,7 +8,7 @@ anthropic>=2.3.0
 # Google Gemini API for Q&A generation. Do not use the deprecated
 # google-generativeai package; it pulls protobuf constraints that conflict with
 # current Tinker.
-google-genai>=2.33.0
+google-genai>=2.34.0
 
 # HTTP requests for API calls
 requests>=2.34.2
@@ -23,13 +23,13 @@ matplotlib>=3.11.2
 Pillow>=13.0.0
 
 # Dataset publishing and model hub integration
-huggingface-hub>=2.3.0
+huggingface-hub>=2.4.0
 
 # Environment variable management
 python-dotenv>=1.2.4
 
 # OpenAI SFT baseline launcher
-openai>=3.37.0
+openai>=3.42.0
 tiktoken>=0.14.0
 
 # Progress bars and utilities
