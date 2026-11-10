@@ -69,6 +69,7 @@ A new package, `lexgym/`, builds everything from the per-page extraction files i
 | `lexgym/train_sft.py` | Stage 1: supervised warm start on Tinker |
 | `lexgym/train_rl.py` | Stage 2: RL on Tinker, started from the stage 1 checkpoint |
 | `tests/test_lexgym.py` | Offline tests: scoring, reward-hack probes, gold answers, split leakage |
+| `environments/riggs1890_lexgym/` | The same tasks and scorers as a `verifiers` package for the Prime Intellect Environments Hub. Its [README](environments/riggs1890_lexgym/README.md) is the environment design document. |
 
 ```bash
 python -m lexgym.build_graph      # data/extracted -> data/lexicon_graph
@@ -129,7 +130,19 @@ Tinker is the only training infrastructure in the current plan. The training loo
 2. **Stage 2, RL.** `lexgym/train_rl.py` uses `tinker_cookbook.rl.train` with our own `Env`, `EnvGroupBuilder`, and `RLDatasetBuilder`. It starts from the stage 1 state through `load_checkpoint_path`. Each task is sampled as a group of rollouts and the loss is the cookbook's importance-sampling policy gradient with group-centred advantages. The multi-turn lookup environment follows the pattern of the cookbook's `search_tool` recipe.
 3. **Evaluation.** The dataset builder returns the held-out and recall sets as the test dataset, so the cookbook's evaluation loop reports each task and each split separately at a fixed interval.
 4. **Monitoring.** The cookbook logger writes `metrics.jsonl` and sends the same metrics, including every ledger channel, to Weights & Biases.
-5. **Publication.** We download the trained LoRA weights from Tinker, convert them to a PEFT adapter, and publish the adapter, the dataset, and the rollout traces on Hugging Face. The environment will also be published in `verifiers` format for the Prime Intellect Environments Hub.
+5. **Publication.** We download the trained LoRA weights from Tinker, convert them to a PEFT adapter, and publish the adapter, the dataset, and the rollout traces on Hugging Face.
+
+### The Prime Intellect environment
+
+The same environment is packaged for the Prime Intellect Environments Hub in [`environments/riggs1890_lexgym/`](environments/riggs1890_lexgym/). The package holds all 68,911 training tasks, the 5,884 evaluation tasks, and the lookup index (2.1 MB compressed), so it needs no download. It uses the same scoring code as the Tinker path; a test checks that the two copies are identical.
+
+```python
+import verifiers as vf
+
+env = vf.load_environment("riggs1890-lexgym", tasks=["lookup_gloss", "lookup_root_gloss"])
+```
+
+The design document is the package [README](environments/riggs1890_lexgym/README.md): source and graph rules, the eight task types with their reward rules, the lookup tool, the metrics, and the two evaluation splits. An end-to-end test runs the environment against a scripted model server with four policies (oracle, wrong answer, gold answer hidden in reasoning, lookup only) and passes.
 
 Model plan: `Qwen/Qwen3.5-4B` for pilots and ablations, then `Qwen/Qwen3.6-35B-A3B` for the main run, which permits a direct comparison with our earlier 35B adapter.
 

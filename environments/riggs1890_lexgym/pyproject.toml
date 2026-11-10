@@ -1,0 +1,26 @@
+[project]
+name = "riggs1890-lexgym"
+description = "One 1890 dictionary volume compiled into verifiable RL tasks: Dakota orthography, morphology, lexicon, and multi-turn dictionary lookup. Deterministic rewards, page-level provenance."
+version = "0.1.0"
+requires-python = ">=3.10"
+authors = [{ name = "Christian H. Cooper" }]
+dependencies = [
+    "verifiers>=0.1.9,<0.2",
+    "datasets>=2.18",
+]
+readme = "README.md"
+license = { text = "Apache-2.0" }
+keywords = ["dakota", "low-resource-language", "dictionary", "morphology", "tool-use", "multi-turn", "rl", "verifiers", "prime-intellect"]
+
+[project.urls]
+Repository = "https://github.com/HarleyCoops/Dakota1890"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["riggs1890_lexgym"]
+
+[tool.hatch.build]
+include = ["riggs1890_lexgym/**/*.py", "riggs1890_lexgym/data/*.gz", "README.md"]

@@ -82,3 +82,10 @@ def test_generated_data_gold_and_leakage():
     e2d = [r for r in train if r["task"] == "en_to_dak"]
     assert e2d and all(r["info"]["gold_tier"] == "two_witnesses" for r in e2d)
     assert all(_plain(a) in headwords for r in e2d[::5] for a in r["accepted"])
+
+
+def test_hub_package_scores_with_the_same_code():
+    """The Prime Intellect package ships copies of the scorer and orthography."""
+    pkg = Path("environments/riggs1890_lexgym/riggs1890_lexgym")
+    for name in ("scoring.py", "orthography.py"):
+        assert (pkg / name).read_bytes() == (Path("lexgym") / name).read_bytes(), name
