@@ -176,6 +176,94 @@ Limits of the pilot: one seed, 40 tasks per task type, and a small model. The pi
 
 During the pilot we found two things in `tinker-cookbook` 0.6.1 that we will report upstream. `FromConversationFileBuilder` builds the renderer again for every row, which costs about 0.7 seconds per row with the Qwen3.5 renderer. With `remove_constant_reward_groups=True`, the per-tag train metrics are paired with the wrong task, because the groups are filtered and the builder list is not.
 
+### Proposed changes to GRPO and the compositional reward
+
+This section is a proposal for the main experiment. None of it is implemented yet. The pilot used the `tinker-cookbook` RL loop without changes.
+
+#### What the pilot loop does now
+
+For each task the loop samples a group of G rollouts from the same prompt. The advantage of rollout *i* is its reward minus the group mean, with no scaling:
+
+```
+A_i = r_i − mean(r_1 … r_G)
+```
+
+The loss is the importance-sampling policy gradient on the sampled tokens, weighted by `A_i`. In a multi-turn episode every turn gets the same advantage. A group in which all rewards are equal gives no gradient.
+
+The reward `r` is already compositional. Each task type has its own components, and all of them go to the ledger:
+
+| Task | Components | Current composition |
+|---|---|---|
+| `syllabify` | `letters_ok`, `exact`, `boundary_f1`, `stress_ok` | 0 if `letters_ok` is 0. 1.0 if `exact`. Otherwise 0.6 × `boundary_f1` + 0.2 × `stress_ok`. |
+| `en_to_dak` | `exact`, `loose_match` (n / ŋ), `char_dice` | 1.0, else 0.7, else 0.25 × `char_dice` |
+| `inflect`, `root` | `set_f1`, `loose_f1` | `set_f1` |
+| `gloss`, lookup tasks | `token_f1`, and for lookup `lookups_used`, `target_entry_seen` | `token_f1` on the final answer |
+| all | `parse_ok`, `length_mult` | reward × `length_mult` |
+
+#### What the pilot ledger shows
+
+Share of training groups by outcome, mean over the 30 RL steps:
+
+| Task | All rollouts equal and wrong | Mixed (carries gradient) | All rollouts equal and right | Mean reward |
+|---|---|---|---|---|
+| `syllabify` | 0.00 | 0.34 | 0.65 | 0.93 |
+| `root` | 0.14 | 0.57 | 0.29 | 0.63 |
+| `pos` | 0.15 | 0.55 | 0.31 | 0.60 |
+| `lookup_gloss` | 0.14 | 0.55 | 0.30 | 0.63 |
+| `inflect` | 0.28 | 0.49 | 0.23 | 0.49 |
+| `lookup_root_gloss` | 0.22 | 0.71 | 0.07 | 0.42 |
+| `gloss` | 0.55 | 0.45 | 0.00 | 0.06 |
+| `en_to_dak` | 0.05 | 0.95 | 0.00 | 0.03 |
+
+Three problems follow from this table.
+
+1. **`en_to_dak` trains on the wrong signal.** 95% of its groups are mixed, but the mean reward is 0.03. The differences inside a group come from `char_dice`, the character-overlap term. The gradient moves the model toward strings that look like the answer. This is the failure of the earlier Dakota runs in a smaller form.
+2. **`syllabify` wastes samples.** 65% of its groups are already all correct and give no gradient.
+3. **`gloss` cannot explore.** In 55% of its groups no rollout scores above zero, so RL has nothing to reinforce.
+
+#### Proposed changes
+
+**1. Gated composition in place of a weighted sum.** Order the components of each task from necessary to sufficient, and pay a lower component only as a step toward the next one.
+
+```
+r = length_mult × parse_ok × [ gate × ( w_partial × partial + w_exact × exact ) ]
+```
+
+- `gate` is the necessary condition of the task: `letters_ok` for `syllabify`; for `en_to_dak`, that the answer contains only letters of the Riggs alphabet.
+- `partial` is capped below the lowest reward of a correct answer, so no partial answer can score more than a correct one.
+- For `en_to_dak`, `char_dice` leaves the training reward and stays in the ledger as a diagnostic. The reward becomes 1.0 for an accepted form, 0.7 for an n / ŋ difference, and 0 otherwise.
+
+**2. Scale the advantage inside the group.**
+
+```
+A_i = ( r_i − mean(r) ) / max( std(r), σ_min )
+```
+
+Without scaling, a task whose rewards differ by 0.02 inside a group and a task whose rewards differ by 1.0 push the model with a 50-fold difference in strength. `σ_min` stops noise in an almost-constant group from becoming a large gradient. We will test `σ_min` of 0.1 and 0.25.
+
+**3. Component advantages for tasks with a real partial channel.** For `syllabify`, `inflect`, and `root`, compute a centred, scaled advantage for each component and add them with fixed weights:
+
+```
+A_i = gate_i × Σ_k w_k × ( c_k,i − mean(c_k) ) / max( std(c_k), σ_min )
+```
+
+A group in which no rollout is exactly right can still rank its rollouts by boundaries and stress. This is used only where the partial component is a correct sub-skill, and never for string overlap.
+
+**4. Route dead groups to a supervised step.** When every rollout of a group scores zero, RL has no signal for that task. The loop will add the gold answer for that task to a replay buffer and take a cross-entropy step on the buffer every N RL steps. Tinker runs both loss functions on one training client, so this is one loop. It gives the lexical tasks a way out of the exploration problem.
+
+**5. Sample tasks where the gradient is.** Draw task types in proportion to their recent share of mixed groups, with a floor for each type. Tasks that are solved (`syllabify`) get fewer samples, and tasks that are dead get the supervised route.
+
+**6. Keep the supervised skills.** Add a KL penalty toward the supervised checkpoint (`kl_penalty_coef` with the checkpoint as the reference model). In the pilot, held-out `syllabify` moved between 0.78 and 0.83 during RL. The penalty limits that drift while the lookup skill is learned.
+
+**7. Lookup process term, as an ablation only.** The final-answer reward stays the only reward by default. One ablation adds 0.1 × `target_entry_seen` when the final answer is wrong, to test whether credit for reaching the right entry speeds up the two-lookup task. The risk is a model that looks up and does not answer, so the term is zero when the episode ends without an `ANSWER:` line.
+
+#### How each change will be accepted
+
+- Each change is one arm against the unchanged loop, on the same base model, seed set, and evaluation sets.
+- The measure is held-out exact match for each task type and recall exact match. The training reward is not a measure, because the changes alter it.
+- Before any run, the reward-hack probes in `tests/test_lexgym.py` must pass with the new composition: gold inside reasoning, word stuffing, prompt echo, changed letters, and an unclosed thinking block.
+- The ledger must still reconstruct every reward from its components.
+
 ### Cost of the main experiment
 
 Prices are computed from the pilot's logged token counts and the Tinker price list of 10 November 2026. The same calculation gives $3.61 and $1.12 for the two pilot runs, which matches the logged cost.
@@ -194,12 +282,13 @@ The three-arm experiment is one supervised run of 3 epochs and two RL runs of 30
 
 1. **Pilot (done, see above).** Short supervised and RL runs on the 4B model verified the loop, the ledger, and the cost per step.
 2. **Main experiment.** Three arms on the same base model and the same evaluation sets: RL only, supervised only, supervised then RL. The question is how much RL adds after the model knows the lexicon, and on which task types.
-3. **Ablations.** Lookup tool on and off; two-witness gold against all gold; curriculum order.
-4. **Data repair.** A second reading of the pages behind the 1,494 near matches and the headwords that failed the parser, then a new graph version.
-5. **Grammar section.** Rebuild the grammar tasks from the 1,497 rules with the same verifier standard and link each rule to the dictionary entries that show it.
-6. **Second volume.** Apply the same pipeline to Watkins' *A Dictionary of the Cree Language* (1865), which has the same two-half structure (see `docs/cree1865_source_dossier/`), and test whether a model trained on one volume learns a second volume faster.
-7. **Cookbooks.** One short runnable guide per stage (extract, graph, supervised, RL, evaluate), written so that another group can apply the method to its own source volume.
-8. **Speaker correction.** A model that is correct for the 1890 book is the starting point for correction by present-day Dakota speakers. That stage needs community authority and review, and the book-trained model does not replace it.
+3. **GRPO and reward changes.** The seven proposed changes above, one arm each.
+4. **Ablations.** Lookup tool on and off; two-witness gold against all gold; curriculum order.
+5. **Data repair.** A second reading of the pages behind the 1,494 near matches and the headwords that failed the parser, then a new graph version.
+6. **Grammar section.** Rebuild the grammar tasks from the 1,497 rules with the same verifier standard and link each rule to the dictionary entries that show it.
+7. **Second volume.** Apply the same pipeline to Watkins' *A Dictionary of the Cree Language* (1865), which has the same two-half structure (see `docs/cree1865_source_dossier/`), and test whether a model trained on one volume learns a second volume faster.
+8. **Cookbooks.** One short runnable guide per stage (extract, graph, supervised, RL, evaluate), written so that another group can apply the method to its own source volume.
+9. **Speaker correction.** A model that is correct for the 1890 book is the starting point for correction by present-day Dakota speakers. That stage needs community authority and review, and the book-trained model does not replace it.
 
 ### Limits
 
@@ -253,6 +342,8 @@ The key move: grammar rules stop being static documentation and become **executa
 ---
 
 ## The reward function
+
+> This section describes the reward of the 2025 to mid-2026 runs. The current reward and the proposed changes are in [Proposed changes to GRPO and the compositional reward](#proposed-changes-to-grpo-and-the-compositional-reward).
 
 The reward is **deterministic**. There is no LLM judge. Every component is independently verifiable, so the gradient is honest and you can see exactly what the model got wrong.
 
