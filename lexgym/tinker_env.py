@@ -150,8 +150,10 @@ class LexgymGroupBuilder(EnvGroupBuilder):
                  position: dict | None = None):
         self.task, self.renderer, self.index, self.group_size = task, renderer, index, group_size
         self.trace, self.position = trace, position or {}
+        self.uses = 0  # the cookbook builds the evaluation builders once and reuses them
 
     async def make_envs(self) -> Sequence[Env]:
+        self.uses += 1
         return [LexgymEnv(self.task, self.renderer, self.index) for _ in range(self.group_size)]
 
     async def compute_group_rewards(self, trajectory_group, env_group):
@@ -175,7 +177,8 @@ class LexgymGroupBuilder(EnvGroupBuilder):
             } for t in traj.transitions]
             records.append({
                 "time": now,
-                "position": {**self.position, "rollout_index": i, "group_size": len(trajectories)},
+                "position": {**self.position, "rollout_index": i, "group_size": len(trajectories),
+                             "pass_index": max(self.position.get("pass_index", 0), self.uses - 1)},
                 "task": {k: self.task[k] for k in ("id", "task", "split", "prompt", "answer", "accepted", "info")},
                 "messages": env.messages,
                 "turns": turns,

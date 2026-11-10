@@ -138,7 +138,18 @@ Tinker is the only training infrastructure in the current plan. The training loo
 2. **Stage 2, RL.** `lexgym/train_rl.py` uses `tinker_cookbook.rl.train` with our own `Env`, `EnvGroupBuilder`, and `RLDatasetBuilder`. It starts from the stage 1 state through `load_checkpoint_path`. Each task is sampled as a group of rollouts and the loss is the cookbook's importance-sampling policy gradient with group-centred advantages. The multi-turn lookup environment follows the pattern of the cookbook's `search_tool` recipe.
 3. **Evaluation.** The dataset builder returns the held-out and recall sets as the test dataset, so the cookbook's evaluation loop reports each task and each split separately at a fixed interval.
 4. **Monitoring.** The cookbook logger writes `metrics.jsonl` and sends the same metrics, including every ledger channel, to Weights & Biases.
-5. **Publication.** We download the trained LoRA weights from Tinker, convert them to a PEFT adapter, and publish the adapter, the dataset, and the rollout traces on Hugging Face.
+5. **Traces.** The environment writes one row per rollout: the task with its scan page, the whole conversation, the token ids and log-probabilities of every model turn, each reward component, and the advantage. The schema is in [`docs/TRACE_SCHEMA.md`](docs/TRACE_SCHEMA.md).
+6. **Publication.** We download the trained LoRA weights from Tinker, convert them to a PEFT adapter with the cookbook, and publish the adapter, the dataset, and the traces on Hugging Face.
+
+### Published on Hugging Face
+
+| Repository | Type | Content |
+|---|---|---|
+| [`HarleyCooper/riggs1890-lexicon-graph`](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph) | dataset | The graph (16,980 Dakota entries, 7,244 English entries, 12,931 edges), 68,911 RL tasks with the two evaluation splits, and 56,120 supervised rows |
+| [`HarleyCooper/riggs1890-lexgym-traces`](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces) | dataset | Full trace rows for a traced evaluation of the pilot checkpoint (640 evaluation and 256 training rollouts), the ledger summaries of the first pilot (9,616 rollouts), and the raw run folders |
+| [`HarleyCooper/Qwen3.5-4B-Riggs1890-lexgym-pilot`](https://huggingface.co/HarleyCooper/Qwen3.5-4B-Riggs1890-lexgym-pilot) | model | The pilot LoRA adapters: supervised then RL, and supervised only |
+
+The first pilot ran before the trace writer existed, so its rollouts have the ledger but no text. The traced evaluation loads the pilot RL checkpoint and records everything. Its 320-task evaluation agrees with the pilot within the noise of 40 tasks per type (for example `syllabify` 0.83 and 0.83, `lookup_gloss` 0.85 and 0.80, `pos` 0.73 and 0.65).
 
 ### The Prime Intellect environment
 
@@ -494,6 +505,9 @@ The larger claim is methodological: if a low-resource language has a usable hist
 ## Links
 
 - **Latest model:** https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO
+- **Lexicon graph and tasks:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph
+- **Rollout traces:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces
+- **Pilot adapters:** https://huggingface.co/HarleyCooper/Qwen3.5-4B-Riggs1890-lexgym-pilot
 - **Dataset (Dakota QA):** https://huggingface.co/datasets/HarleyCooper/adaption-dakota-english-qa
 - **W&B training logs:** https://wandb.ai/christian-cooper-us
 - **All Hugging Face models:** https://huggingface.co/HarleyCooper
