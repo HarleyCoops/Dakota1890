@@ -54,7 +54,9 @@ def main() -> None:
         lora_rank=a.lora_rank, log_path=a.log_path, load_checkpoint_path=a.load_checkpoint_path,
         renderer_name=renderer_name, eval_every=a.eval_every, save_every=a.save_every,
         wandb_project=a.wandb_project or None, wandb_name=a.wandb_name, max_steps=a.max_steps,
-        remove_constant_reward_groups=True,
+        # False: with True the cookbook drops groups before tagging, and the
+        # per-task train metrics are then attributed to the wrong task.
+        remove_constant_reward_groups=False,
     )
     asyncio.run(train.main(cfg))
 
