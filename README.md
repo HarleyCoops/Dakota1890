@@ -153,7 +153,11 @@ The first pilot ran before the trace writer existed, so its rollouts have the le
 
 ### The Prime Intellect environment
 
-The same environment is packaged for the Prime Intellect Environments Hub in [`environments/riggs1890_lexgym/`](environments/riggs1890_lexgym/). The package holds all 68,911 training tasks, the 5,884 evaluation tasks, and the lookup index (2.1 MB compressed), so it needs no download. It uses the same scoring code as the Tinker path; a test checks that the two copies are identical.
+The same environment is published on the Prime Intellect Environments Hub as [`harleycooper/riggs1890-lexgym`](https://app.primeintellect.ai/dashboard/environments/harleycooper/riggs1890-lexgym) (version 0.1.0, public). Its source is in [`environments/riggs1890_lexgym/`](environments/riggs1890_lexgym/). The package holds all 68,911 training tasks, the 5,884 evaluation tasks, and the lookup index (2.1 MB compressed), so it needs no download. It uses the same scoring code as the Tinker path; a test checks that the two copies are identical.
+
+```bash
+prime env install harleycooper/riggs1890-lexgym
+```
 
 ```python
 import verifiers as vf
@@ -505,6 +509,7 @@ The larger claim is methodological: if a low-resource language has a usable hist
 ## Links
 
 - **Latest model:** https://huggingface.co/HarleyCooper/Qwen3.6-35B-A3B-Dakota1890-GRPO
+- **Prime Intellect environment:** https://app.primeintellect.ai/dashboard/environments/harleycooper/riggs1890-lexgym
 - **Lexicon graph and tasks:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph
 - **Rollout traces:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces
 - **Pilot adapters:** https://huggingface.co/HarleyCooper/Qwen3.5-4B-Riggs1890-lexgym-pilot
