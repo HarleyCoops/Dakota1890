@@ -34,6 +34,8 @@ def main() -> None:
     ap.add_argument("--max-steps", type=int, default=None)
     ap.add_argument("--eval-every", type=int, default=10)
     ap.add_argument("--save-every", type=int, default=20)
+    ap.add_argument("--trace-dir", default=None, help="Rollout traces (default: <log-path>/traces). Use 'off' to disable.")
+    ap.add_argument("--stage", default="rl", help="Label stored in every trace row, for example rl-after-sft.")
     ap.add_argument("--wandb-project", default="riggs1890-lexgym")
     ap.add_argument("--wandb-name", default=None)
     a = ap.parse_args()
@@ -42,7 +44,10 @@ def main() -> None:
     builder = LexgymDatasetBuilder(
         model_name=a.model_name, task_dir=a.task_dir, batch_size=a.batch_size, group_size=a.group_size,
         train_tasks=a.train_tasks, train_limit_per_task=a.train_limit_per_task,
-        eval_limit_per_task=a.eval_limit_per_task, renderer_name=renderer_name)
+        eval_limit_per_task=a.eval_limit_per_task, renderer_name=renderer_name,
+        trace_dir=None if a.trace_dir == "off" else (a.trace_dir or f"{a.log_path}/traces"),
+        run_id=a.wandb_name or a.log_path.rstrip("/").split("/")[-1], stage=a.stage,
+        load_checkpoint_path=a.load_checkpoint_path, temperature=a.temperature, max_tokens=a.max_tokens)
     cfg = train.Config(
         learning_rate=a.learning_rate, dataset_builder=builder, model_name=a.model_name,
         recipe_name="lexgym_riggs1890_rl", max_tokens=a.max_tokens, temperature=a.temperature,

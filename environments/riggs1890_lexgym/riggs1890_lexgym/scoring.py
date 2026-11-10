@@ -15,6 +15,7 @@ from .orthography import canon, loose, plain
 _THINK = re.compile(r"<think>.*?</think>", re.S)
 _STOP = set("a an the to of as or and in on for with by be is it one any which that at from".split())
 MAX_SPAN_RATIO = 3.0
+SCORER_VERSION = "2026-11-10.2"  # change when any reward rule changes; traces record it
 
 
 def extract_answer(text: str) -> tuple[str, bool]:
