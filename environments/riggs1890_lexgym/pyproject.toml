@@ -24,3 +24,6 @@ packages = ["riggs1890_lexgym"]
 
 [tool.hatch.build]
 include = ["riggs1890_lexgym/**/*.py", "riggs1890_lexgym/data/*.gz", "README.md"]
+# The repository .gitignore has a `data/` rule. Without this line hatch leaves
+# the task files out of the wheel.
+artifacts = ["riggs1890_lexgym/data/*.gz"]

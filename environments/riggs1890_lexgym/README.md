@@ -89,8 +89,8 @@ The model has 3 lookups. `lookup_root_gloss` needs two: the first entry names th
 ```bash
 # from a checkout of the repository
 uv pip install -e environments/riggs1890_lexgym
-# from the Environments Hub, after publication
-prime env install <owner>/riggs1890-lexgym
+# from the Environments Hub
+prime env install harleycooper/riggs1890-lexgym
 ```
 
 ```python
