@@ -1,19 +1,37 @@
 # Dakota1890
 
-**A language model that read the 1890 Dakota grammar cover to cover — and is now ready for the community to teach it the rest.**
+**One 1890 dictionary, compiled into a verifiable training environment. Trained on Thinking Machines Tinker and measured in Weights & Biases.**
 
 ![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Method](https://img.shields.io/badge/RL-GRPO-black.svg)
 ![Source](https://img.shields.io/badge/source-Riggs%201890-brightgreen.svg)
 
-To our knowledge, this is the first time a model of this size has been trained from a **single historical source document** for an **endangered language**.
+## Results so far: Weights & Biases analytics
 
-The model is not always right. That is not the point.
+The first pilot of the new pipeline ran on 10 November 2026: `Qwen/Qwen3.5-4B`, LoRA rank 32, trained on Tinker for $4.73. Every number below comes from the logged metrics of three W&B runs in the project [`christian-cooper-us/riggs1890-lexgym`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym).
 
-This is the working endpoint that modern descendants of Dakota speakers will correct — the way you correct a toddler learning to speak. The toddler has read the 1890 grammar cover to cover. It knows the orthography, the affixes, the morphology of the book. Now the community teaches it the rest. That community-in-the-loop second stage is the idea carried over from the companion **StoneyNakoda** project, where contemporary speakers correct and extend the model's output.
+![Pilot evaluation by task and stage](docs/experiments/lexgym_pilot_2026-11-10/charts/pilot_eval_by_stage.png)
 
-The whole pipeline runs from one public-domain book: Stephen Return Riggs' 1890 *Grammar and Dictionary of the Dakota Language*. Book → extraction → grammar rules → RL tasks → GRPO training → community correction.
+| Measure | Base model | After supervised stage | After supervised + 30 RL steps |
+|---|---|---|---|
+| Mean reward, held-out word families (240 tasks) | 0.16 | 0.37 | 0.73 |
+| Mean reward, recall of training vocabulary (80 tasks) | 0.00 | 0.04 | 0.06 |
+| Syllable division and accent, unseen words (exact) | 0.00 | 0.83 | 0.83 |
+| Dictionary lookup, 1 hop (exact) | 0.50 | 0.00 | 0.85 |
+| Dictionary lookup, 2 hops (exact) | 0.10 | 0.00 | 0.63 |
+
+![Pilot training curves](docs/experiments/lexgym_pilot_2026-11-10/charts/pilot_training_curves.png)
+
+| W&B run | Stage | Size | Tokens | Cost |
+|---|---|---|---|---|
+| [`pilot-sft-qwen3.5-4b`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym/runs/m54egdyu) | Supervised warm start | 436 steps × 128 rows, one epoch | 4.90 M trained | $3.61 |
+| [`pilot-rl-after-sft-qwen3.5-4b`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym/runs/0zl8gdkw) | RL from the supervised checkpoint | 30 steps × 32 tasks × 8 rollouts | 1.03 M trained, 0.96 M prefill, 0.09 M sampled | $1.12 |
+| [`pilot-base-eval-qwen3.5-4b`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym/runs/qsc4xl9q) | Base-model evaluation | 320 evaluation tasks | | under $0.01 |
+
+Each run logs the full reward ledger for each task type and each split: exact match, partial-credit components, length guard, parse success, number of lookups, and whether the model reached the target dictionary entry. The raw `metrics.jsonl` files, the run configurations, the Tinker checkpoint paths, and the script that draws these charts are in [`docs/experiments/lexgym_pilot_2026-11-10/`](docs/experiments/lexgym_pilot_2026-11-10/).
+
+The pilot is one seed with 40 tasks per task type. It verifies the method and the tooling. The source is Stephen Return Riggs, *A Dakota-English Dictionary* (1890), a public-domain book.
 
 ---
 
@@ -144,6 +162,20 @@ What the pilot shows:
 Limits of the pilot: one seed, 40 tasks per task type, and a small model. The pilot ran before a scoring correction: at that time an `en_to_dak` task with at least one two-witness form also accepted the other forms printed in the same entry, so the `en_to_dak` value is an upper bound. The generator now accepts only the two-witness forms. Differences of a few points between columns are inside the noise. The raw metrics, the configurations, and the Tinker checkpoint paths are in `docs/experiments/lexgym_pilot_2026-11-10/`.
 
 During the pilot we found two things in `tinker-cookbook` 0.6.1 that we will report upstream. `FromConversationFileBuilder` builds the renderer again for every row, which costs about 0.7 seconds per row with the Qwen3.5 renderer. With `remove_constant_reward_groups=True`, the per-tag train metrics are paired with the wrong task, because the groups are filtered and the builder list is not.
+
+### Cost of the main experiment
+
+Prices are computed from the pilot's logged token counts and the Tinker price list of 10 November 2026. The same calculation gives $3.61 and $1.12 for the two pilot runs, which matches the logged cost.
+
+| Base model | Supervised, 1 epoch | Supervised, 3 epochs | RL, 300 steps (64 tasks × 8 rollouts) | Three-arm experiment, 1 seed | Three-arm experiment, 3 seeds |
+|---|---|---|---|---|---|
+| `Qwen/Qwen3.5-4B` | $3.61 | $10.84 | $22.30 | $55 | $166 |
+| `nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16` (discount price) | $2.16 | $6.47 | $12.92 | $32 | $97 |
+| `Qwen/Qwen3.6-35B-A3B` | $5.77 | $17.30 | $33.90 | $85 | $255 |
+| `Qwen/Qwen3.5-9B` | $7.17 | $21.51 | $36.46 | $94 | $283 |
+| `Qwen/Qwen3.8-27B` | $20.11 | $60.32 | $105.60 | $272 | $815 |
+
+The three-arm experiment is one supervised run of 3 epochs and two RL runs of 300 steps (one from the base model, one from the supervised checkpoint). The supervised-only arm is the checkpoint of the first run. The estimate does not include the ablations, the grammar-section tasks, or the second volume.
 
 ### Plan
 
