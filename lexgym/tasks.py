@@ -19,7 +19,6 @@ import json
 import random
 from pathlib import Path
 
-from .orthography import plain
 
 SYSTEM_PROMPT = (
     "You answer from Stephen R. Riggs, A Dakota-English Dictionary (1890). "
@@ -64,7 +63,8 @@ def format_entry(e: dict) -> str:
 
 
 def generate(graph_dir: Path, out_dir: Path, seed: int = 42, recall_n: int = 300) -> dict:
-    load = lambda n: [json.loads(l) for l in (graph_dir / f"{n}.jsonl").open(encoding="utf-8")]
+    def load(n):
+        return [json.loads(line) for line in (graph_dir / f"{n}.jsonl").open(encoding="utf-8")]
     dakota, english = load("dakota_entries"), load("english_entries")
     by_plain = collections.defaultdict(list)
     for e in dakota:
@@ -105,10 +105,15 @@ def generate(graph_dir: Path, out_dir: Path, seed: int = 42, recall_n: int = 300
         if e["split"] != "train":
             dropped_english += 1
             continue
+        info = {"entry_id": e["entry_id"], "page": e["page"], "source_image": e["source_image"],
+                "confidence": e["confidence"]}
+        # SFT row: every clean form printed in the entry
         rows.append(_row("en_to_dak", e["entry_id"], "train", e["english"], e["dakota_forms"][0], e["dakota_forms"],
-                         {"entry_id": e["entry_id"], "page": e["page"], "source_image": e["source_image"],
-                          "gold_tier": "two_witnesses" if e["attested_forms"] else "one_witness",
-                          "confidence": e["confidence"]}, pos=e["pos"] or "?"))
+                         {**info, "gold_tier": "all_forms"}, pos=e["pos"] or "?"))
+        # RL and evaluation row: only the forms that both halves of the book print
+        if e["attested_forms"]:
+            rows.append(_row("en_to_dak", e["entry_id"], "train", e["english"], e["attested_forms"][0],
+                             e["attested_forms"], {**info, "gold_tier": "two_witnesses"}, pos=e["pos"] or "?"))
 
     rng = random.Random(seed)
     train = [r for r in rows if r["split"] == "train"]
@@ -117,11 +122,12 @@ def generate(graph_dir: Path, out_dir: Path, seed: int = 42, recall_n: int = 300
     for task in ("gloss", "en_to_dak"):
         pool = [r for r in train if r["task"] == task and (task != "en_to_dak" or r["info"]["gold_tier"] == "two_witnesses")]
         recall += [dict(r, split="recall") for r in rng.sample(pool, min(recall_n, len(pool)))]
-    # RL trains only on gold with two witnesses for en_to_dak; SFT sees all single-turn train rows
+    # RL trains only on gold with two witnesses for en_to_dak; SFT sees every printed form
     rl_train = [r for r in train if r["task"] != "en_to_dak" or r["info"]["gold_tier"] == "two_witnesses"]
     sft = [{"id": r["id"], "task": r["task"], "messages": [
         {"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": r["prompt"]},
-        {"role": "assistant", "content": f"ANSWER: {r['answer']}"}]} for r in train if not r["task"].startswith("lookup")]
+        {"role": "assistant", "content": f"ANSWER: {r['answer']}"}]} for r in train
+        if not r["task"].startswith("lookup") and r["info"].get("gold_tier") != "two_witnesses"]
 
     out_dir.mkdir(parents=True, exist_ok=True)
     files = {"rl_train": rl_train, "eval_heldout_rule": heldout, "eval_recall": recall, "sft_train": sft}

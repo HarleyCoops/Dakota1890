@@ -33,6 +33,13 @@ def test_only_final_answer_is_scored():
     assert extract_answer("<think>śuŋka</think>ANSWER: mato")[0] == "mato"
 
 
+def test_unterminated_thinking_block_has_no_answer():
+    t = _task("en_to_dak", "śuŋka")
+    assert score(t, "<think>\nśuŋka")[0] == 0.0
+    assert score(t, "<think>\nANSWER: śuŋka")[0] == 0.0
+    assert score(t, "<think>x</think>\nANSWER: śuŋka")[0] == 1.0
+
+
 def test_hack_probes_earn_little():
     t = _task("en_to_dak", "śuŋka")
     assert score(t, "")[0] == 0.0
@@ -57,13 +64,21 @@ def test_set_tasks():
 
 @pytest.mark.skipif(not (TASKS / "rl_train.jsonl").exists(), reason="run python -m lexgym.tasks first")
 def test_generated_data_gold_and_leakage():
-    load = lambda n: [json.loads(l) for l in (TASKS / f"{n}.jsonl").open(encoding="utf-8")]
+    def load(n):
+        return [json.loads(line) for line in (TASKS / f"{n}.jsonl").open(encoding="utf-8")]
     train, held = load("rl_train"), load("eval_heldout_rule")
     for r in train[::7] + held[::3]:
         assert score(r, "ANSWER: " + r["answer"])[0] == pytest.approx(1.0), r["id"]
-    fam = lambda rows: {r["info"]["family"] for r in rows if "family" in r["info"]}
+    def fam(rows):
+        return {r["info"]["family"] for r in rows if "family" in r["info"]}
     assert not fam(train) & fam(held)
     held_words = {r["prompt"].rsplit(": ", 1)[-1] for r in held if r["task"] == "syllabify"}
     sft = load("sft_train")
     assert not any(m["messages"][1]["content"].rsplit(": ", 1)[-1] in held_words for m in sft if m["task"] == "syllabify")
     assert all(r["info"].get("page") and r["info"].get("source_image") for r in train[::11])
+    # two-witness rows accept only forms that are also headwords in the Dakota half
+    headwords = set(json.loads((TASKS / "lookup_index.json").read_text(encoding="utf-8")))
+    from lexgym.orthography import plain as _plain
+    e2d = [r for r in train if r["task"] == "en_to_dak"]
+    assert e2d and all(r["info"]["gold_tier"] == "two_witnesses" for r in e2d)
+    assert all(_plain(a) in headwords for r in e2d[::5] for a in r["accepted"])

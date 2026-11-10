@@ -129,7 +129,7 @@ class LexgymDataset(RLDataset):
 
 
 def load_tasks(path: Path, tasks: Sequence[str] | None = None, limit_per_task: int = -1, seed: int = 0) -> list[dict]:
-    rows = [json.loads(l) for l in Path(path).open(encoding="utf-8")]
+    rows = [json.loads(line) for line in Path(path).open(encoding="utf-8")]
     if tasks:
         rows = [r for r in rows if r["task"] in set(tasks)]
     rng = random.Random(seed)

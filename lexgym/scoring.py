@@ -19,12 +19,15 @@ MAX_SPAN_RATIO = 3.0
 
 def extract_answer(text: str) -> tuple[str, bool]:
     """Return (answer span, parse_ok)."""
-    t = _THINK.sub("", text or "").strip()
+    t = _THINK.sub("", text or "")
     if "</think>" in t:
-        t = t.split("</think>")[-1].strip()
+        t = t.split("</think>")[-1]
+    # a thinking block that never closes (truncated output) has no final answer
+    t = t.split("<think>")[0].strip()
     m = list(re.finditer(r"ANSWER\s*:", t, flags=re.I))
     if m:
-        span = t[m[-1].end():].strip().splitlines()[0].strip() if t[m[-1].end():].strip() else ""
+        rest = t[m[-1].end():].strip()
+        span = rest.splitlines()[0].strip() if rest else ""
         return span.strip(" `\"*"), bool(span)
     lines = [ln.strip() for ln in t.splitlines() if ln.strip()]
     return (lines[-1].strip(" `\"*") if lines else ""), False
@@ -80,7 +83,8 @@ def _score_syllabify(span: str, task: dict) -> dict:
     pc, gc = _cuts(syl), _cuts(gold_syl)
     led["boundary_f1"] = 1.0 if not pc and not gc else _set_f1({str(c) for c in pc}, {str(c) for c in gc})
     # stress is compared by character position, so a wrong split cannot hide it
-    pos = lambda sy, i: sum(len(s) for s in sy[:i + 1])
+    def pos(sy, i):
+        return sum(len(s) for s in sy[:i + 1])
     led["stress_ok"] = float(len(stressed) == 1 and pos(syl, stressed[0]) == pos(gold_syl, gold_stress))
     return {**led, "raw": 1.0 if exact else 0.6 * led["boundary_f1"] + 0.2 * led["stress_ok"]}
 
@@ -93,7 +97,8 @@ def _score_set(span: str, task: dict) -> dict:
 
 
 def _score_choice(span: str, task: dict) -> dict:
-    norm = lambda s: re.sub(r"[^a-z]", "", s.lower())
+    def norm(s):
+        return re.sub(r"[^a-z]", "", s.lower())
     exact = float(norm(span) in {norm(a) for a in task["accepted"]})
     return {"exact": exact, "raw": exact}
 
