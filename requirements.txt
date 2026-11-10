@@ -14,7 +14,7 @@ google-genai>=2.34.0
 requests>=2.34.2
 
 # Analysis and visualization stack
-# Keep these installable on CI's Python 3.11.
+# CI and local development use Python 3.12. numpy 2.5 needs Python 3.12 or later.
 numpy>=2.5.4,<2.6
 pandas>=3.1.0
 matplotlib>=3.11.2
@@ -40,6 +40,7 @@ wandb>=0.31.0
 weave>=0.54.0
 
 # Thinking Machines / Tinker integration
-# Install RL/Tinker dependencies from requirements-tinker.txt after these base
-# dependencies. Current Tinker requires protobuf 6.x, while the legacy
-# google-generativeai package still declares a protobuf <6 transitive pin.
+# Install the RL/Tinker dependencies from requirements-tinker.txt after these
+# base dependencies. That file pins tinker, tinker-cookbook and protobuf 7.x.
+# The lexgym/ core (graph, tasks, scoring) needs only the standard library;
+# lexgym/train_sft.py and lexgym/train_rl.py need requirements-tinker.txt.

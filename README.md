@@ -3,7 +3,7 @@
 **A language model that read the 1890 Dakota grammar cover to cover — and is now ready for the community to teach it the rest.**
 
 ![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Method](https://img.shields.io/badge/RL-GRPO-black.svg)
 ![Source](https://img.shields.io/badge/source-Riggs%201890-brightgreen.svg)
 
