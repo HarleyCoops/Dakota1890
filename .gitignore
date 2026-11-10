@@ -115,3 +115,6 @@ Qwen3.6-35B-A3B-Dakota1890-GRPO/
 .task4reviewtemp/
 .task4-invalid-manifest/
 .superpowers/
+
+# lexgym run outputs and scratch key files
+lexgym_runs/
