@@ -115,9 +115,39 @@ Tinker is the only training infrastructure in the current plan. The training loo
 
 Model plan: `Qwen/Qwen3.5-4B` for pilots and ablations, then `Qwen/Qwen3.6-35B-A3B` for the main run, which permits a direct comparison with our earlier 35B adapter.
 
+### Pilot results (10 November 2026)
+
+One pilot on `Qwen/Qwen3.5-4B`, LoRA rank 32, all on Tinker. Total cost: $4.73.
+
+- **Stage 1:** one epoch of supervised training, 436 steps of 128 rows, 4.9 million tokens, $3.61. Held-out loss fell from 1.74 to 0.75.
+- **Stage 2:** 30 RL steps from the stage 1 checkpoint, 32 tasks × 8 rollouts per step, $1.12.
+
+Exact-match rate on the evaluation sets, 40 tasks per task type:
+
+| Task | Split | Base model | After supervised | After supervised + 30 RL steps |
+|---|---|---|---|---|
+| `syllabify` | held-out families | 0.00 | 0.83 | 0.83 |
+| `pos` | held-out families | 0.05 | 0.38 | 0.73 |
+| `root` | held-out families | 0.00 | 0.48 | 0.58 |
+| `inflect` | held-out families | 0.00 | 0.30 | 0.38 |
+| `lookup_gloss` | held-out families | 0.50 | 0.00 | 0.85 |
+| `lookup_root_gloss` | held-out families | 0.10 | 0.00 | 0.63 |
+| `gloss` (token F1) | recall | 0.00 | 0.05 | 0.08 |
+| `en_to_dak` | recall | 0.00 | 0.00 | 0.03 |
+
+What the pilot shows:
+
+- **The model learns rules of the book that transfer to unseen words.** After the supervised stage it writes Riggs' syllable division and accent correctly for 83% of words from families that it did not train on. The base model scores zero.
+- **The two stages do different work.** Supervised training removed the lookup behaviour (0.50 → 0.00), because every supervised target is a direct answer. Thirty RL steps restored it and passed the base model (0.85 for one lookup, 0.63 for two). After RL the model reached the target entry in 100% of the one-lookup tasks and 78% of the two-lookup tasks.
+- **One epoch on a 4B model does not memorise the lexicon.** Recall of definitions and of English→Dakota is still near zero. This is the main open problem, and it is the reason for the larger model and more epochs in the main experiment.
+
+Limits of the pilot: one seed, 40 tasks per task type, and a small model. Differences of a few points between columns are inside the noise. The raw metrics, the configurations, and the Tinker checkpoint paths are in `docs/experiments/lexgym_pilot_2026-11-10/`.
+
+During the pilot we found two things in `tinker-cookbook` 0.6.1 that we will report upstream. `FromConversationFileBuilder` builds the renderer again for every row, which costs about 0.7 seconds per row with the Qwen3.5 renderer. With `remove_constant_reward_groups=True`, the per-tag train metrics are paired with the wrong task, because the groups are filtered and the builder list is not.
+
 ### Plan
 
-1. **Pilot (in progress).** Short supervised and RL runs on the 4B model to verify the loop, the ledger, and the cost per step.
+1. **Pilot (done, see above).** Short supervised and RL runs on the 4B model verified the loop, the ledger, and the cost per step.
 2. **Main experiment.** Three arms on the same base model and the same evaluation sets: RL only, supervised only, supervised then RL. The question is how much RL adds after the model knows the lexicon, and on which task types.
 3. **Ablations.** Lookup tool on and off; two-witness gold against all gold; curriculum order.
 4. **Data repair.** A second reading of the pages behind the 1,494 near matches and the headwords that failed the parser, then a new graph version.
@@ -130,7 +160,7 @@ Model plan: `Qwen/Qwen3.5-4B` for pilots and ablations, then `Qwen/Qwen3.6-35B-A
 
 - The source is a missionary dictionary from 1890. It records one written variety and is not a description of Dakota as it is spoken now.
 - The extraction has errors. The orthography mapping removes some of them and hides none: the raw form stays in every row.
-- The pilot results are not in this document yet. The numbers in the first table are from the earlier clean runs.
+- The pilot is one small run. It verifies the method and the tooling. It is not a result about the language.
 
 ---
 
