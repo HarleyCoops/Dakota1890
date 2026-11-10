@@ -37,6 +37,8 @@ The pilot is one seed with 40 tasks per task type. It verifies the method and th
 
 ## November 2026 update: the Lexicon Gym
 
+![Riggs 1890: opening of Part I (Dakota-English), opening of Part II (English-Dakota), and entries from scan page 100](docs/collages/nov2026_two_parts.jpg)
+
 This section describes the current direction of the project. The sections after it describe the 2025 to mid-2026 runs and are kept as the record of that work.
 
 ### Why the experiment changed
@@ -81,6 +83,8 @@ python -m pytest tests/test_lexgym.py
 
 ### Dataset design: one volume, two witnesses
 
+![The two witnesses: Dakota-English entries (scan page 100) beside English-Dakota entries (scan page 376)](docs/collages/dataset_two_witnesses.jpg)
+
 Riggs printed the dictionary in two halves. Scan pages 95 to 370 are Dakota→English and pages 371 to 430 are English→Dakota. The graph keeps both halves and uses each half to check the other.
 
 | Item | Count |
@@ -105,6 +109,8 @@ Design rules:
 
 ### The RL environment
 
+![Dictionary entries with printed syllable division, accent, part of speech, and inflected forms (scan pages 100, 172, 280, 355)](docs/collages/rl_environment_entries.jpg)
+
 | Task | Input → answer | Verifier | RL train | Held-out |
 |---|---|---|---|---|
 | `syllabify` | plain word → Riggs syllable division and accent | exact; partial credit for correct boundaries and stress; zero if a letter changes | 13,990 | 1,446 |
@@ -123,6 +129,8 @@ Design rules:
 - **Reward rules.** No LLM judge. Only the final answer span is scored, so gold text inside reasoning earns nothing. Reward is in [0, 1] with a length guard and no difficulty multiplier. Every component goes to the ledger, so each reward can be reconstructed by hand. The tests include probes for word stuffing, prompt echo, and gold-in-reasoning.
 
 ### How we use Thinking Machines Tinker and the cookbook
+
+![Riggs' verb paradigm table (scan page 57) and the table of separate pronouns (scan page 40)](docs/collages/tinker_grammar_tables.jpg)
 
 Tinker is the only training infrastructure in the current plan. The training loop runs on a CPU machine, and Tinker does the forward and backward passes.
 
@@ -147,6 +155,8 @@ The design document is the package [README](environments/riggs1890_lexgym/README
 Model plan: `Qwen/Qwen3.5-4B` for pilots and ablations, then `Qwen/Qwen3.6-35B-A3B` for the main run, which permits a direct comparison with our earlier 35B adapter.
 
 ### Pilot results (10 November 2026)
+
+![Close-ups of Dakota-English entries (scan pages 280, 355, 172)](docs/collages/pilot_dictionary_closeups.jpg)
 
 One pilot on `Qwen/Qwen3.5-4B`, LoRA rank 32, all on Tinker. Total cost: $4.73.
 
@@ -177,6 +187,8 @@ Limits of the pilot: one seed, 40 tasks per task type, and a small model. The pi
 During the pilot we found two things in `tinker-cookbook` 0.6.1 that we will report upstream. `FromConversationFileBuilder` builds the renderer again for every row, which costs about 0.7 seconds per row with the Qwen3.5 renderer. With `remove_constant_reward_groups=True`, the per-tag train metrics are paired with the wrong task, because the groups are filtered and the builder list is not.
 
 ### Proposed changes to GRPO and the compositional reward
+
+![Close-ups of the grammar text on possessive pronouns (scan page 40)](docs/collages/grpo_etymology_text.jpg)
 
 This section is a proposal for the main experiment. None of it is implemented yet. The pilot used the `tinker-cookbook` RL loop without changes.
 
@@ -280,6 +292,8 @@ The three-arm experiment is one supervised run of 3 epochs and two RL runs of 30
 
 ### Plan
 
+![Close-ups of English-Dakota entries (scan pages 430, 411, 376)](docs/collages/plan_english_dakota.jpg)
+
 1. **Pilot (done, see above).** Short supervised and RL runs on the 4B model verified the loop, the ledger, and the cost per step.
 2. **Main experiment.** Three arms on the same base model and the same evaluation sets: RL only, supervised only, supervised then RL. The question is how much RL adds after the model knows the lexicon, and on which task types.
 3. **GRPO and reward changes.** The seven proposed changes above, one arm each.
@@ -300,6 +314,8 @@ The three-arm experiment is one supervised run of 3 epochs and two RL runs of 30
 
 ## The model progression
 
+![Title page: Grammar of the Dakota Language](docs/collages/model_progression_title_page.jpg)
+
 Each model is published on Hugging Face. The arc runs from a 0.6B proof of concept to a 35B GRPO run.
 
 | Model | Params | Method | Infra | Notes |
@@ -313,6 +329,8 @@ The latest model, **Qwen3.6-35B-A3B-Dakota1890-GRPO**, is the current working en
 ---
 
 ## The pipeline
+
+![Close-up of Dakota-English dictionary entries](docs/collages/pipeline_dictionary_strip.jpg)
 
 One book becomes a self-contained training loop. No parallel corpus, no separate grammar documentation, no OCR training.
 
@@ -343,6 +361,8 @@ The key move: grammar rules stop being static documentation and become **executa
 
 ## The reward function
 
+![Close-up of the grammar section on prepositions](docs/collages/reward_prepositions.jpg)
+
 > This section describes the reward of the 2025 to mid-2026 runs. The current reward and the proposed changes are in [Proposed changes to GRPO and the compositional reward](#proposed-changes-to-grpo-and-the-compositional-reward).
 
 The reward is **deterministic**. There is no LLM judge. Every component is independently verifiable, so the gradient is honest and you can see exactly what the model got wrong.
@@ -367,22 +387,15 @@ Because each piece is checkable by code rather than judgment, GRPO gets dense, m
 
 ## See the proof
 
+![Dakota1890 dictionary collage](hf_model_card_work/Qwen3.6-35B-A3B-Dakota1890-GRPO/assets/dakota1890_dictionary_collage.png)
+
 Everything above is the pitch. Below is what it actually looks like — the source book, the training curves, and the reward signal running live.
 
 ### The one book
 
 It all starts with a single public-domain scan: Riggs' 1890 *Grammar and Dictionary of the Dakota Language*.
 
-<img src="Public/grammar.jpg" alt="Grammar of the Dakota Language — 1890 title page" width="100%">
-
 The grammar section (pages 31–92) and the dictionary section (pages 93–440) are the entire training corpus. No parallel text, no modern annotations.
-
-| | |
-|---|---|
-| Dictionary entries → `{dakota:english}` pairs | ![Dakota dictionary scan](Public/Dictionary.jpeg) |
-| Morphology and prepositions → extracted rules | ![Dakota prepositions scan](Public/Prepositions.jpg) |
-
-![Dakota1890 dictionary collage](hf_model_card_work/Qwen3.6-35B-A3B-Dakota1890-GRPO/assets/dakota1890_dictionary_collage.png)
 
 ### The latest run — Qwen3.6-35B-A3B GRPO
 
@@ -416,6 +429,8 @@ How grammar rules become an executable reward function, file by file:
 
 ## Source material
 
+![Six scan pages: front matter, etymology, verb tables, Part I opening, a dictionary page, Part II opening](docs/collages/source_pages.jpg)
+
 Everything derives from one public-domain book:
 
 > **Riggs, S. R. (1890).** *A Grammar and Dictionary of the Dakota Language.* Washington: Government Printing Office.
@@ -436,6 +451,8 @@ The code is Apache-2.0. The 1890 text is public domain (see `DATA_LICENSE.md`).
 ---
 
 ## How to use
+
+![Close-ups of English-Dakota entries (scan pages 411, 430)](docs/collages/how_to_use_closeups.jpg)
 
 The latest adapter loads on top of its base model with PEFT:
 
