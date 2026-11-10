@@ -71,8 +71,13 @@ def extract_final_answer(text: str) -> str:
     if boxed:
         return boxed[-1].group(1).strip()
     finals = list(FINAL_ANSWER_RE.finditer(text))
-    if finals:
-        return finals[-1].group(1).strip().splitlines()[0].strip()
+    for match in reversed(finals):
+        line = (match.group(1) or '').strip()
+        if not line:
+            continue
+        first = line.splitlines()[0].strip()
+        if first:
+            return first
     lines = [line.strip() for line in str(text).strip().splitlines() if line.strip()]
     if not lines:
         return ""

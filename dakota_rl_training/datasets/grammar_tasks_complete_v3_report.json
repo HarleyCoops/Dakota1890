@@ -1,0 +1,36 @@
+{
+  "v2_rows": 9287,
+  "adaptive_filtered": 523,
+  "adaptive_already_in_v2": 192,
+  "adaptive_holdout_blocked": 0,
+  "adaptive_new": 331,
+  "v3_unique_rows": 9618,
+  "v3_train_rows_after_reverse_upsample": 11883,
+  "reverse_translation_unique": 2265,
+  "reverse_translation_after_upsample": 4530,
+  "tasks_unique": {
+    "identify_pattern": 1497,
+    "word_translation": 2872,
+    "reverse_translation": 2265,
+    "morphology": 2119,
+    "sentence_translation": 327,
+    "syntax": 420,
+    "affix_insertion": 118
+  },
+  "tasks_train": {
+    "identify_pattern": 1497,
+    "word_translation": 2872,
+    "reverse_translation": 4530,
+    "morphology": 2119,
+    "sentence_translation": 327,
+    "syntax": 420,
+    "affix_insertion": 118
+  },
+  "holdout_v1_rows": 1060,
+  "holdout_v1_untouched": true,
+  "notes": [
+    "v3 = grammar_tasks_complete_v2.jsonl + new Adaptive Data rows that are not already in v2 and do not leak holdout v1 prompts.",
+    "reverse_translation rows are appended a second time (2x upsample) so EN->Dakota gets more GRPO groups without a second full epoch.",
+    "Frozen holdout v1 remains the eval set. No Dakota forms were invented."
+  ]
+}

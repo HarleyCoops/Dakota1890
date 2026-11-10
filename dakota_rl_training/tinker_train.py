@@ -145,11 +145,17 @@ def build_config(args: argparse.Namespace) -> train.Config:
         learning_rate=args.learning_rate,
         dataset_builder=dataset_builder,
         model_name=args.model_name,
+        recipe_name="dakota1890_grant_clean_v3",
         max_tokens=args.max_tokens,
         temperature=args.temperature,
         lora_rank=args.lora_rank,
         kl_penalty_coef=args.kl_penalty_coef,
         kl_discount_factor=args.kl_discount_factor,
+        kl_reference_config=(
+            train.KLReferenceConfig(base_model=args.model_name)
+            if args.kl_penalty_coef > 0
+            else None
+        ),
         loss_fn=args.loss_fn,
         num_substeps=args.num_substeps,
         wandb_project=args.wandb_project,

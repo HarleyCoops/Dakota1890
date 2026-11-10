@@ -1,0 +1,26 @@
+{
+  "dataset_id": "7f8e85d2-e64c-42da-8ee8-e71ed5616c54",
+  "raw_rows": 2988,
+  "kept_rows": 523,
+  "dropped_rows": 2465,
+  "drop_reasons": {
+    "essay_or_no_dakota_span": 716,
+    "invented_or_unattested_stem": 1659,
+    "word_translation_dakota_gold": 71,
+    "affix_not_in_gold": 19
+  },
+  "kept_by_task": {
+    "morphology": 245,
+    "reverse_translation": 255,
+    "affix_insertion": 23
+  },
+  "kept_changed_from_original_gold": 334,
+  "kept_nonempty_affixes": 83,
+  "kept_fully_scorable_affix": 83,
+  "notes": [
+    "Enhanced completions were mostly English/Lakota essays, not Dakota gold.",
+    "Kept only short Dakota spans that share a stem with the original attested gold.",
+    "No Dakota forms were invented. Placeholders dropped. Affixes must appear in gold.",
+    "Frozen holdout v1 was not touched."
+  ]
+}

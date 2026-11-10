@@ -1,0 +1,94 @@
+{
+  "output_path": "C:\\Users\\chris\\Dakota1890\\dakota_rl_training\\datasets\\adaption_upload_v2.parquet",
+  "output_size_bytes": 162785,
+  "spec_path": "C:\\Users\\chris\\Dakota1890\\dakota_rl_training\\datasets\\adaption_spec_dakota1890.md",
+  "report_path": "C:\\Users\\chris\\Dakota1890\\dakota_rl_training\\datasets\\adaption_upload_v2_report.json",
+  "local_v2_present": false,
+  "v2_source": "fetched",
+  "v2_fetch": {
+    "method": "raw GitHub",
+    "url": "https://raw.githubusercontent.com/HarleyCoops/Dakota1890/main/dakota_rl_training/datasets/grammar_tasks_complete_v2.jsonl",
+    "sha": "8d481baae0594109810f7321cb57c03028558db8",
+    "bytes": 4051839,
+    "pr": 110,
+    "merge_commit": "5e14924c3d4233cc0bc59d661ecf0cd410facd6c"
+  },
+  "heldout_v1_local": true,
+  "heldout_v1_path": "C:\\Users\\chris\\Dakota1890\\dakota_rl_training\\datasets\\grammar_tasks_heldout.jsonl",
+  "heldout_v1_rows": 1060,
+  "source_v2_rows": 9287,
+  "source_v2_task_type_counts": {
+    "identify_pattern": 1497,
+    "word_translation": 2872,
+    "reverse_translation": 2130,
+    "morphology": 1926,
+    "sentence_translation": 327,
+    "syntax": 420,
+    "affix_insertion": 115
+  },
+  "source_v2_nonempty_required_affixes": 285,
+  "source_v2_placeholder_rows": 0,
+  "excluded_empty": 0,
+  "excluded_placeholder": 0,
+  "excluded_heldout_v1_prompt_overlap": 1216,
+  "selection": {
+    "all_reverse_translation": 1720,
+    "all_nonempty_required_affixes": 255,
+    "all_affix_insertion": 101,
+    "must_include_rows": 1982,
+    "sampled_morphology_word_translation": 1018,
+    "sampled_by_task_type": {
+      "morphology": 591,
+      "word_translation": 427
+    },
+    "sample_seed": 42,
+    "target_min": 3000,
+    "target_max": 4000
+  },
+  "upload_rows": 3000,
+  "upload_task_type_counts": {
+    "reverse_translation": 1720,
+    "morphology": 752,
+    "affix_insertion": 101,
+    "word_translation": 427
+  },
+  "upload_gold_language_heuristic": {
+    "dakota_markers": 1588,
+    "ascii_or_unknown": 1164,
+    "english_like": 248
+  },
+  "upload_gold_language_by_task_type": {
+    "reverse_translation": {
+      "dakota_markers": 1273,
+      "ascii_or_unknown": 447
+    },
+    "morphology": {
+      "dakota_markers": 225,
+      "ascii_or_unknown": 527
+    },
+    "affix_insertion": {
+      "dakota_markers": 67,
+      "ascii_or_unknown": 34
+    },
+    "word_translation": {
+      "english_like": 248,
+      "ascii_or_unknown": 156,
+      "dakota_markers": 23
+    }
+  },
+  "upload_nonempty_required_affixes": 255,
+  "upload_required_affix_appears_in_gold_heuristic": 255,
+  "columns": [
+    "prompt",
+    "completion",
+    "task_type",
+    "difficulty",
+    "required_affixes",
+    "source_id"
+  ],
+  "notes": [
+    "source_id is info.rule_id; v2 has no source_id/task_id field.",
+    "Frozen heldout v1 prompts were excluded to protect the cebp9acs eval set.",
+    "No Dakota forms were invented. No Adaption API call was made."
+  ]
+}
