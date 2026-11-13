@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dakota Lexicon Cookbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one narrow reading column on white, wide blocks (charts, tables, code) break out to a 920px measure.
+   Dictionary headword styling (Fraunces italic, hanging indent) is the one subject-specific device. */
+:root {
+  --paper: #fbfbf9;
+  --ink: #16191c;
+  --muted: #5d656b;
+  --rule: #dcdfdc;
+  --panel: #f1f3f0;
+  --accent: #0b5a6b;
+  --accent-soft: #d9e9ec;
+  --warn: #9a4a12;
+  --series-b: #8a9299;
+  --series-c: #b9bfc3;
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121517; --ink: #e9ebe8; --muted: #9aa3a8; --rule: #2c3236; --panel: #1a1f22;
+    --accent: #6cc3d3; --accent-soft: #17343a; --warn: #e2a06c; --series-b: #8a949a; --series-c: #525a60;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121517; --ink: #e9ebe8; --muted: #9aa3a8; --rule: #2c3236; --panel: #1a1f22;
+  --accent: #6cc3d3; --accent-soft: #17343a; --warn: #e2a06c; --series-b: #8a949a; --series-c: #525a60;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--body); }
+main { max-width: 920px; margin: 0 auto; padding: 56px 20px 96px; }
+.col { max-width: 660px; }
+header .kicker { font: 500 13px/1.4 var(--mono); color: var(--muted); letter-spacing: .02em; }
+h1 { font: 400 clamp(38px, 6vw, 58px)/1.05 var(--display); margin: 14px 0 18px; text-wrap: balance; letter-spacing: -.01em; }
+.lede { font-size: 20px; line-height: 1.5; color: var(--ink); margin: 0 0 18px; }
+.meta { font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+h2 { font: 560 28px/1.2 var(--display); margin: 72px 0 14px; text-wrap: balance; }
+h2 .n { font: 500 13px/1 var(--mono); color: var(--accent); display: block; margin-bottom: 10px; }
+h3 { font: 600 16px/1.4 var(--body); margin: 28px 0 6px; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font: 400 .88em var(--mono); background: var(--panel); padding: 1px 5px; border-radius: 3px; }
+pre { font: 400 13.5px/1.55 var(--mono); background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; overflow-x: auto; margin: 16px 0 22px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.scroll { overflow-x: auto; margin: 18px 0 24px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 9px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+thead th { font: 500 12.5px/1.3 var(--mono); color: var(--muted); border-bottom: 1px solid var(--ink); }
+td.hi { font-weight: 600; color: var(--accent); }
+td.lo { color: var(--warn); }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; margin: 26px 0 8px; }
+figure { margin: 0; }
+figcaption { font: 600 15px/1.3 var(--body); margin-bottom: 4px; }
+figcaption small { display: block; font: 400 13px/1.4 var(--body); color: var(--muted); }
+svg text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+svg text.end { font-size: 12px; font-weight: 500; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13.5px; color: var(--muted); margin: 6px 0 0; }
+.legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 7px; border-radius: 2px; }
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; margin: 20px 0; font-size: 15.5px; border-radius: 0 4px 4px 0; }
+.note.warn { border-color: var(--warn); background: var(--panel); }
+.entries { display: grid; gap: 0; margin: 18px 0 24px; border-top: 1px solid var(--ink); }
+.entry { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 6px 22px; padding: 14px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.entry .q { grid-column: 1 / -1; }
+.hw { font: 400 italic 21px/1.2 var(--display); }
+.entry .task { font: 500 12px/1.3 var(--mono); color: var(--muted); margin-left: 10px; }
+.entry dt { font: 500 12px/1.3 var(--mono); color: var(--muted); margin-bottom: 2px; }
+.entry dd { margin: 0; overflow-wrap: anywhere; }
+.entry .miss dd { color: var(--warn); }
+.entry .hit dd { color: var(--accent); font-weight: 500; }
+ol.steps { padding-left: 20px; } ol.steps li { margin-bottom: 8px; }
+ul { padding-left: 20px; } li { margin-bottom: 6px; }
+footer { margin-top: 80px; padding-top: 20px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--muted); }
+@media (max-width: 620px) { .entry { grid-template-columns: 1fr; } body { font-size: 16px; } h2 { margin-top: 56px; } }
+</style>
+</head>
+<body>
+<main>
+<header class="col">
+  <div class="kicker">riggs1890-lexgym · cookbook 01 · built with Tinker</div>
+  <h1>Teach a model one dictionary, and keep its habit of looking things up</h1>
+  <p class="lede">Supervised fine-tuning of Inkling 2 Small on Stephen R. Riggs, <em>A Dakota-English Dictionary</em> (1890). Three passes over 69,461 rows took recall from 3% to 84%. Use of the dictionary lookup tool stayed at 100%.</p>
+  <div class="meta"><span>Christian H. Cooper</span><span>12 November 2026</span><span>Total cost about $35</span><span><a href="https://huggingface.co/spaces/HarleyCooper/riggs1890-lexgym">Live demo</a></span><span><a href="https://huggingface.co/HarleyCooper/Inkling-2-Small-Riggs1890-lexgym">Adapter</a></span><span><a href="https://github.com/HarleyCoops/Dakota1890">HarleyCoops/Dakota1890</a></span></div>
+</header>
+
+<section>
+  <h2 class="col"><span class="n">Result</span>Four evaluations, one curve</h2>
+  <p class="col">Each checkpoint was scored on the same 1,500 tasks by exact match. Recall tasks ask for a word or definition with no tool. Lookup tasks give the model a tool that reads one dictionary entry per call.</p>
+  <div class="charts">
+    <figure><figcaption>Recall from memory<small>600 tasks: Dakota to English and English to Dakota</small></figcaption><svg id="c1" viewBox="0 0 440 280" role="img" aria-label="Recall by training pass for three models"></svg></figure>
+    <figure><figcaption>Lookup task, one hop<small>150 held-out words, exact match on the definition</small></figcaption><svg id="c2" viewBox="0 0 440 280" role="img" aria-label="Lookup score by training pass for three models"></svg></figure>
+  </div>
+  <div class="legend"><span><i style="background:var(--accent)"></i>Inkling 2 Small, mixed file (this run)</span><span><i style="background:var(--series-b)"></i>Qwen3.6-35B, word rows only</span><span><i style="background:var(--series-c)"></i>Qwen3.5-4B, word rows only</span></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Inkling 2 Small, exact match</th><th>Base</th><th>Pass 1</th><th>Pass 2</th><th>Pass 3</th></tr></thead>
+    <tbody>
+      <tr><td>Recall from memory (600)</td><td>0.030</td><td>0.295</td><td>0.637</td><td class="hi">0.835</td></tr>
+      <tr><td>&nbsp;&nbsp;Dakota word to English definition</td><td>0.007</td><td>0.223</td><td>0.510</td><td>0.817</td></tr>
+      <tr><td>&nbsp;&nbsp;English word to Dakota word</td><td>0.053</td><td>0.367</td><td>0.763</td><td>0.853</td></tr>
+      <tr><td>Held-out word families (900)</td><td>0.443</td><td>0.814</td><td>0.820</td><td class="hi">0.816</td></tr>
+      <tr><td>&nbsp;&nbsp;Lookup, one hop</td><td>0.767</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+      <tr><td>&nbsp;&nbsp;Lookup, two hops (word, then its root)</td><td>0.893</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+      <tr><td>&nbsp;&nbsp;Syllables and accent</td><td>0.327</td><td>0.867</td><td>0.913</td><td>0.907</td></tr>
+      <tr><td>&nbsp;&nbsp;Root word</td><td>0.380</td><td>0.820</td><td>0.740</td><td>0.773</td></tr>
+      <tr><td>&nbsp;&nbsp;Part of speech</td><td>0.293</td><td>0.693</td><td>0.753</td><td>0.720</td></tr>
+      <tr><td>&nbsp;&nbsp;Inflected forms</td><td>0.000</td><td>0.507</td><td>0.513</td><td>0.493</td></tr>
+      <tr><td>All 1,500 tasks</td><td>0.278</td><td>0.607</td><td>0.747</td><td class="hi">0.823</td></tr>
+    </tbody>
+  </table></div>
+  <div class="col">
+    <p><strong>How to read this.</strong> Recall keeps rising with each pass, because recall is memory of the book. The held-out scores are flat after pass 1, because those tasks use word families the model never saw and depend on rules, which the model learns quickly.</p>
+    <p>The base model already called the tool correctly. Its lookup errors were answers in its own words. Training moved the lookup score to 1.000 by teaching it to give the entry text as written. The important fact is the comparison: on the earlier Qwen runs, the same kind of training removed tool use almost completely.</p>
+    <div class="note">Two things differ between the Inkling run and the Qwen runs: the model and the training file. This run does not show which one protects tool use. A Qwen run on the mixed file is the control that would answer this.</div>
+  </div>
+</section>
+
+<section>
+  <h2 class="col"><span class="n">Examples</span>The same question before and after</h2>
+  <p class="col">All examples are from the evaluation traces. The gold answer is the text of the 1890 entry.</p>
+  <div class="entries" id="entries"></div>
+</section>
+
+<section class="col">
+  <h2><span class="n">Step 1</span>Turn the dictionary into tasks</h2>
+  <p>The source is a public-domain scan. Each entry was parsed into a headword, syllable division, part of speech, definition, listed forms, and the word it is derived from. From these fields the task builder makes eight task types and one lookup index.</p>
+</section>
+<div class="scroll"><table>
+  <thead><tr><th>Task</th><th>Question</th><th>Train</th><th>Evaluation</th></tr></thead>
+  <tbody>
+    <tr><td><code>gloss</code></td><td style="text-align:left">English definition of a Dakota word</td><td>13,562</td><td>300 recall</td></tr>
+    <tr><td><code>en_to_dak</code></td><td style="text-align:left">Dakota word for an English word</td><td>3,369</td><td>300 recall</td></tr>
+    <tr><td><code>syllabify</code></td><td style="text-align:left">Syllable division and accent mark</td><td>13,990</td><td>150 held-out</td></tr>
+    <tr><td><code>pos</code></td><td style="text-align:left">Part-of-speech abbreviation</td><td>13,985</td><td>150 held-out</td></tr>
+    <tr><td><code>inflect</code></td><td style="text-align:left">Inflected forms listed in the entry</td><td>4,936</td><td>150 held-out</td></tr>
+    <tr><td><code>root</code></td><td style="text-align:left">Word that this word is derived from</td><td>3,060</td><td>150 held-out</td></tr>
+    <tr><td><code>lookup_gloss</code></td><td style="text-align:left">Read the entry, give the definition</td><td>13,562</td><td>150 held-out</td></tr>
+    <tr><td><code>lookup_root_gloss</code></td><td style="text-align:left">Read the entry, read the root's entry, give the root's definition</td><td>2,447</td><td>150 held-out</td></tr>
+  </tbody>
+</table></div>
+<section class="col">
+  <p><strong>The split is by word family.</strong> One family in ten is held out with all its derived words. A model cannot pass a held-out task because it saw a close relative of the word in training. Recall tasks are different by design: they ask about words that were in training, so they measure memory.</p>
+  <p>The tasks are on the Hub at <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph">HarleyCooper/riggs1890-lexicon-graph</a>.</p>
+
+  <h2><span class="n">Step 2</span>Add solved lookup conversations to the training file</h2>
+  <p>The first training file had 56,120 rows, and each row was one question and one answer. Training on it taught the model to answer at once in every case. After one pass, Qwen3.5-4B made zero lookup calls and its lookup score fell from 0.727 to 0.013.</p>
+  <p>The fix is to put the tool in the training data. <code>build_mixed_sft.py</code> writes each lookup task as a solved conversation. No teacher model is necessary, because the lookup index already holds the entry text and the gold answer:</p>
+<pre><code>system     You can read the dictionary. To read the entry for a Dakota word,
+           reply with exactly one line: 'LOOKUP: &lt;word&gt;'. ... You have 3 lookups.
+user       Read the dictionary. The Dakota word aska is derived from another word.
+           What is the English definition of that other word?
+assistant  LOOKUP: aska
+user       ENTRY: a-ska', v. n., to become white on [derived from: ska]
+assistant  LOOKUP: ska
+user       ENTRY: ska', adj., white; clear, as, mini ska, clear water: clean, new ...
+assistant  ANSWER: white; clear, as, mini ska, clear water: clean, new ...</code></pre>
+  <p>Each conversation is replayed against the rules of the evaluation environment and kept only if it scores 1.0. Then it is written as one row for each assistant turn, so the loss is always on the last assistant message of a row. This gives each turn the same token prefix in training that the model sees when it generates.</p>
+  <p>The result is 69,461 rows: 56,120 word rows and 13,341 lookup rows (3,000 one-hop conversations and all 2,447 two-hop conversations). About one row in five shows the tool.</p>
+
+  <h2><span class="n">Step 3</span>Train on Tinker</h2>
+  <p>Tinker runs the model. Your code runs on any small CPU machine and sends batches to the service. This run used a free-tier Hugging Face Job as that machine.</p>
+<pre><code>python launch_sft_curve_job.py --model-name thinkingmachines/Inkling-2-Small</code></pre>
+  <p>The job does four things in order: it evaluates the base model, trains LoRA for three passes with a checkpoint at the end of each pass, evaluates each checkpoint, and uploads traces and results.</p>
+</section>
+<div class="scroll"><table>
+  <thead><tr><th>Setting</th><th>Value</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td>Model</td><td><code>thinkingmachines/Inkling-2-Small</code></td><td style="text-align:left">Renderer <code>tml_v0</code></td></tr>
+    <tr><td>LoRA rank</td><td>32</td><td style="text-align:left"></td></tr>
+    <tr><td>Learning rate</td><td>2e-4, linear decay</td><td style="text-align:left">Set by hand. The cookbook's <code>get_lr</code> is not calibrated for Inkling yet.</td></tr>
+    <tr><td>Batch size</td><td>128 rows</td><td style="text-align:left">540 steps for each pass, 1,620 in total</td></tr>
+    <tr><td>Loss</td><td>Last assistant message</td><td style="text-align:left">One row for each assistant turn (step 2)</td></tr>
+    <tr><td>Packages</td><td><code>tinker 0.39.0</code>, <code>tinker-cookbook 0.6.1</code></td><td style="text-align:left">Repository commit <code>a281807</code></td></tr>
+  </tbody>
+</table></div>
+<section class="col">
+  <h3>Reasoning off for Inkling</h3>
+  <p>Qwen has a renderer with no thinking block. Inkling has one renderer and a reasoning effort value in a system message. The job sets the default effort to 0 before training and evaluation, so the two use the same prompt:</p>
+<pre><code>TML=$(python -c "import importlib.util as u; \
+  print(u.find_spec('tinker_cookbook.renderers.tml_v0').origin)")
+sed -i 's/^DEFAULT_EFFORT: float = 0.9$/DEFAULT_EFFORT: float = 0.0/' "$TML"</code></pre>
+  <p>A rendered training row then looks like this:</p>
+<pre><code>&lt;|message_system|&gt;You answer from Stephen R. Riggs, A Dakota-English Dictionary (1890). ...
+&lt;|message_system|&gt;Thinking effort level: 0
+&lt;|message_user|&gt;Give the English definition of the Dakota word: pazezeya
+&lt;|message_model|&gt;ANSWER: swinging</code></pre>
+  <div class="note warn">Effort 0 does not fully stop reasoning in the base model. In the base evaluation some answers still opened a thinking block, and the base model sampled 1.27 million tokens on 1,500 tasks. The tuned model sampled 23,000 tokens on the same tasks, with no answer longer than 58 tokens.</div>
+
+  <h2><span class="n">Step 4</span>Evaluate each checkpoint</h2>
+  <p>The evaluation set is 1,500 tasks: 150 held-out tasks for each of six types, and 600 recall tasks. Temperature is 0. The score is exact match after the normalisation in <code>lexgym/scoring.py</code>, and the lookup tasks also record how many calls the model made and whether it read the target entry.</p>
+  <p>The answer limit in the repository is 96 tokens. This run raised it to 2,048 so that a base model that still reasons is not cut off before its answer.</p>
+
+  <h2><span class="n">Step 5</span>Sample from the checkpoint</h2>
+  <p>Each saved sampler checkpoint can be called through Tinker's OpenAI-compatible endpoint. This call was tested against the pass 3 checkpoint and returned the correct entry text:</p>
+<pre><code>from openai import OpenAI
+import os
+
+client = OpenAI(
+    base_url="https://tinker.thinkingmachines.dev/services/tinker-prod/oai/api/v1",
+    api_key=os.environ["TINKER_API_KEY"],
+)
+out = client.chat.completions.create(
+    model="tinker://551aa04a-f385-5fdc-825c-7f47cf3a769d:train:0/sampler_weights/final",
+    messages=[
+        {"role": "system", "content": "You answer from Stephen R. Riggs, A Dakota-English "
+         "Dictionary (1890). Use the spelling of that book. Give only the answer on one "
+         "line, starting with 'ANSWER:'."},
+        {"role": "user", "content": "Give the English definition of the Dakota word: iwiśtaŋ"},
+    ],
+    max_tokens=128, temperature=0.0,
+)
+print(out.choices[0].message.content)   # ANSWER: to treat well, as a sick person</code></pre>
+  <p>The endpoint is in beta. Checkpoints on this account expire seven days after they are made, so a checkpoint to keep must be downloaded or pushed to the Hub with the <code>tinker checkpoint</code> commands.</p>
+
+  <h2><span class="n">Cost</span>What the run used</h2>
+</section>
+<div class="scroll"><table>
+  <thead><tr><th>Item</th><th>Tokens</th><th>Cost</th></tr></thead>
+  <tbody>
+    <tr><td>Training, 1,620 steps</td><td>22.47 M trained</td><td>$33.70</td></tr>
+    <tr><td>Base evaluation</td><td>1.27 M sampled</td><td>about $1.35</td></tr>
+    <tr><td>Three checkpoint evaluations</td><td>about 0.07 M sampled</td><td>about $0.30</td></tr>
+    <tr><td>Hugging Face Job, basic CPU, about 3 h 40 min</td><td></td><td>not measured, small</td></tr>
+    <tr><td>Total</td><td></td><td class="hi">about $35</td></tr>
+  </tbody>
+</table></div>
+<section class="col">
+  <p>The training cost is the logged value. The evaluation costs are estimates from the token counts in the traces at the listed prices ($1.50 for each million trained tokens, $1.00 for each million sampled tokens, $0.30 for each million prompt tokens). Wall time was about 3 hours 40 minutes.</p>
+
+  <h2><span class="n">What did not work</span>Three earlier attempts</h2>
+  <ul>
+    <li><strong>Word rows only.</strong> Qwen3.5-4B and Qwen3.6-35B reached 0.392 and 0.528 recall after three passes, and both lost the tool. Lookup scores fell to 0.02 and 0.03.</li>
+    <li><strong>Reinforcement learning with reasoning on.</strong> A 30-step test on Inkling with a 25,000-token limit cost $13.13 and showed no learning. Episodes used 1,400 to 3,900 reasoning tokens each, and a full pass over the tasks was priced at about $4,000.</li>
+    <li><strong>One row for a whole conversation.</strong> Training on all assistant messages of a multi-turn row is wrong for a renderer that does not keep the same token prefix between turns. One row for each assistant turn removes the problem for every renderer.</li>
+  </ul>
+  <p>A short reinforcement learning pilot from a trained checkpoint did work on Qwen3.5-4B: 30 steps for $1.12 brought the one-hop lookup score from 0.00 back to 0.85. The mixed file gets the same effect inside supervised training, at no added cost.</p>
+
+  <h2><span class="n">Limits</span>What this result does not show</h2>
+  <ul>
+    <li>Recall measures memory of words that were in training. It is the correct test for "does the model know this book", and it says nothing about new words.</li>
+    <li>The score is exact match against one book in its 1890 spelling. The book has errors and the views of its time. A correct score means agreement with Riggs, and Dakota speakers are the authority on the language.</li>
+    <li>The model never chooses between memory and the tool. The task name decides if the tool is available. A test where the model must decide is the next experiment.</li>
+    <li>Every number is from one run with one seed.</li>
+  </ul>
+
+  <h2><span class="n">Use it for a different language</span>The recipe in five lines</h2>
+  <ol class="steps">
+    <li>Parse a dictionary into entries with a headword, a definition, and any cross-references.</li>
+    <li>Write word tasks and lookup tasks from the entries, and hold out one word family in ten.</li>
+    <li>Build solved lookup conversations from the index and add them to the word rows, one row for each assistant turn.</li>
+    <li>Train LoRA for three passes and save a checkpoint after each pass.</li>
+    <li>Score each checkpoint on recall, held-out rules, and tool use, and read the three curves together.</li>
+  </ol>
+
+  <h2><span class="n">Links</span>Everything is public</h2>
+  <ul>
+    <li>Live demo: <a href="https://huggingface.co/spaces/HarleyCooper/riggs1890-lexgym">HarleyCooper/riggs1890-lexgym</a>, base model against tuned model on any word</li>
+    <li>Adapter: <a href="https://huggingface.co/HarleyCooper/Inkling-2-Small-Riggs1890-lexgym">HarleyCooper/Inkling-2-Small-Riggs1890-lexgym</a></li>
+    <li>Code: <a href="https://github.com/HarleyCoops/Dakota1890/tree/main/cookbook">github.com/HarleyCoops/Dakota1890</a> (<code>cookbook/</code> and <code>lexgym/</code>)</li>
+    <li>Mixed training file: config <code>sft_mixed</code> of <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph">riggs1890-lexicon-graph</a></li>
+    <li>Tasks: <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph">HarleyCooper/riggs1890-lexicon-graph</a></li>
+    <li>Traces and results for this run: <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/sft_mixed_thinking_off_2026_11_12/inkling-2-small">riggs1890-lexgym-traces / sft_mixed_thinking_off_2026_11_12</a></li>
+    <li>Training charts: <a href="https://forge.coreweave.com/wandb/christian-cooper-us/riggs1890-lexgym">W&amp;B project riggs1890-lexgym</a></li>
+    <li>Model: <a href="https://huggingface.co/thinkingmachines/Inkling-2-Small">thinkingmachines/Inkling-2-Small</a></li>
+    <li>Service: <a href="https://tinker-docs.thinkingmachines.ai/">Tinker documentation</a></li>
+  </ul>
+  <footer>An independent project by Christian H. Cooper. It is not a publication of Thinking Machines Lab. Source text: Stephen R. Riggs, <em>A Dakota-English Dictionary</em>, 1890, public domain.</footer>
+</section>
+</main>
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var X = ["Base", "Pass 1", "Pass 2", "Pass 3"];
+  function el(tag, attrs, text) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; }
+  function chart(id, series) {
+    var svg = document.getElementById(id), L = 38, R = 62, T = 14, B = 30, W = 440, H = 280;
+    var px = function (i) { return L + i * (W - L - R) / 3; }, py = function (v) { return T + (1 - v) * (H - T - B); };
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (g) {
+      svg.appendChild(el("line", { x1: L, x2: W - R, y1: py(g), y2: py(g), stroke: "var(--rule)", "stroke-width": 1 }));
+      svg.appendChild(el("text", { x: L - 8, y: py(g) + 4, "text-anchor": "end" }, g.toFixed(2)));
+    });
+    X.forEach(function (lab, i) { svg.appendChild(el("text", { x: px(i), y: H - 8, "text-anchor": "middle" }, lab)); });
+    series.forEach(function (s) {
+      var d = s.v.map(function (v, i) { return (i ? "L" : "M") + px(i) + " " + py(v); }).join(" ");
+      svg.appendChild(el("path", { d: d, fill: "none", stroke: s.c, "stroke-width": s.main ? 2.5 : 1.75, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+      s.v.forEach(function (v, i) { svg.appendChild(el("circle", { cx: px(i), cy: py(v), r: s.main ? 3.5 : 2.5, fill: s.c })); });
+      var t = el("text", { x: px(3) + 9, y: py(s.v[3]) + 4 + (s.dy || 0), "class": "end" }, s.v[3].toFixed(3)); t.style.fill = s.c; svg.appendChild(t);
+    });
+  }
+  chart("c1", [
+    { v: [0.000, 0.053, 0.212, 0.392], c: "var(--series-c)" },
+    { v: [0.002, 0.097, 0.302, 0.528], c: "var(--series-b)" },
+    { v: [0.030, 0.295, 0.637, 0.835], c: "var(--accent)", main: true }
+  ]);
+  chart("c2", [
+    { v: [0.727, 0.013, 0.027, 0.020], c: "var(--series-c)", dy: 9 },
+    { v: [0.793, 0.020, 0.047, 0.033], c: "var(--series-b)", dy: -5 },
+    { v: [0.767, 1.000, 1.000, 1.000], c: "var(--accent)", main: true }
+  ]);
+
+  var E = [
+    { hw: "iwiśtaŋ", task: "recall, Dakota to English", gold: "to treat well, as a sick person", base: "to be ashamed; to be bashful", tuned: "to treat well, as a sick person" },
+    { hw: "ćunksiya", task: "recall, Dakota to English", gold: "to have for a daughter, count as a daughter", base: "To have a daughter.", tuned: "to have for a daughter, count as a daughter" },
+    { hw: "depute (v. a.)", task: "recall, English to Dakota", gold: "yeśi", base: "Iyuŋkapi", tuned: "yeśi" },
+    { hw: "hunapte", task: "held-out, syllables and accent", gold: "hu-na'-pte", base: "hu-nap'-te", tuned: "hu-na'-pte" },
+    { hw: "yaaśdadaŋ (v. a.)", task: "held-out, inflected forms", gold: "mdaaśdadaŋ", base: "yaaśdadaŋke, yaaśdadaŋpi", tuned: "mdaaśdadaŋ" },
+    { hw: "wapaśaka", task: "held-out, two-hop lookup", gold: "to push or strike with too little force to penetrate", base: "LOOKUP: wapaśaka · LOOKUP: paśaka · paśaka means “to push or strike with too little force to penetrate.”", tuned: "LOOKUP: wapaśaka · LOOKUP: paśaka · to push or strike with too little force to penetrate" }
+  ];
+  var box = document.getElementById("entries");
+  E.forEach(function (e) {
+    var d = document.createElement("div"); d.className = "entry";
+    function cell(cls, label, text) { var w = document.createElement("dl"); w.className = cls; w.style.margin = 0; var dt = document.createElement("dt"); dt.textContent = label; var dd = document.createElement("dd"); dd.textContent = text; w.appendChild(dt); w.appendChild(dd); return w; }
+    var q = document.createElement("div"); q.className = "q"; var hw = document.createElement("span"); hw.className = "hw"; hw.textContent = e.hw; var tk = document.createElement("span"); tk.className = "task"; tk.textContent = e.task; q.appendChild(hw); q.appendChild(tk);
+    d.appendChild(q); d.appendChild(cell("", "Riggs 1890", e.gold)); d.appendChild(cell("miss", "Base model", e.base)); d.appendChild(cell("hit", "After pass 3", e.tuned));
+    box.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>
