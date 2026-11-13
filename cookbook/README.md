@@ -5,6 +5,8 @@ with [Tinker](https://tinker-docs.thinkingmachines.ai/). Three passes over 69,46
 Use of the dictionary lookup tool stayed at 100%. Training cost $33.70.
 
 - **Live demo:** https://huggingface.co/spaces/HarleyCooper/riggs1890-lexgym (source in [`space/`](space/))
+- **Cookbook page:** https://harleycoops.github.io/Dakota1890/cookbook/
+- **Adapter:** https://huggingface.co/HarleyCooper/Inkling-2-Small-Riggs1890-lexgym
 - **Tasks:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph
 - **Traces and results:** https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/sft_mixed_thinking_off_2026_11_12/inkling-2-small
 - **Training charts:** https://forge.coreweave.com/wandb/christian-cooper-us/riggs1890-lexgym

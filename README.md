@@ -7,7 +7,77 @@
 ![Method](https://img.shields.io/badge/RL-GRPO-black.svg)
 ![Source](https://img.shields.io/badge/source-Riggs%201890-brightgreen.svg)
 
-## Results so far: Weights & Biases analytics
+## New: Inkling 2 Small learns the dictionary on Thinking Machines Tinker
+
+**12 November 2026.** We fine-tuned [`thinkingmachines/Inkling-2-Small`](https://huggingface.co/thinkingmachines/Inkling-2-Small) on Riggs' dictionary with [Tinker](https://tinker-docs.thinkingmachines.ai/), the training API from Thinking Machines. Three passes of supervised fine-tuning cost **$33.70**. Recall of dictionary entries from memory went from **3% to 84%**, and the model still uses its dictionary lookup tool correctly on **100%** of the lookup tasks.
+
+![Live demo: a memory question, then a two-hop dictionary lookup](cookbook/assets/demo.gif)
+
+| | |
+|---|---|
+| **Live demo** | [huggingface.co/spaces/HarleyCooper/riggs1890-lexgym](https://huggingface.co/spaces/HarleyCooper/riggs1890-lexgym). It runs live inference through Tinker's OpenAI-compatible endpoint. |
+| **Cookbook** | [harleycoops.github.io/Dakota1890/cookbook](https://harleycoops.github.io/Dakota1890/cookbook/) and [`cookbook/`](cookbook/) |
+| **Adapter weights** | [HarleyCooper/Inkling-2-Small-Riggs1890-lexgym](https://huggingface.co/HarleyCooper/Inkling-2-Small-Riggs1890-lexgym) |
+| **Data** | [Tasks and lookup index](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph) · [every evaluation trace](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/sft_mixed_thinking_off_2026_11_12/inkling-2-small) |
+| **Charts** | [Weights & Biases project `riggs1890-lexgym`](https://forge.coreweave.com/wandb/christian-cooper-us/riggs1890-lexgym) |
+
+### The result
+
+![Recall and lookup scores by training pass, Inkling 2 Small against two Qwen models](cookbook/assets/learning_curve.png)
+
+| Exact match, 1,500 tasks | Base Inkling 2 Small | Pass 1 | Pass 2 | Pass 3 |
+|---|---|---|---|---|
+| Recall from memory | 0.030 | 0.295 | 0.637 | **0.835** |
+| Held-out word families | 0.443 | 0.814 | 0.820 | **0.816** |
+| Dictionary lookup, one hop | 0.767 | 1.000 | 1.000 | **1.000** |
+| Dictionary lookup, two hops | 0.893 | 1.000 | 1.000 | **1.000** |
+| All tasks | 0.278 | 0.607 | 0.747 | **0.823** |
+
+A model can answer a dictionary question in two ways: it can know the entry, or it can look the entry up. Our earlier supervised runs on Qwen3.5-4B and Qwen3.6-35B, also on Tinker, learned the book and stopped using the tool. Their lookup score fell from about 0.75 to 0.03. For this run we added solved lookup conversations to the training file. Inkling 2 Small learned the book and kept the tool.
+
+### The run, from the Weights & Biases logs
+
+![Run dashboard: loss, scores, cost against recall, and tokens written per answer](cookbook/assets/run_dashboard.png)
+
+All four panels are drawn from the run's logged metrics and its evaluation traces.
+
+- **Loss.** Training loss falls in a step at the start of each pass. Loss on held-out rows of the training file stays near 0.33 for two passes and rises to 0.48 in pass 3. The model is now memorising, which is the purpose of the recall tasks, and a fourth pass would probably not help the rule tasks.
+- **Scores.** Recall rises with each pass. The held-out score is flat after pass 1.
+- **Cost.** Tinker charged $11.23 for each pass. Each pass added 27 to 34 points of recall.
+- **Tokens.** Before training, Inkling 2 Small wrote a median of 730 tokens for one task, most of them reasoning. After training it writes a median of 11. On the 1,500 evaluation tasks that is 1.27 million tokens against 23 thousand.
+
+![Exact match by task and checkpoint](cookbook/assets/task_heatmap.png)
+
+### How Tinker is used
+
+| Step | What runs on Tinker |
+|---|---|
+| Training | LoRA rank 32 on Inkling 2 Small, 1,620 steps of 128 rows, with `tinker` 0.39.0 and `tinker-cookbook` 0.6.1. Our code runs on a small CPU job and sends batches to the service. |
+| Checkpoints | Tinker saves a checkpoint at the end of each pass. Each one can be sampled at once. |
+| Evaluation | 1,500 tasks for each checkpoint, sampled through Tinker at temperature 0. |
+| Demo | The Space calls Tinker's OpenAI-compatible endpoint for the base model and for the tuned checkpoint. |
+| Export | `tinker checkpoint push-hf` converts the checkpoint to the PEFT adapter on the Hub. |
+
+![A two-hop lookup conversation](cookbook/assets/lookup_conversation.png)
+
+One command starts the whole run as a Hugging Face Job:
+
+```bash
+python cookbook/launch_sft_curve_job.py --model-name thinkingmachines/Inkling-2-Small
+```
+
+### Limits of this result
+
+- Recall measures memory of words that were in training. It says nothing about new words.
+- The model and the training file both changed between the Qwen runs and this run. This run does not show which one kept the tool. A Qwen run on the mixed file is the control.
+- All numbers are from one run with one seed.
+- A correct score means agreement with one book from 1890. Dakota speakers are the authority on the language.
+
+This is an independent project. Thinking Machines provided Tinker credits and did not review these results.
+
+---
+
+## Earlier pilot (10 November 2026): Weights & Biases analytics
 
 The first pilot of the new pipeline ran on 10 November 2026: `Qwen/Qwen3.5-4B`, LoRA rank 32, trained on Tinker for $4.73. Every number below comes from the logged metrics of three W&B runs in the project [`christian-cooper-us/riggs1890-lexgym`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym).
 

@@ -89,7 +89,8 @@ h3 { font: 560 24px/1.2 var(--display); margin: 64px 0 6px; }
 .links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 14.5px; }
 footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760px; }
 @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } .col { border-right: 0; border-bottom: 1px solid var(--rule); padding-left: 0; padding-right: 0; } .bar { grid-template-columns: 130px 1fr 48px; } .modes { display: grid; width: 100%; } }
-@media (prefers-reduced-motion: no-preference) { .cols.loading .answer, .cols.loading .step { opacity: .35; transition: opacity .2s; } }
+@keyframes pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: no-preference) { .pulse { animation: pulse 1.6s ease-in-out infinite; } }
 </style>
 </head>
 <body>
@@ -177,7 +178,7 @@ footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760p
     box.textContent = "";
     r.steps.forEach(function (s) {
       if (s.type === "lookup") { var d = make("div", "step"); d.appendChild(make("b", "", "reads: " + s.word)); d.appendChild(make("div", "", s.result)); box.appendChild(d); }
-      else { box.appendChild(make("div", "answer", s.text || "(no answer)")); if (!s.format_ok) box.appendChild(make("div", "tok", "The reply had no ANSWER line.")); }
+      else { box.appendChild(make("div", "answer", s.text || "(no answer)")); if (!s.format_ok && !s.gave_up) box.appendChild(make("div", "tok", "The reply had no ANSWER line.")); }
     });
     if (r.tokens) box.appendChild(make("div", "tok", r.tokens.completion + " tokens written" + (r.tokens.completion > 120 ? ", hidden reasoning included" : "") + (r.lookups ? ", " + r.lookups + (r.lookups === 1 ? " lookup" : " lookups") : "")));
   }
@@ -193,12 +194,24 @@ footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760p
     badge("b-base", e.base.exact ? "exact match" : "no match", e.base.exact ? "ok" : "no");
     badge("b-tuned", e.tuned.exact ? "exact match" : "no match", e.tuned.exact ? "ok" : "no");
   }
-  function showLive(r) {
-    question(r.prompt, r.cached ? "live answer, repeated from this session" : "live answer from the Tinker endpoint");
+  function showBook(r) {
     var book = $("c-book"); book.textContent = "";
-    if (r.entry && r.entry.length) { r.entry.forEach(function (t) { book.appendChild(entryNode(t)); }); badge("b-book", r.entry.length > 1 ? r.entry.length + " entries" : "printed entry"); }
-    else { book.appendChild(make("div", "empty", r.task === "en_to_dak" ? "The lookup index holds Dakota headwords only, so there is no entry to show for an English word." : "The book has no entry with this spelling. The models answer anyway, so read their answers with care.")); badge("b-book", ""); }
-    modelNode($("c-base"), r.base); modelNode($("c-tuned"), r.tuned); badge("b-base", "live"); badge("b-tuned", "live");
+    if (r.entry && r.entry.length) {
+      r.entry.forEach(function (e) { if (e.role === "root") book.appendChild(make("div", "tok", "the word it is derived from:")); book.appendChild(entryNode(e.text)); });
+      badge("b-book", r.entry.length > 1 ? r.entry.length + " entries" : "printed entry");
+    } else { book.appendChild(make("div", "empty", r.task === "en_to_dak" ? "The lookup index holds Dakota headwords only, so there is no entry to show for an English word." : "The book has no entry with this spelling. The models answer anyway, so read their answers with care.")); badge("b-book", ""); }
+  }
+  function waiting(id, text) { var box = $(id); box.textContent = ""; box.appendChild(make("div", "empty pulse", text)); }
+  function askOne(which, payload) {
+    var col = which === "tuned" ? "c-tuned" : "c-base", bid = which === "tuned" ? "b-tuned" : "b-base";
+    return fetch("api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ model: which }, payload)) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok) { $(col).textContent = ""; $(col).appendChild(make("div", "empty", x.j.error || "The request failed.")); badge(bid, "no answer", "no"); return; }
+        if (which === "tuned") { question(x.j.prompt, "live answer from the Tinker endpoint"); showBook(x.j); }
+        modelNode($(col), x.j.answer); badge(bid, x.j.cached ? "live, repeated" : "live");
+      })
+      .catch(function () { $(col).textContent = ""; $(col).appendChild(make("div", "empty", "The demo server did not answer. Try again, or use a recorded example.")); badge(bid, "no answer", "no"); });
   }
 
   $("m-memory").onclick = function () { setMode("memory"); };
@@ -211,12 +224,12 @@ footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760p
   $("ask").addEventListener("submit", function (ev) {
     ev.preventDefault(); if (busy) return;
     var word = $("word").value.trim() || $("word").placeholder, pos = $("pos").value.trim() || (NEEDS_POS[task] ? "v. a." : "");
-    busy = true; $("go").disabled = true; $("go").textContent = "Asking…"; $("msg").textContent = ""; $("cols").classList.add("loading");
-    fetch("api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: task, word: word, pos: pos }) })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) { if (x.ok) showLive(x.j); else $("msg").textContent = x.j.error || "The request failed."; })
-      .catch(function () { $("msg").textContent = "The demo server did not answer. Try again, or use a recorded example."; })
-      .then(function () { busy = false; $("go").disabled = false; $("go").textContent = "Ask both models"; $("cols").classList.remove("loading"); });
+    busy = true; $("go").disabled = true; $("go").textContent = "Asking…"; $("msg").textContent = "";
+    var payload = { task: task, word: word, pos: pos };
+    $("question").textContent = "Asking: " + word; $("c-book").textContent = ""; badge("b-book", "");
+    waiting("c-tuned", "Answering…"); badge("b-tuned", "");
+    waiting("c-base", "The base model reasons before it answers. This can take up to a minute."); badge("b-base", "");
+    Promise.all([askOne("tuned", payload), askOne("base", payload)]).then(function () { busy = false; $("go").disabled = false; $("go").textContent = "Ask both models"; });
   });
 
   SCORES.forEach(function (s) {
