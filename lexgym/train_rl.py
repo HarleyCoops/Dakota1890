@@ -27,7 +27,7 @@ def main() -> None:
     ap.add_argument("--eval-limit-per-task", type=int, default=50)
     ap.add_argument("--batch-size", type=int, default=32)
     ap.add_argument("--group-size", type=int, default=8)
-    ap.add_argument("--max-tokens", type=int, default=96)
+    ap.add_argument("--max-tokens", type=int, default=800)
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--learning-rate", type=float, default=2e-5)
     ap.add_argument("--lora-rank", type=int, default=32)
