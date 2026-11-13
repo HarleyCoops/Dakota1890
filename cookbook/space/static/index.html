@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Know It or Look It Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,560;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a reading desk. The question sits at the top like a headword being looked up; under it three
+   columns read left to right: the printed book, the base model, the tuned model. Evidence strip at the bottom. */
+:root {
+  --paper: #fbfbf9; --ink: #16191c; --muted: #5d656b; --rule: #dcdfdc; --panel: #f1f3f0; --card: #ffffff;
+  --accent: #0b5a6b; --accent-soft: #d9e9ec; --warn: #9a4a12; --base-bar: #b4bbc0;
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #121517; --ink: #e9ebe8; --muted: #9aa3a8; --rule: #2c3236; --panel: #1a1f22; --card: #171b1e;
+    --accent: #6cc3d3; --accent-soft: #17343a; --warn: #e2a06c; --base-bar: #4d565c; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--body); }
+main { max-width: 1120px; margin: 0 auto; padding: 40px 20px 80px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kicker { font: 500 12.5px/1.4 var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--base-bar); display: inline-block; margin-right: 6px; }
+.dot.on { background: #2f9e6b; }
+h1 { font: 400 clamp(36px, 6vw, 60px)/1.02 var(--display); letter-spacing: -.015em; margin: 14px 0 12px; }
+h1 em { font-style: italic; color: var(--accent); }
+.lede { max-width: 640px; font-size: 18px; margin: 0 0 30px; }
+
+.desk { border: 1px solid var(--rule); background: var(--card); border-radius: 10px; padding: 22px; }
+.modes { display: inline-grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ink); border-radius: 8px; overflow: hidden; }
+.modes button { font: 500 15px/1 var(--body); padding: 12px 18px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.modes small { display: block; font: 400 12px/1.3 var(--body); opacity: .75; margin-top: 4px; }
+.tasks { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 14px; }
+.chip { font: 500 13.5px/1 var(--body); padding: 8px 12px; border-radius: 999px; border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.ask { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.ask input { font: 400 italic 26px/1.2 var(--display); padding: 10px 14px; border: 0; border-bottom: 2px solid var(--ink); background: transparent; color: var(--ink); min-width: 0; }
+#word { flex: 1 1 260px; }
+#pos { flex: 0 1 130px; font: 400 16px/1.2 var(--mono); font-style: normal; }
+.ask input::placeholder { color: var(--muted); opacity: .7; }
+.go { font: 600 15px/1 var(--body); padding: 0 22px; min-height: 48px; border-radius: 8px; border: 0; background: var(--accent); color: var(--paper); cursor: pointer; }
+.go[disabled] { opacity: .55; cursor: wait; }
+.keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; align-items: center; }
+.keys span { font: 400 12.5px var(--body); color: var(--muted); margin-right: 4px; }
+.keys button { font: 400 18px/1 var(--display); width: 34px; height: 34px; border-radius: 6px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+.recorded { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--rule); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.recorded span { font: 400 12.5px var(--body); color: var(--muted); }
+.recorded button { font: 400 italic 16px/1 var(--display); padding: 6px 10px; border: 0; border-bottom: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; }
+.recorded button:hover { border-color: var(--accent); color: var(--accent); }
+.msg { margin-top: 14px; font-size: 14.5px; color: var(--warn); min-height: 1.2em; }
+
+.question { margin: 34px 0 12px; font: 400 14px/1.5 var(--mono); color: var(--muted); }
+.question b { color: var(--ink); font-weight: 500; }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--ink); }
+.col { padding: 18px 20px 22px; border-right: 1px solid var(--rule); min-width: 0; }
+.col:first-child { padding-left: 0; } .col:last-child { border-right: 0; padding-right: 0; }
+.col h2 { font: 500 12.5px/1.3 var(--mono); color: var(--muted); margin: 0 0 12px; display: flex; justify-content: space-between; gap: 8px; }
+.badge { font: 500 11.5px/1 var(--mono); padding: 4px 7px; border-radius: 4px; background: var(--panel); color: var(--muted); white-space: nowrap; }
+.badge.ok { background: var(--accent-soft); color: var(--accent); } .badge.no { color: var(--warn); }
+.entry { font: 400 17px/1.5 var(--display); margin: 0 0 12px; text-indent: -1em; padding-left: 1em; overflow-wrap: anywhere; }
+.entry .hw { font-style: italic; font-size: 21px; }
+.entry .tail { display: block; text-indent: 0; font: 400 12px/1.4 var(--mono); color: var(--muted); margin-top: 4px; }
+.answer { font: 400 20px/1.4 var(--display); overflow-wrap: anywhere; }
+.col.tuned .answer { color: var(--accent); }
+.step { font: 400 12.5px/1.5 var(--mono); color: var(--muted); border-left: 2px solid var(--rule); padding: 2px 0 2px 10px; margin: 0 0 10px; overflow-wrap: anywhere; }
+.step b { color: var(--ink); font-weight: 500; }
+.tok { font: 400 12px var(--mono); color: var(--muted); margin-top: 12px; }
+.empty { color: var(--muted); font-size: 14.5px; }
+
+h3 { font: 560 24px/1.2 var(--display); margin: 64px 0 6px; }
+.sub { color: var(--muted); max-width: 640px; margin: 0 0 18px; font-size: 15px; }
+.bars { display: grid; gap: 9px; }
+.bar { display: grid; grid-template-columns: 210px 1fr 54px; gap: 12px; align-items: center; font-size: 14px; }
+.track { position: relative; height: 16px; background: var(--panel); border-radius: 3px; }
+.track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.track .t { background: var(--accent); } .track .b { background: var(--base-bar); height: 6px; top: 5px; }
+.bar .v { font: 500 13px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.key { display: flex; gap: 18px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+.key i { display: inline-block; width: 16px; height: 6px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 14.5px; }
+footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760px; }
+@media (max-width: 820px) { .cols { grid-template-columns: 1fr; } .col { border-right: 0; border-bottom: 1px solid var(--rule); padding-left: 0; padding-right: 0; } .bar { grid-template-columns: 130px 1fr 48px; } .modes { display: grid; width: 100%; } }
+@media (prefers-reduced-motion: no-preference) { .cols.loading .answer, .cols.loading .step { opacity: .35; transition: opacity .2s; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker"><span>riggs1890-lexgym</span><span>live demo</span><span>built with Tinker</span><span id="live"><i class="dot"></i>checking the endpoint</span></div>
+  <h1>Know it, or <em>look it up.</em></h1>
+  <p class="lede">Inkling 2 Small, fine-tuned for $35 on Stephen R. Riggs' Dakota-English Dictionary of 1890. Ask a question and compare the base model with the tuned model. The first column shows what the book prints.</p>
+
+  <section class="desk" aria-label="Ask a question">
+    <div class="modes" role="group" aria-label="Mode">
+      <button id="m-memory" aria-pressed="true">From memory<small>No tool. The model must know the book.</small></button>
+      <button id="m-lookup" aria-pressed="false">With the dictionary<small>The model can read up to 3 entries.</small></button>
+    </div>
+    <div class="tasks" id="tasks" role="group" aria-label="Question type"></div>
+    <form class="ask" id="ask" autocomplete="off">
+      <input id="word" aria-label="Word" placeholder="iwiśtaŋ" maxlength="40" spellcheck="false">
+      <input id="pos" aria-label="Part of speech" placeholder="v. a." maxlength="12" hidden>
+      <button class="go" id="go" type="submit">Ask both models</button>
+    </form>
+    <div class="keys" id="keys"><span>Dakota letters</span></div>
+    <div class="recorded" id="recorded"><span>Recorded in the evaluation:</span></div>
+    <div class="msg" id="msg" role="status"></div>
+  </section>
+
+  <div class="question" id="question"></div>
+  <section class="cols" id="cols" aria-live="polite">
+    <div class="col book"><h2><span>Riggs, 1890</span><span class="badge" id="b-book"></span></h2><div id="c-book"></div></div>
+    <div class="col base"><h2><span>Base Inkling 2 Small</span><span class="badge" id="b-base"></span></h2><div id="c-base"></div></div>
+    <div class="col tuned"><h2><span>After 3 training passes</span><span class="badge" id="b-tuned"></span></h2><div id="c-tuned"></div></div>
+  </section>
+
+  <h3>The measured result</h3>
+  <p class="sub">Exact match on 1,500 evaluation tasks. Memory tasks use words from training. All other tasks use word families the model did not see.</p>
+  <div class="bars" id="bars"></div>
+  <div class="key"><span><i style="background:var(--accent)"></i>After 3 passes</span><span><i style="background:var(--base-bar)"></i>Base model</span></div>
+
+  <div class="links">
+    <a href="https://github.com/HarleyCoops/Dakota1890/tree/main/cookbook">Cookbook: how this was trained</a>
+    <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexicon-graph">Tasks and lookup index</a>
+    <a href="https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/sft_mixed_thinking_off_2026_11_12/inkling-2-small">Evaluation traces</a>
+    <a href="https://forge.coreweave.com/wandb/christian-cooper-us/riggs1890-lexgym">Training charts</a>
+    <a href="https://huggingface.co/thinkingmachines/Inkling-2-Small">Inkling 2 Small</a>
+  </div>
+  <footer>An independent project by Christian H. Cooper. It is not a publication of Thinking Machines Lab. A correct answer here means agreement with one book from 1890. The book has errors and the views of its time, and Dakota speakers are the authority on the language. Live questions have a limit for each visitor.</footer>
+</main>
+<script>
+(function () {
+  var TASKS = {
+    memory: [["gloss", "Definition", "iwiśtaŋ"], ["en_to_dak", "Dakota word for an English word", "find"], ["syllabify", "Syllables and accent", "hunapte"],
+             ["pos", "Part of speech", "ikipaźin"], ["inflect", "Inflected forms", "yaaśdadaŋ"], ["root", "Root word", "hbehbeza"]],
+    lookup: [["lookup_gloss", "Definition", "pom"], ["lookup_root_gloss", "Definition of the root word", "wapaśaka"]]
+  };
+  var NEEDS_POS = { inflect: 1, en_to_dak: 1 };
+  var SCORES = [["Memory: definition", .007, .817], ["Memory: Dakota word", .053, .853], ["Dictionary: definition", .767, 1], ["Dictionary: root's definition", .893, 1],
+                ["Syllables and accent", .327, .907], ["Root word", .380, .773], ["Part of speech", .293, .720], ["Inflected forms", 0, .493]];
+  var $ = function (id) { return document.getElementById(id); };
+  var mode = "memory", task = "gloss", examples = [], busy = false;
+  function make(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function renderTasks() {
+    var box = $("tasks"); box.textContent = "";
+    TASKS[mode].forEach(function (t) {
+      var b = make("button", "chip", t[1]); b.type = "button"; b.setAttribute("aria-pressed", String(t[0] === task));
+      b.onclick = function () { task = t[0]; renderTasks(); }; box.appendChild(b);
+    });
+    var cur = TASKS[mode].filter(function (t) { return t[0] === task; })[0];
+    $("word").placeholder = cur[2]; $("pos").hidden = !NEEDS_POS[task];
+    $("m-memory").setAttribute("aria-pressed", String(mode === "memory")); $("m-lookup").setAttribute("aria-pressed", String(mode === "lookup"));
+    var rec = $("recorded"); rec.textContent = ""; rec.appendChild(make("span", "", "Recorded in the evaluation:"));
+    examples.filter(function (e) { return e.task === task; }).forEach(function (e) {
+      var b = make("button", "", e.word); b.type = "button"; b.onclick = function () { $("word").value = e.word; $("pos").value = e.pos || ""; $("msg").textContent = ""; showRecorded(e); }; rec.appendChild(b);
+    });
+  }
+  function setMode(m) { mode = m; task = TASKS[m][0][0]; renderTasks(); }
+
+  function entryNode(text) {
+    var p = make("p", "entry"), body = text.replace(/^ENTRY:\s*/, ""), tail = "";
+    var m = body.match(/\s*(\(scan page \d+\))\s*$/); if (m) { tail = m[1]; body = body.slice(0, m.index); }
+    var cut = body.indexOf(","); p.appendChild(make("span", "hw", cut > 0 ? body.slice(0, cut) : body));
+    if (cut > 0) p.appendChild(document.createTextNode(body.slice(cut)));
+    if (tail) p.appendChild(make("span", "tail", tail.replace(/[()]/g, "")));
+    return p;
+  }
+  function modelNode(box, r) {
+    box.textContent = "";
+    r.steps.forEach(function (s) {
+      if (s.type === "lookup") { var d = make("div", "step"); d.appendChild(make("b", "", "reads: " + s.word)); d.appendChild(make("div", "", s.result)); box.appendChild(d); }
+      else { box.appendChild(make("div", "answer", s.text || "(no answer)")); if (!s.format_ok) box.appendChild(make("div", "tok", "The reply had no ANSWER line.")); }
+    });
+    if (r.tokens) box.appendChild(make("div", "tok", r.tokens.completion + " tokens written" + (r.tokens.completion > 120 ? ", hidden reasoning included" : "") + (r.lookups ? ", " + r.lookups + (r.lookups === 1 ? " lookup" : " lookups") : "")));
+  }
+  function badge(id, text, cls) { var b = $(id); b.textContent = text || ""; b.className = "badge" + (cls ? " " + cls : ""); b.hidden = !text; }
+  function question(prompt, note) { var q = $("question"); q.textContent = ""; q.appendChild(make("b", "", prompt)); q.appendChild(document.createTextNode("  ·  " + note)); }
+
+  function showRecorded(e) {
+    question(e.prompt, "recorded in the evaluation, " + (e.split === "recall" ? "word from training" : "held-out word family"));
+    var book = $("c-book"); book.textContent = ""; book.appendChild(make("div", "answer", e.gold));
+    if (e.page) book.appendChild(make("div", "tok", "scan page " + e.page));
+    badge("b-book", "answer key");
+    modelNode($("c-base"), e.base); modelNode($("c-tuned"), e.tuned);
+    badge("b-base", e.base.exact ? "exact match" : "no match", e.base.exact ? "ok" : "no");
+    badge("b-tuned", e.tuned.exact ? "exact match" : "no match", e.tuned.exact ? "ok" : "no");
+  }
+  function showLive(r) {
+    question(r.prompt, r.cached ? "live answer, repeated from this session" : "live answer from the Tinker endpoint");
+    var book = $("c-book"); book.textContent = "";
+    if (r.entry && r.entry.length) { r.entry.forEach(function (t) { book.appendChild(entryNode(t)); }); badge("b-book", r.entry.length > 1 ? r.entry.length + " entries" : "printed entry"); }
+    else { book.appendChild(make("div", "empty", r.task === "en_to_dak" ? "The lookup index holds Dakota headwords only, so there is no entry to show for an English word." : "The book has no entry with this spelling. The models answer anyway, so read their answers with care.")); badge("b-book", ""); }
+    modelNode($("c-base"), r.base); modelNode($("c-tuned"), r.tuned); badge("b-base", "live"); badge("b-tuned", "live");
+  }
+
+  $("m-memory").onclick = function () { setMode("memory"); };
+  $("m-lookup").onclick = function () { setMode("lookup"); };
+  "ć ġ ḣ ŋ ś ź ṭ ḳ ṗ".split(" ").forEach(function (ch) {
+    var b = make("button", "", ch); b.type = "button"; b.setAttribute("aria-label", "Insert " + ch);
+    b.onclick = function () { var w = $("word"), s = w.selectionStart == null ? w.value.length : w.selectionStart; w.value = w.value.slice(0, s) + ch + w.value.slice(w.selectionEnd == null ? s : w.selectionEnd); w.focus(); w.setSelectionRange(s + 1, s + 1); };
+    $("keys").appendChild(b);
+  });
+  $("ask").addEventListener("submit", function (ev) {
+    ev.preventDefault(); if (busy) return;
+    var word = $("word").value.trim() || $("word").placeholder, pos = $("pos").value.trim() || (NEEDS_POS[task] ? "v. a." : "");
+    busy = true; $("go").disabled = true; $("go").textContent = "Asking…"; $("msg").textContent = ""; $("cols").classList.add("loading");
+    fetch("api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: task, word: word, pos: pos }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) { if (x.ok) showLive(x.j); else $("msg").textContent = x.j.error || "The request failed."; })
+      .catch(function () { $("msg").textContent = "The demo server did not answer. Try again, or use a recorded example."; })
+      .then(function () { busy = false; $("go").disabled = false; $("go").textContent = "Ask both models"; $("cols").classList.remove("loading"); });
+  });
+
+  SCORES.forEach(function (s) {
+    var row = make("div", "bar"), track = make("div", "track"), t = make("i", "t"), b = make("i", "b");
+    t.style.width = (s[2] * 100) + "%"; b.style.width = Math.max(s[1] * 100, .6) + "%"; track.appendChild(t); track.appendChild(b);
+    row.appendChild(make("div", "", s[0])); row.appendChild(track); row.appendChild(make("div", "v", s[2].toFixed(3))); $("bars").appendChild(row);
+  });
+  renderTasks();
+  fetch("api/examples").then(function (r) { return r.json(); }).then(function (d) {
+    examples = d; renderTasks();
+    var first = d.filter(function (e) { return e.task === "gloss" && e.tuned.exact && !e.base.exact; })[0] || d[0]; if (first) showRecorded(first);
+  }).catch(function () { $("msg").textContent = "The recorded examples did not load."; });
+  fetch("api/status").then(function (r) { return r.json(); }).then(function (s) {
+    var el = $("live"); el.textContent = ""; var d = make("i", "dot" + (s.live ? " on" : "")); el.appendChild(d);
+    el.appendChild(document.createTextNode(s.live ? "endpoint connected · " + s.entries.toLocaleString() + " entries in the lookup index" : "live answers are off · recorded examples only"));
+  }).catch(function () {});
+})();
+</script>
+</body>
+</html>
