@@ -77,6 +77,46 @@ This is an independent project. Thinking Machines provided Tinker credits and di
 
 ---
 
+## Next: the verifier loop
+
+A dictionary of this kind has two halves: a grammar and a word list. The word list is now in the model (the section above). The next experiment uses the grammar. It does not use the grammar as a reward for facts, because our earlier RL runs added no facts. It compiles the grammar into an **executable checker** that labels every Dakota form the model or a generator proposes.
+
+| Label | Meaning | Use |
+|---|---|---|
+| `attested` | The form is printed in the book | Gold |
+| `licensed` | An admitted rule builds the form from a headword, and the book does not print it | Training in one arm only. Never gold. |
+| `rejected` | The form breaks an admitted rule or the alphabet | Excluded, and logged as an error signal |
+
+The checker drives a loop: generate rows, verify them, retrain with supervised fine-tuning on Tinker, and measure on a frozen evaluation set. RL on Tinker is kept for behaviour (when to look a word up, when to decline). A licensed form becomes gold only with confirmation from a Dakota speaker or a second source. The long-term purpose is the same: a model that is correct for the 1890 book is a starting point that Dakota communities can correct into their own modern language, with weights that they hold.
+
+- **Spec:** [`docs/verifier_loop_spec.md`](docs/verifier_loop_spec.md)
+- **Checker v0:** [`lexgym/rules.py`](lexgym/rules.py), with a [live demo](https://huggingface.co/spaces/HarleyCooper/riggs1890-rule-checker)
+- **Audit data and worklist:** [HarleyCooper/riggs1890-verifier-loop](https://huggingface.co/datasets/HarleyCooper/riggs1890-verifier-loop)
+
+### First test of the idea (12 November 2026, no GPU)
+
+Before any rule is compiled by hand, [`tools/verifier_loop/insertion_probe.py`](tools/verifier_loop/insertion_probe.py) asks one question: can a small set of edits explain the inflected forms that Riggs prints? The probe learns the edits from the train word families only and tests them on the held-out families.
+
+| Measure | Value |
+|---|---|
+| Pairs of headword and inflected form | 6,963 train, 664 held-out |
+| Edits admitted (seen at least 25 times in train) | 17: 11 inserts and 6 substitutions |
+| Most frequent edits | insert `wa` (2,474), `y` → `md` (805), insert `ma` (349), insert `uŋ` (311), insert `ya` (245), `ki` → `we` (240) |
+| Held-out forms explained | **73.6%** (81.0% when diacritics are ignored) |
+| Train forms explained | 75.3% |
+| Different forms the 17 edits can build from one held-out headword | median 93 |
+| Position of an inserted `wa` | inside the word 2,089 times, as a prefix 606 times |
+
+What this shows:
+
+- **The rules are real and they transfer.** Seventeen edits learned from one set of word families explain about three quarters of the forms in families the probe never saw. The spec's coverage gate is 60%.
+- **A rule can license a form, but it cannot choose one.** The same 17 edits build a median of 93 different forms from one headword, and the book prints one or two. The place of the affix is a fact about each verb. So the hard part of the checker is precision, and attestation must decide which licensed form is correct.
+- **The probe found an extraction error in the gold.** In 98 inflected forms, an accented `e` at the start of the form was read as `ć` (for example `ćwahdaku` under the headword `ehdaku`). The cause is the variant map in `lexgym/orthography.py`, which maps `é` to `ć`. That mapping is correct for headwords and wrong for these forms.
+
+The full report is in [`tools/verifier_loop/insertion_probe_2026-11-12.json`](tools/verifier_loop/insertion_probe_2026-11-12.json). The probe is a feasibility test. The compiled rule inventory of milestone 2 must cite Riggs' grammar.
+
+---
+
 ## Earlier pilot (10 November 2026): Weights & Biases analytics
 
 The first pilot of the new pipeline ran on 10 November 2026: `Qwen/Qwen3.5-4B`, LoRA rank 32, trained on Tinker for $4.73. Every number below comes from the logged metrics of three W&B runs in the project [`christian-cooper-us/riggs1890-lexgym`](https://wandb.ai/christian-cooper-us/riggs1890-lexgym).

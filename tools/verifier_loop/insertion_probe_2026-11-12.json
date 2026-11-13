@@ -1,0 +1,213 @@
+{
+ "pairs": {
+  "train": 6963,
+  "heldout": 664
+ },
+ "min_count": 25,
+ "admitted": {
+  "inserts": [
+   [
+    "wa",
+    2474
+   ],
+   [
+    "ma",
+    349
+   ],
+   [
+    "uŋ",
+    311
+   ],
+   [
+    "ya",
+    245
+   ],
+   [
+    "un",
+    203
+   ],
+   [
+    "m",
+    103
+   ],
+   [
+    "uŋk",
+    97
+   ],
+   [
+    "ni",
+    91
+   ],
+   [
+    "n",
+    31
+   ],
+   [
+    "mi",
+    30
+   ],
+   [
+    "unk",
+    26
+   ]
+  ],
+  "substitutions": [
+   [
+    "y->md",
+    805
+   ],
+   [
+    "ki->we",
+    240
+   ],
+   [
+    "y->d",
+    90
+   ],
+   [
+    "k->m",
+    64
+   ],
+   [
+    "ya->mayan",
+    26
+   ],
+   [
+    "ki->ye",
+    25
+   ]
+  ]
+ },
+ "coverage": {
+  "train": 0.7531,
+  "heldout": 0.7364,
+  "heldout_ignoring_diacritics": 0.8102
+ },
+ "candidate_forms_per_heldout_headword": {
+  "median": 93,
+  "max": 168
+ },
+ "position_of_inserted_wa": {
+  "inside the word": 2089,
+  "prefix": 606
+ },
+ "suspected_extraction_error_e_read_as_c_acute": {
+  "count": 98,
+  "examples": [
+   [
+    "ećata",
+    "ćyakata"
+   ],
+   [
+    "ećata",
+    "ćunkatapi"
+   ],
+   [
+    "ehdaku",
+    "ćwahdaku"
+   ],
+   [
+    "ehdaku",
+    "ćyahdaku"
+   ],
+   [
+    "ehdaku",
+    "ćuŋhdakupi"
+   ],
+   [
+    "ehde",
+    "ćwahde"
+   ],
+   [
+    "ehde",
+    "ćyahde"
+   ],
+   [
+    "ehde",
+    "ćuŋhdepi"
+   ]
+  ]
+ },
+ "heldout_unexplained_examples": [
+  [
+   "ahdata",
+   "awićawahdata"
+  ],
+  [
+   "aiyoptetuya",
+   "aiyoptetuyaken"
+  ],
+  [
+   "akićikta",
+   "uŋkićikta"
+  ],
+  [
+   "akićiktaśni",
+   "uŋkićiktaśni"
+  ],
+  [
+   "akihećeća",
+   "akihemećeća"
+  ],
+  [
+   "akisniyaŋ",
+   "akisniwaya"
+  ],
+  [
+   "akisniyaŋ",
+   "akisnimaŋyan"
+  ],
+  [
+   "akpazo",
+   "awakapazo"
+  ],
+  [
+   "aminihenćićiya",
+   "aminihemićiya"
+  ],
+  [
+   "aohduteya",
+   "aohduteuŋyanpi"
+  ],
+  [
+   "ba",
+   "midiba"
+  ],
+  [
+   "ćanteptanyeya",
+   "ćantetptanyewaya"
+  ],
+  [
+   "ćantokpaniyan",
+   "ćantokpaniwaya"
+  ],
+  [
+   "će",
+   "mićć"
+  ],
+  [
+   "ćetunhda",
+   "ćetunćihda"
+  ],
+  [
+   "ćomni",
+   "ćomamni"
+  ],
+  [
+   "ehdeġa",
+   "ćwahdeġa"
+  ],
+  [
+   "ehdeġa",
+   "ćyahdeġa"
+  ],
+  [
+   "eihdaku",
+   "ćmihdaku"
+  ],
+  [
+   "eihdaku",
+   "ćnihdaku"
+  ]
+ ]
+}
