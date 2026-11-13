@@ -111,7 +111,7 @@ What this shows:
 
 - **The rules are real and they transfer.** Seventeen edits learned from one set of word families explain about three quarters of the forms in families the probe never saw. The spec's coverage gate is 60%.
 - **A rule can license a form, but it cannot choose one.** The same 17 edits build a median of 93 different forms from one headword, and the book prints one or two. The place of the affix is a fact about each verb. So the hard part of the checker is precision, and attestation must decide which licensed form is correct.
-- **The probe found an extraction error in the gold.** In 98 inflected forms, an accented `e` at the start of the form was read as `ć` (for example `ćwahdaku` under the headword `ehdaku`). The cause is the variant map in `lexgym/orthography.py`, which maps `é` to `ć`. That mapping is correct for headwords and wrong for these forms.
+- **The probe found an extraction error in the gold.** In 98 inflected forms, an accented `e` at the start of the form was read as `ć` (for example `ćwahdaku` under the headword `ehdaku`). The probable cause is the variant map in `lexgym/orthography.py`, which maps `é` to `ć`. That mapping was written for headwords. We have not yet checked these 98 forms against the page images.
 
 The full report is in [`tools/verifier_loop/insertion_probe_2026-11-12.json`](tools/verifier_loop/insertion_probe_2026-11-12.json). The probe is a feasibility test. The compiled rule inventory of milestone 2 must cite Riggs' grammar.
 
