@@ -41,7 +41,8 @@ The first column shows the printed entry from the lookup index, so each answer c
 - `examples.json` holds 48 recorded evaluation examples. `build_examples.py` makes it from the public traces.
   The examples work when live answers are off.
 - The base model still reasons for about 600 tokens at the lowest effort setting. The tuned model answers in about 15 tokens.
-- Limits: 15 live questions per visitor per hour and 600 per day (`LEXGYM_VISITOR_LIMIT`, `LEXGYM_DAY_LIMIT`).
+- The page asks the two models separately, so the tuned answer shows first.
+- Limits: 15 live questions per visitor per hour and 600 per day, counted as two calls for each question (`LEXGYM_VISITOR_LIMIT`, `LEXGYM_DAY_LIMIT`).
 - `LEXGYM_TUNED` sets the checkpoint path. Tinker checkpoints expire, so set this variable to a new path
   when the checkpoint is replaced.
 

@@ -118,8 +118,20 @@ async def run_model(client, model: str, task: str, word: str, pos: str, index: I
     return {"steps": steps, "lookups": lookups, "tokens": tokens}
 
 
-def book_entry(index: Index, task: str, word: str) -> list[str]:
-    """The printed entries for the word, for display beside the model answers. Empty for English input."""
+DERIVED_RE = re.compile(r"\[derived from: ([^\]]+)\]")
+
+
+def book_entries(index: Index, task: str, word: str) -> list[dict]:
+    """The printed entries for the word, for display beside the model answers. Empty for English input.
+
+    For the two-hop task the entries of the word it is derived from are added, because the answer is there.
+    """
     if task == "en_to_dak":
         return []
-    return index.entries.get(plain(word).strip(" .").replace(" ", ""), [])
+    own = index.entries.get(plain(word).strip(" .").replace(" ", ""), [])
+    out = [{"text": e, "role": "word"} for e in own]
+    if task == "lookup_root_gloss":
+        for e in own:
+            for root in (r.strip() for m in DERIVED_RE.finditer(e) for r in m.group(1).split(",")):
+                out += [{"text": x, "role": "root"} for x in index.entries.get(plain(root), [])]
+    return out
