@@ -33,7 +33,7 @@ POS_OK = re.compile(r"^[a-z. ]{0,12}$")
 index = engine.Index(Path(hf_hub_download("HarleyCooper/riggs1890-lexicon-graph", "tasks_jsonl/lookup_index.json",
                                           repo_type="dataset")))
 examples = json.loads((HERE / "examples.json").read_text(encoding="utf-8"))
-client = AsyncOpenAI(base_url=engine.BASE_URL, api_key=os.environ["TINKER_API_KEY"], timeout=60.0,
+client = AsyncOpenAI(base_url=engine.BASE_URL, api_key=os.environ["TINKER_API_KEY"], timeout=90.0,
                      max_retries=1) if os.environ.get("TINKER_API_KEY") else None
 visitor_calls: dict[str, deque] = defaultdict(deque)
 day = {"date": "", "count": 0}
@@ -105,7 +105,7 @@ async def ask(request: Request):
         return JSONResponse({"error": reason}, status_code=429)
     try:
         base, tuned = await asyncio.gather(
-            engine.run_model(client, BASE, task, word, pos, index, max_tokens=160),
+            engine.run_model(client, BASE, task, word, pos, index, max_tokens=900),
             engine.run_model(client, TUNED, task, word, pos, index, max_tokens=96))
     except Exception as e:
         return JSONResponse({"error": f"The Tinker endpoint did not answer ({type(e).__name__}). The checkpoint may have "

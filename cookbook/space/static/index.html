@@ -179,7 +179,7 @@ footer { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 760p
       if (s.type === "lookup") { var d = make("div", "step"); d.appendChild(make("b", "", "reads: " + s.word)); d.appendChild(make("div", "", s.result)); box.appendChild(d); }
       else { box.appendChild(make("div", "answer", s.text || "(no answer)")); if (!s.format_ok) box.appendChild(make("div", "tok", "The reply had no ANSWER line.")); }
     });
-    if (r.tokens) box.appendChild(make("div", "tok", r.tokens.completion + " tokens written" + (r.lookups ? ", " + r.lookups + (r.lookups === 1 ? " lookup" : " lookups") : "")));
+    if (r.tokens) box.appendChild(make("div", "tok", r.tokens.completion + " tokens written" + (r.tokens.completion > 120 ? ", hidden reasoning included" : "") + (r.lookups ? ", " + r.lookups + (r.lookups === 1 ? " lookup" : " lookups") : "")));
   }
   function badge(id, text, cls) { var b = $(id); b.textContent = text || ""; b.className = "badge" + (cls ? " " + cls : ""); b.hidden = !text; }
   function question(prompt, note) { var q = $("question"); q.textContent = ""; q.appendChild(make("b", "", prompt)); q.appendChild(document.createTextNode("  ·  " + note)); }
