@@ -1,0 +1,1622 @@
+[
+ {
+  "id": "en_to_dak:page_408_entry_082",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "peep-of-day",
+  "pos": "n.",
+  "prompt": "Give the Dakota word for the English word: peep-of-day (n.)",
+  "gold": "aŋpao",
+  "page": 408,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "anpao",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "aŋpao",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "en_to_dak:page_386_entry_083",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "depute",
+  "pos": "v. a.",
+  "prompt": "Give the Dakota word for the English word: depute (v. a.)",
+  "gold": "yeśi",
+  "page": 386,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "Iyuŋkapi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "yeśi",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "en_to_dak:page_418_entry_019",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "shrink",
+  "pos": "v. n.",
+  "prompt": "Give the Dakota word for the English word: shrink (v. n.)",
+  "gold": "namniga",
+  "page": 418,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ḣte",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "namniga",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "en_to_dak:page_375_entry_027",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "associate",
+  "pos": "n.",
+  "prompt": "Give the Dakota word for the English word: associate (n.)",
+  "gold": "tawaśi",
+  "page": 375,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "koda",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "tawaśi",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "en_to_dak:page_377_entry_103",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "bliss",
+  "pos": "n.",
+  "prompt": "Give the Dakota word for the English word: bliss (n.)",
+  "gold": "wowaśte",
+  "page": 377,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wówašte",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wowaśte",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "en_to_dak:page_419_entry_031",
+  "task": "en_to_dak",
+  "split": "recall",
+  "word": "slow",
+  "pos": "adj.",
+  "prompt": "Give the Dakota word for the English word: slow (adj.)",
+  "gold": "ohaŋsdata",
+  "page": 419,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ziŋtka",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "huŋke śni",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "gloss:page_120_entry_015",
+  "task": "gloss",
+  "split": "recall",
+  "word": "ayuḣeyata",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: ayuḣeyata",
+  "gold": "to push back on, push on one side",
+  "page": 120,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "To lean back; to recline.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to push back on, push on one side",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "gloss:page_188_entry_042",
+  "task": "gloss",
+  "split": "recall",
+  "word": "itoŋkae",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: itoŋkae",
+  "gold": "to lie, tell a",
+  "page": 188,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "the eldest; the first-born",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to lie, tell a",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "gloss:page_266_entry_005",
+  "task": "gloss",
+  "split": "recall",
+  "word": "paġe",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: paġe",
+  "gold": "the diaphragm",
+  "page": 266,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "A knife.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "the diaphragm",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "gloss:page_112_entry_031",
+  "task": "gloss",
+  "split": "recall",
+  "word": "aotiŋsya",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: aotiŋsya",
+  "gold": "to crowd or press about, to beset",
+  "page": 112,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "To fill a house; to be full of people.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to crowd or press about, to beset",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "gloss:page_349_entry_039",
+  "task": "gloss",
+  "split": "recall",
+  "word": "yakokogya",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: yakokogya",
+  "gold": "chattering",
+  "page": 349,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to gnash the teeth",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "chattering",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "gloss:page_274_entry_054",
+  "task": "gloss",
+  "split": "recall",
+  "word": "psa",
+  "pos": "",
+  "prompt": "Give the English definition of the Dakota word: psa",
+  "gold": "a kind of rush or water grass, sometimes used in making mats: Psa-mde-waŋke-ćiŋ-wakpa, the little stream that empties into the Minnesota just below Little Rock",
+  "page": 274,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to sneeze",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "a kind of rush or water grass, the stalks of which are eaten by the Dakotas",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "inflect:page_239_entry_028",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "napinkiya",
+  "pos": "v. a.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: napinkiya (v. a.)",
+  "gold": "napinwakiya",
+  "page": 239,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "napinkiye, napinkiyaŋ",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "napinwakiya",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "inflect:page_105_entry_004",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "akićipa",
+  "pos": "v.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: akićipa (v.)",
+  "gold": "awećipa, ayećipa, uŋkakićipapi",
+  "page": 105,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "akićipe, akićipapi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "awećipa, ayećipa, uŋkakićipapi",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "inflect:page_152_entry_021",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "hdugata",
+  "pos": "v. pos.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: hdugata (v. pos.)",
+  "gold": "wahdugata",
+  "page": 152,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "hdugataye, hdugatapi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wahdugata",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "inflect:page_308_entry_035",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "wakatepa",
+  "pos": "v.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: wakatepa (v.)",
+  "gold": "wakawakatepa",
+  "page": 308,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wakatepe, wakatepi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wawakatepa",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "inflect:page_294_entry_057",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "toŋwe",
+  "pos": "v. a.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: toŋwe (v. a.)",
+  "gold": "toŋwewaya",
+  "page": 294,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "toŋwepi; toŋwekte, toŋwektepi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "toŋwawe, toŋuŋwepi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "inflect:page_128_entry_003",
+  "task": "inflect",
+  "split": "heldout_rule",
+  "word": "boksa",
+  "pos": "v. a.",
+  "prompt": "Give the inflected form or forms that Riggs lists under the Dakota word: boksa (v. a.)",
+  "gold": "bowaksa",
+  "page": 128,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "maboksa, nibaksa",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "bowaksa, boyaksa, bounksapi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "lookup_gloss:page_192_entry_008",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "iyahdetoŋ",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word iyahdetoŋ?",
+  "gold": "to have on or over, as, iyahdetoŋ ećoŋ, he does it on something else",
+  "page": 192,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "iyahdetoŋ",
+     "result": "ENTRY: i-ya'-hde-toŋ, v. a., to have on or over, as, iyahdetoŋ ećoŋ, he does it on something else (scan page 192)"
+    },
+    {
+     "type": "answer",
+     "text": "to have on or over",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "iyahdetoŋ",
+     "result": "ENTRY: i-ya'-hde-toŋ, v. a., to have on or over, as, iyahdetoŋ ećoŋ, he does it on something else (scan page 192)"
+    },
+    {
+     "type": "answer",
+     "text": "to have on or over, as, iyahdetoŋ ećoŋ, he does it on something else",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_gloss:page_121_entry_050",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "ayuźuŋ",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word ayuźuŋ?",
+  "gold": "to pull out by the roots on any thing",
+  "page": 121,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "ayuźuŋ",
+     "result": "ENTRY: a-yu'-źuŋ, v. a., to pull out by the roots on any thing [derived from: yuźuŋ] (scan page 121)"
+    },
+    {
+     "type": "answer",
+     "text": "to pull out by the roots on any thing",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "ayuźuŋ",
+     "result": "ENTRY: a-yu'-źuŋ, v. a., to pull out by the roots on any thing [derived from: yuźuŋ] (scan page 121)"
+    },
+    {
+     "type": "answer",
+     "text": "to pull out by the roots on any thing",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_gloss:page_351_entry_015",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "yaoṭiŋza",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word yaoṭiŋza?",
+  "gold": "to press in tight with the mouth",
+  "page": 351,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yaoṭiŋza",
+     "result": "ENTRY: ya-o'-ṭiŋ-za, v. a., to press in tight with the mouth [forms: mdaotinza] (scan page 351)"
+    },
+    {
+     "type": "answer",
+     "text": "to press in tight with the mouth",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yaoṭiŋza",
+     "result": "ENTRY: ya-o'-ṭiŋ-za, v. a., to press in tight with the mouth [forms: mdaotinza] (scan page 351)"
+    },
+    {
+     "type": "answer",
+     "text": "to press in tight with the mouth",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_gloss:page_291_entry_042",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "tiŋtaoskaŋ",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word tiŋtaoskaŋ?",
+  "gold": "on the prairie, far from dwellings",
+  "page": 291,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "tiŋtaoskaŋ",
+     "result": "ENTRY: tiŋ'-ta-o-skaŋ, adv., on the prairie, far from dwellings (scan page 291)"
+    },
+    {
+     "type": "answer",
+     "text": "on the prairie, far from dwellings",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "tiŋtaoskaŋ",
+     "result": "ENTRY: tiŋ'-ta-o-skaŋ, adv., on the prairie, far from dwellings (scan page 291)"
+    },
+    {
+     "type": "answer",
+     "text": "on the prairie, far from dwellings",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_gloss:page_115_entry_035",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "aśamya",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word aśamya?",
+  "gold": "to defile, make dirty",
+  "page": 115,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "aśamya",
+     "result": "ENTRY: a-śam'-ya, v. a., to defile, make dirty (scan page 115) | a-śam'-ya, adv., dirtily, in a defiled manner (scan page 115)"
+    },
+    {
+     "type": "answer",
+     "text": "to defile, make dirty; also used adverbially as “dirtily, in a defiled manner.”",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "aśamya",
+     "result": "ENTRY: a-śam'-ya, v. a., to defile, make dirty (scan page 115) | a-śam'-ya, adv., dirtily, in a defiled manner (scan page 115)"
+    },
+    {
+     "type": "answer",
+     "text": "to defile, make dirty",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_gloss:page_358_entry_010",
+  "task": "lookup_gloss",
+  "split": "heldout_rule",
+  "word": "yuhmuŋyaŋ",
+  "pos": "",
+  "prompt": "Read the dictionary. What is the English definition of the Dakota word yuhmuŋyaŋ?",
+  "gold": "making whizz",
+  "page": 358,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yuhmuŋyaŋ",
+     "result": "ENTRY: yu-hmuŋ'-yaŋ, adv., making whizz (scan page 358)"
+    },
+    {
+     "type": "answer",
+     "text": "making whizz (adverb)",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yuhmuŋyaŋ",
+     "result": "ENTRY: yu-hmuŋ'-yaŋ, adv., making whizz (scan page 358)"
+    },
+    {
+     "type": "answer",
+     "text": "making whizz",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_140_entry_046",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "dećekćen",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word dećekćen is derived from another word. What is the English definition of that other word?",
+  "gold": "so, thus, after this manner",
+  "page": 140,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "dećekćen",
+     "result": "ENTRY: de'-će-kćen, adv., red. of dećen [derived from: dećen] (scan page 140)"
+    },
+    {
+     "type": "lookup",
+     "word": "dećen",
+     "result": "ENTRY: de'-ćen, adv., so, thus, after this manner (scan page 140)"
+    },
+    {
+     "type": "answer",
+     "text": "so, thus, after this manner",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "dećekćen",
+     "result": "ENTRY: de'-će-kćen, adv., red. of dećen [derived from: dećen] (scan page 140)"
+    },
+    {
+     "type": "lookup",
+     "word": "dećen",
+     "result": "ENTRY: de'-ćen, adv., so, thus, after this manner (scan page 140)"
+    },
+    {
+     "type": "answer",
+     "text": "so, thus, after this manner",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_212_entry_046",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "kaśuś",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word kaśuś is derived from another word. What is the English definition of that other word?",
+  "gold": "to bruise, to batter, to mash, to crush",
+  "page": 212,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "kaśuś",
+     "result": "ENTRY: ka-śuś', cont., kašuś iyeya [derived from: kaśuźa] (scan page 212)"
+    },
+    {
+     "type": "lookup",
+     "word": "kaśuźa",
+     "result": "ENTRY: ka-śu'-źa, v. a., to bruise, to batter, to mash, to crush [forms: wakaśuźa] (scan page 212)"
+    },
+    {
+     "type": "answer",
+     "text": "to bruise, to batter, to mash, to crush",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "kaśuś",
+     "result": "ENTRY: ka-śuś', cont., kašuś iyeya [derived from: kaśuźa] (scan page 212)"
+    },
+    {
+     "type": "lookup",
+     "word": "kaśuźa",
+     "result": "ENTRY: ka-śu'-źa, v. a., to bruise, to batter, to mash, to crush [forms: wakaśuźa] (scan page 212)"
+    },
+    {
+     "type": "answer",
+     "text": "to bruise, to batter, to mash, to crush",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_368_entry_056",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "źiźiya",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word źiźiya is derived from another word. What is the English definition of that other word?",
+  "gold": "thin and standing up, as hair; thin, scattered, and sparkling in the sunbeams",
+  "page": 368,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "źiźiya",
+     "result": "ENTRY: źi-źi'-ya, adv., red. of żiya; standing up, as the hair on one's hand [derived from: źiya] (scan page 368)"
+    },
+    {
+     "type": "lookup",
+     "word": "źiya",
+     "result": "ENTRY: źi'-ya, adv., thin and standing up, as hair; thin, scattered, and sparkling in the sunbeams (scan page 368)"
+    },
+    {
+     "type": "answer",
+     "text": "thin and standing up, as hair; thin, scattered, and sparkling in the sunbeams",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "źiźiya",
+     "result": "ENTRY: źi-źi'-ya, adv., red. of żiya; standing up, as the hair on one's hand [derived from: źiya] (scan page 368)"
+    },
+    {
+     "type": "lookup",
+     "word": "źiya",
+     "result": "ENTRY: źi'-ya, adv., thin and standing up, as hair; thin, scattered, and sparkling in the sunbeams (scan page 368)"
+    },
+    {
+     "type": "answer",
+     "text": "thin and standing up, as hair; thin, scattered, and sparkling in the sunbeams",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_127_entry_020",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "bokićihpa",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word bokićihpa is derived from another word. What is the English definition of that other word?",
+  "gold": "to make fall by shooting, to shoot down, as birds on the wing",
+  "page": 127,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "bokićihpa",
+     "result": "ENTRY: bo-ki'-ći-hpa, v., to shoot down something on the wing, or that is hanging up, for another [derived from: bohpa] [forms: bowećihpa] (scan page 127)"
+    },
+    {
+     "type": "lookup",
+     "word": "bohpa",
+     "result": "ENTRY: bo-hpa', v. a., to make fall by shooting, to shoot down, as birds on the wing [forms: bowahpa] (scan page 127)"
+    },
+    {
+     "type": "answer",
+     "text": "to make fall by shooting, to shoot down, as birds on the wing",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "bokićihpa",
+     "result": "ENTRY: bo-ki'-ći-hpa, v., to shoot down something on the wing, or that is hanging up, for another [derived from: bohpa] [forms: bowećihpa] (scan page 127)"
+    },
+    {
+     "type": "lookup",
+     "word": "bohpa",
+     "result": "ENTRY: bo-hpa', v. a., to make fall by shooting, to shoot down, as birds on the wing [forms: bowahpa] (scan page 127)"
+    },
+    {
+     "type": "answer",
+     "text": "to make fall by shooting, to shoot down, as birds on the wing",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_365_entry_067",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "yutukaka",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word yutukaka is derived from another word. What is the English definition of that other word?",
+  "gold": "to pull off or destroy, as fur",
+  "page": 365,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yutukaka",
+     "result": "ENTRY: yu-tu'-ka-ka, v. red., to bend up, to hurt, as in a trap [derived from: yutuka] [forms: mdutukaka] (scan page 365)"
+    },
+    {
+     "type": "lookup",
+     "word": "yutuka",
+     "result": "ENTRY: yu-tu'-ka, v. a., to pull off or destroy, as fur [forms: mdutuka, yutukahan] (scan page 365)"
+    },
+    {
+     "type": "answer",
+     "text": "to pull off or destroy, as fur",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "yutukaka",
+     "result": "ENTRY: yu-tu'-ka-ka, v. red., to bend up, to hurt, as in a trap [derived from: yutuka] [forms: mdutukaka] (scan page 365)"
+    },
+    {
+     "type": "lookup",
+     "word": "yutuka",
+     "result": "ENTRY: yu-tu'-ka, v. a., to pull off or destroy, as fur [forms: mdutuka, yutukahan] (scan page 365)"
+    },
+    {
+     "type": "answer",
+     "text": "to pull off or destroy, as fur",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "lookup_root_gloss:page_315_entry_024",
+  "task": "lookup_root_gloss",
+  "split": "heldout_rule",
+  "word": "waokihi",
+  "pos": "",
+  "prompt": "Read the dictionary. The Dakota word waokihi is derived from another word. What is the English definition of that other word?",
+  "gold": "to be able, to be able for, able to accomplish",
+  "page": 315,
+  "base": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "waokihi",
+     "result": "ENTRY: wa-o'-ki-hi, v. of okihi, to be able, to have ability [derived from: okihi] [forms: waowakihi] (scan page 315)"
+    },
+    {
+     "type": "lookup",
+     "word": "okihi",
+     "result": "ENTRY: o-ki'-hi, v. a., to be able, to be able for, able to accomplish [forms: owakihi, uŋkokihipi, onakihi] (scan page 252)"
+    },
+    {
+     "type": "answer",
+     "text": "to be able, to be able for, able to accomplish",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "lookup",
+     "word": "waokihi",
+     "result": "ENTRY: wa-o'-ki-hi, v. of okihi, to be able, to have ability [derived from: okihi] [forms: waowakihi] (scan page 315)"
+    },
+    {
+     "type": "lookup",
+     "word": "okihi",
+     "result": "ENTRY: o-ki'-hi, v. a., to be able, to be able for, able to accomplish [forms: owakihi, uŋkokihipi, onakihi] (scan page 252)"
+    },
+    {
+     "type": "answer",
+     "text": "to be able, to be able for, able to accomplish",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "pos:page_108_entry_035",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "aminihenćićiya",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: aminihenćićiya",
+  "gold": "v. reflex.",
+  "page": 108,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v. reflex.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "pos:page_188_entry_016",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "itokam",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: itokam",
+  "gold": "adv.",
+  "page": 188,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "adv.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "adv.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "pos:page_102_entry_052",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "akakśa",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: akakśa",
+  "gold": "v. a.",
+  "page": 102,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v. n.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v. a.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "pos:page_298_entry_028",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "uyeya",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: uyeya",
+  "gold": "v. a.",
+  "page": 298,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "adv.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v. a.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "pos:page_156_entry_063",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "heya",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: heya",
+  "gold": "v.",
+  "page": 156,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v.",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "v. a.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "pos:page_239_entry_019",
+  "task": "pos",
+  "split": "heldout_rule",
+  "word": "napteća",
+  "pos": "",
+  "prompt": "Give Riggs' part-of-speech abbreviation for the Dakota word: napteća",
+  "gold": "adv.",
+  "page": 239,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": ".",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "adj.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "root:page_240_entry_051",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "naśpuśpu",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: naśpuśpu",
+  "gold": "naśpu",
+  "page": 240,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": ". Need recall dictionary. We need infer.",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "naśpu",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "root:page_127_entry_023",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "bokićiksaksa",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: bokićiksaksa",
+  "gold": "bokićiksa",
+  "page": 127,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "kićaksa",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "bokićiksa",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "root:page_295_entry_012",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "toto",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: toto",
+  "gold": "to",
+  "page": 295,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "to",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "root:page_121_entry_002",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "ayuptaŋyaŋ",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: ayuptaŋyaŋ",
+  "gold": "yuptaŋyaŋ",
+  "page": 121,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ayuptaŋ",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "yuptaŋyaŋ",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "root:page_306_entry_005",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "wakahdiya",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: wakahdiya",
+  "gold": "kahdiya",
+  "page": 306,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wakahdi",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "kahdiya",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "root:page_189_entry_014",
+  "task": "root",
+  "split": "heldout_rule",
+  "word": "itukaś",
+  "pos": "",
+  "prompt": "Give the Dakota word from which this word is derived: itukaś",
+  "gold": "itukaġa",
+  "page": 189,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ituka",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ituka",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ },
+ {
+  "id": "syllabify:page_202_entry_021",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "kaćen",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): kaćen",
+  "gold": "ka-ćen'",
+  "page": 202,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ka-će'n",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ka-ćen'",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "syllabify:page_162_entry_045",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "hunapte",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): hunapte",
+  "gold": "hu-na'-pte",
+  "page": 162,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "hu-nap'-te",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "hu-na'-pte",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "syllabify:page_204_entry_006",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "kahutedan",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): kahutedan",
+  "gold": "ka-hu'-te-dan",
+  "page": 204,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ka-hu'-te-dan",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "ka-hu'-te-dan",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "syllabify:page_317_entry_030",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "wapaśnun",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): wapaśnun",
+  "gold": "wa-pa'-śnun",
+  "page": 317,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": ".",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "wa-pa'-śnun",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "syllabify:page_158_entry_002",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "hiŋhte",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): hiŋhte",
+  "gold": "hiŋ-hte'",
+  "page": 158,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "hiŋh'-te",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "hiŋ-hte'",
+     "format_ok": true
+    }
+   ],
+   "exact": true
+  }
+ },
+ {
+  "id": "syllabify:page_255_entry_003",
+  "task": "syllabify",
+  "split": "heldout_rule",
+  "word": "omaśte",
+  "pos": "",
+  "prompt": "Write the Dakota word with Riggs' syllable division and accent mark (example: a-hi'-yo-ka-sin): omaśte",
+  "gold": "o'-ma-śte",
+  "page": 255,
+  "base": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "o-maś'-te",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  },
+  "tuned": {
+   "steps": [
+    {
+     "type": "answer",
+     "text": "o-ma'-śte",
+     "format_ok": true
+    }
+   ],
+   "exact": false
+  }
+ }
+]

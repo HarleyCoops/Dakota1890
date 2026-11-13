@@ -1,0 +1,379 @@
+{
+  "experiment": "sft_mixed_thinking_off_2026_11_12",
+  "model_name": "thinkingmachines/Inkling-2-Small",
+  "epochs": 3,
+  "steps_per_epoch": 540,
+  "learning_rate": 0.0002,
+  "lora_rank": 32,
+  "batch_size": 128,
+  "evaluations": [
+    {
+      "label": "epoch0_base",
+      "epoch": 0,
+      "model_name": "thinkingmachines/Inkling-2-Small",
+      "sampler_path": null,
+      "run_id": "sft_mixed_thinking_off_2026_11_12-inkling-2-small-epoch0_base",
+      "stage": "supervised, epoch0_base",
+      "temperature": 0.0,
+      "n_tasks": 1500,
+      "results": {
+        "all": {
+          "n": 1500,
+          "exact": 0.278,
+          "reward": 0.3477816525563171,
+          "token_f1": 0.5129211059951583,
+          "lookups_used": 1.5366666666666666,
+          "target_entry_seen": 1.0,
+          "parse_ok": 0.998
+        },
+        "split/heldout_rule": {
+          "n": 900,
+          "exact": 0.44333333333333336,
+          "reward": 0.5203712619065638,
+          "token_f1": 0.9363591778352893,
+          "lookups_used": 1.5366666666666666,
+          "target_entry_seen": 1.0,
+          "parse_ok": 0.9977777777777778
+        },
+        "split/recall": {
+          "n": 600,
+          "exact": 0.03,
+          "reward": 0.0888972385309469,
+          "token_f1": 0.0908944943944944,
+          "parse_ok": 0.9983333333333333
+        },
+        "task/en_to_dak": {
+          "n": 300,
+          "exact": 0.05333333333333334,
+          "reward": 0.08767379219120892,
+          "parse_ok": 1.0
+        },
+        "task/gloss": {
+          "n": 300,
+          "exact": 0.006666666666666667,
+          "reward": 0.09012068487068488,
+          "token_f1": 0.0908944943944944,
+          "parse_ok": 0.9966666666666667
+        },
+        "task/inflect": {
+          "n": 150,
+          "exact": 0.0,
+          "reward": 0.016666666666666666,
+          "parse_ok": 1.0
+        },
+        "task/lookup_gloss": {
+          "n": 150,
+          "exact": 0.7666666666666667,
+          "reward": 0.8910967496868896,
+          "token_f1": 0.897745139399183,
+          "lookups_used": 1.0266666666666666,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/lookup_root_gloss": {
+          "n": 150,
+          "exact": 0.8933333333333333,
+          "reward": 0.9687308217524935,
+          "token_f1": 0.975232370891772,
+          "lookups_used": 2.046666666666667,
+          "target_entry_seen": 1.0,
+          "parse_ok": 0.9933333333333333
+        },
+        "task/pos": {
+          "n": 150,
+          "exact": 0.29333333333333333,
+          "reward": 0.29333333333333333,
+          "parse_ok": 1.0
+        },
+        "task/root": {
+          "n": 150,
+          "exact": 0.38,
+          "reward": 0.38,
+          "parse_ok": 1.0
+        },
+        "task/syllabify": {
+          "n": 150,
+          "exact": 0.32666666666666666,
+          "reward": 0.5724,
+          "parse_ok": 0.9933333333333333
+        }
+      }
+    },
+    {
+      "label": "epoch1",
+      "epoch": 1,
+      "model_name": "thinkingmachines/Inkling-2-Small",
+      "sampler_path": "tinker://551aa04a-f385-5fdc-825c-7f47cf3a769d:train:0/sampler_weights/000540",
+      "run_id": "sft_mixed_thinking_off_2026_11_12-inkling-2-small-epoch1",
+      "stage": "supervised, epoch1",
+      "temperature": 0.0,
+      "n_tasks": 1500,
+      "results": {
+        "all": {
+          "n": 1500,
+          "exact": 0.6066666666666667,
+          "reward": 0.6787687160362857,
+          "parse_ok": 1.0,
+          "token_f1": 0.7235857519386931,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/heldout_rule": {
+          "n": 900,
+          "exact": 0.8144444444444444,
+          "reward": 0.8429285714285714,
+          "parse_ok": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/recall": {
+          "n": 600,
+          "exact": 0.295,
+          "reward": 0.43252893294785705,
+          "parse_ok": 1.0,
+          "token_f1": 0.44717150387738624
+        },
+        "task/en_to_dak": {
+          "n": 300,
+          "exact": 0.36666666666666664,
+          "reward": 0.41800540963737554,
+          "parse_ok": 1.0
+        },
+        "task/gloss": {
+          "n": 300,
+          "exact": 0.22333333333333333,
+          "reward": 0.44705245625833856,
+          "token_f1": 0.44717150387738624,
+          "parse_ok": 1.0
+        },
+        "task/inflect": {
+          "n": 150,
+          "exact": 0.5066666666666667,
+          "reward": 0.5896825396825397,
+          "parse_ok": 1.0
+        },
+        "task/lookup_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/lookup_root_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 2.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/pos": {
+          "n": 150,
+          "exact": 0.6933333333333334,
+          "reward": 0.6933333333333334,
+          "parse_ok": 1.0
+        },
+        "task/root": {
+          "n": 150,
+          "exact": 0.82,
+          "reward": 0.8288888888888889,
+          "parse_ok": 1.0
+        },
+        "task/syllabify": {
+          "n": 150,
+          "exact": 0.8666666666666667,
+          "reward": 0.9456666666666667,
+          "parse_ok": 1.0
+        }
+      }
+    },
+    {
+      "label": "epoch2",
+      "epoch": 2,
+      "model_name": "thinkingmachines/Inkling-2-Small",
+      "sampler_path": "tinker://551aa04a-f385-5fdc-825c-7f47cf3a769d:train:0/sampler_weights/001080",
+      "run_id": "sft_mixed_thinking_off_2026_11_12-inkling-2-small-epoch2",
+      "stage": "supervised, epoch2",
+      "temperature": 0.0,
+      "n_tasks": 1500,
+      "results": {
+        "all": {
+          "n": 1500,
+          "exact": 0.7466666666666667,
+          "reward": 0.8090888543373839,
+          "parse_ok": 1.0,
+          "token_f1": 0.8570460326710326,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/heldout_rule": {
+          "n": 900,
+          "exact": 0.82,
+          "reward": 0.8462063492063492,
+          "parse_ok": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/recall": {
+          "n": 600,
+          "exact": 0.6366666666666667,
+          "reward": 0.7534126120339355,
+          "parse_ok": 1.0,
+          "token_f1": 0.7140920653420654
+        },
+        "task/en_to_dak": {
+          "n": 300,
+          "exact": 0.7633333333333333,
+          "reward": 0.7927331587258059,
+          "parse_ok": 1.0
+        },
+        "task/gloss": {
+          "n": 300,
+          "exact": 0.51,
+          "reward": 0.7140920653420654,
+          "token_f1": 0.7140920653420654,
+          "parse_ok": 1.0
+        },
+        "task/inflect": {
+          "n": 150,
+          "exact": 0.5133333333333333,
+          "reward": 0.6052380952380952,
+          "parse_ok": 1.0
+        },
+        "task/lookup_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/lookup_root_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 2.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/pos": {
+          "n": 150,
+          "exact": 0.7533333333333333,
+          "reward": 0.7533333333333333,
+          "parse_ok": 1.0
+        },
+        "task/root": {
+          "n": 150,
+          "exact": 0.74,
+          "reward": 0.7533333333333333,
+          "parse_ok": 1.0
+        },
+        "task/syllabify": {
+          "n": 150,
+          "exact": 0.9133333333333333,
+          "reward": 0.9653333333333334,
+          "parse_ok": 1.0
+        }
+      }
+    },
+    {
+      "label": "epoch3",
+      "epoch": 3,
+      "model_name": "thinkingmachines/Inkling-2-Small",
+      "sampler_path": "tinker://551aa04a-f385-5fdc-825c-7f47cf3a769d:train:0/sampler_weights/final",
+      "run_id": "sft_mixed_thinking_off_2026_11_12-inkling-2-small-epoch3",
+      "stage": "supervised, epoch3",
+      "temperature": 0.0,
+      "n_tasks": 1500,
+      "results": {
+        "all": {
+          "n": 1500,
+          "exact": 0.8233333333333334,
+          "reward": 0.8620549181483005,
+          "parse_ok": 1.0,
+          "token_f1": 0.9550232401041224,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/heldout_rule": {
+          "n": 900,
+          "exact": 0.8155555555555556,
+          "reward": 0.845379188712522,
+          "parse_ok": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.5,
+          "target_entry_seen": 1.0
+        },
+        "split/recall": {
+          "n": 600,
+          "exact": 0.835,
+          "reward": 0.8870685123019681,
+          "parse_ok": 1.0,
+          "token_f1": 0.9100464802082449
+        },
+        "task/en_to_dak": {
+          "n": 300,
+          "exact": 0.8533333333333334,
+          "reward": 0.8640905443956914,
+          "parse_ok": 1.0
+        },
+        "task/gloss": {
+          "n": 300,
+          "exact": 0.8166666666666667,
+          "reward": 0.9100464802082449,
+          "token_f1": 0.9100464802082449,
+          "parse_ok": 1.0
+        },
+        "task/inflect": {
+          "n": 150,
+          "exact": 0.49333333333333335,
+          "reward": 0.6131640211640211,
+          "parse_ok": 1.0
+        },
+        "task/lookup_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 1.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/lookup_root_gloss": {
+          "n": 150,
+          "exact": 1.0,
+          "reward": 1.0,
+          "token_f1": 1.0,
+          "lookups_used": 2.0,
+          "target_entry_seen": 1.0,
+          "parse_ok": 1.0
+        },
+        "task/pos": {
+          "n": 150,
+          "exact": 0.72,
+          "reward": 0.72,
+          "parse_ok": 1.0
+        },
+        "task/root": {
+          "n": 150,
+          "exact": 0.7733333333333333,
+          "reward": 0.7777777777777778,
+          "parse_ok": 1.0
+        },
+        "task/syllabify": {
+          "n": 150,
+          "exact": 0.9066666666666666,
+          "reward": 0.9613333333333333,
+          "parse_ok": 1.0
+        }
+      }
+    }
+  ]
+}
