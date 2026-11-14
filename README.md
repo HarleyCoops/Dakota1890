@@ -77,6 +77,63 @@ This is an independent project. Thinking Machines provided Tinker credits and di
 
 ---
 
+## RL on the lexgym tasks: Stage 2, after supervised training
+
+**13 November 2026.** The smoke run for Stage 2 passed. This section sets down what the RL stage is for, how it extends the supervised stage, and what the first run of the day measured. The code is [`lexgym/train_rl.py`](lexgym/train_rl.py) (GRPO from `tinker-cookbook`), [`lexgym/tinker_env.py`](lexgym/tinker_env.py) (the environment and the lookup tool), and [`lexgym/scoring.py`](lexgym/scoring.py) (the verifiers).
+
+### Why RL comes after the supervised stage
+
+Policy-gradient RL can only reinforce an answer the model already samples. A base model that does not know a Dakota word does not sample it, so the lexical tasks give no gradient. This is the structural problem the honest reward revealed in [Why the experiment changed](#why-the-experiment-changed). The supervised stage first gives the model the vocabulary that RL cannot find by exploration; RL on top of it then changes three things.
+
+| What RL adds after supervised training | Why supervised training alone does not get there |
+|---|---|
+| Tool behaviour. In the pilot, `lookup_gloss` went 0.00 → 0.85 after 30 RL steps, and the model reached the target dictionary entry in 100% of the one-lookup tasks. | Every supervised target is a direct answer. Without solved lookup conversations in the file, supervised training teaches the model to answer without the book — exactly what the Inkling section describes. |
+| Rule precision on verifiable output. In the pilot, `pos` went 0.38 → 0.73, `root` 0.48 → 0.58, `inflect` 0.30 → 0.38 on held-out families. | Sampling makes format errors cheap to fix only for tasks whose verifier distinguishes close from exact. |
+| Nothing about new facts. `gloss` moved 0.05 → 0.08 and `en_to_dak` 0.00 → 0.03. RL added no facts and is not asked to. | Reinforcement amplifies what the model already produces. Facts enter through supervised training now, and through the verifier loop later. |
+
+### The mechanics
+
+Each training step samples every task as a group of 8 rollouts. The advantage of a rollout is its reward minus the group mean, and the loss is the cookbook's importance-sampling policy gradient on the sampled tokens. The parts that matter for the experiment:
+
+- **Reward.** One deterministic verifier per task type, no LLM judge. Only the final answer span is scored, so gold text inside reasoning earns nothing. Reward sits in [0, 1], the only multiplier is the length guard, and every component goes to the ledger so any reward can be reconstructed by hand. The current composition is in [What the pilot loop does now](#what-the-pilot-loop-does-now); the tests in [`tests/test_lexgym.py`](tests/test_lexgym.py) probe word stuffing, prompt echo, and gold-in-reasoning.
+- **Lookup.** In the multi-turn lookup tasks the model may reply `LOOKUP: <word>` up to three times and receives the printed entry as the next message. Reward is paid only on the final `ANSWER:` line. The ledger records the number of lookups and whether the model reached the target entry.
+- **Checkpoints.** The run starts from a supervised state through `--load-checkpoint-path` and saves new LoRA state and sampler paths on Tinker.
+- **Attribution.** We carry `remove_constant_reward_groups=False`. With `True`, the cookbook drops all-equal groups before labelling them, and the per-task train metrics are then attributed to the wrong task. The trade-off is that all-zero groups stay in the batch; the traces show how many there are.
+- **Traces.** One JSON line per rollout: the task with its scan page, the whole conversation, token ids and log-probabilities of every turn, every reward component, and the advantage. The schema is in [`docs/TRACE_SCHEMA.md`](docs/TRACE_SCHEMA.md). Each run stamps its own commit, the SHA256 of every task file, and the scorer version.
+
+### The smoke run (13 November 2026, $0.06 on Tinker)
+
+Two GRPO steps at batch 32 × group 8, started from the supervised Qwen3.5-4B checkpoint, sampled at the new 800-token answer limit. The client loops on a `cpu-basic` Hugging Face Job; Tinker does the forward and backward passes. The job uploads its whole run folder to the traces dataset on exit, training pass or failure.
+
+| Measure | Value |
+|---|---|
+| Training steps | 2 of 2, plus the final evaluation and checkpoint save |
+| `parse_ok` over all rollouts | **1.000** — no truncated answer anywhere |
+| Train reward / exact | 0.575 / 0.469 |
+| `syllabify` evaluation (5 episodes per task type) | reward 0.84, exact 0.60, boundary F1 1.00, stress 0.60 |
+| Lookup budget exhausted | 0% of episodes |
+| Mean answer length | 15.7 tokens |
+| Cost | $0.055 cumulative, $0.027 per training step |
+| Checkpoint saved | `tinker://115b173b-bfb5-5dc0-a78e-35c5fc5548a1:train:0/weights/final` |
+
+Two steps cannot show a trend. What the smoke proves is the plumbing a real run depends on, and every link passed: the supervised checkpoint loads, both steps train, the evaluation runs, the checkpoint lands, and the traces reach the Hub. The one code change the run exercises is [`c9a068ab`](https://github.com/HarleyCoops/Dakota1890/commit/c9a068ab08a9291149c74962d92add3b1bb36c8d): the default daemon answer limit in `lexgym/train_rl.py` went from 96 to 800 tokens, because at 96 a long inflection list was cut off mid-answer, the rollout scored 0, and the gradient taught "write fewer forms" instead of "write more correct forms".
+
+```bash
+python cookbook/earlier_runs/launch_rl_job.py --model-name Qwen/Qwen3.5-4B \
+  --load-checkpoint-path tinker://536d3512-c611-5499-9dda-869a1d74ad09:train:0/weights/final \
+  --experiment rl_smoke_2026_11_13 --stage rl-smoke-800tok \
+  --max-steps 2 --eval-limit-per-task 5 --eval-every 100 --save-every 100 \
+  --thinking off --max-tokens 800
+```
+
+- **Traces of the smoke:** [HarleyCooper/riggs1890-lexgym-traces/rl_smoke_2026_11_13/qwen3.5-4b/rl-smoke-800tok](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/rl_smoke_2026_11_13/qwen3.5-4b/rl-smoke-800tok)
+
+### What runs next
+
+A full pass is about 2,150 steps at batch 32. At the smoke's measured $0.027 per step that is roughly $58 on Tinker and runs for days, so it is scheduled after the designed GRPO changes in [Proposed changes to GRPO and the compositional reward](#proposed-changes-to-grpo-and-the-compositional-reward) — the baseline loop and the changed loop are compared as arms, not run twice by accident. The division of labour stays as stated in [Next: the verifier loop](#next-the-verifier-loop): supervised training owns the facts, RL owns behaviour and precision, and the grammar becomes an executable checker rather than a reward.
+
+---
+
 ## Next: the verifier loop
 
 A dictionary of this kind has two halves: a grammar and a word list. The word list is now in the model (the section above). The next experiment uses the grammar. It does not use the grammar as a reward for facts, because our earlier RL runs added no facts. It compiles the grammar into an **executable checker** that labels every Dakota form the model or a generator proposes.
