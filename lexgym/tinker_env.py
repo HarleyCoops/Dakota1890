@@ -3,6 +3,10 @@
 Single-turn tasks end after one answer. Lookup tasks are multi-turn: the model
 may send `LOOKUP: <word>` up to LOOKUP_BUDGET times and gets the dictionary
 entry back as the next user message. Reward is paid only on the final answer.
+
+Reward arms: `LexgymDatasetBuilder.arm` (default "baseline") is injected into
+every task row as `task["arm"]`, and scoring.py selects the reward composition
+from it. The trace metadata records the arm and its scorer version.
 """
 from __future__ import annotations
 
@@ -23,7 +27,7 @@ from tinker_cookbook.rl.types import Action, ActionExtra, Env, EnvGroupBuilder, 
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 from .orthography import loose, plain
-from .scoring import SCORER_VERSION, extract_answer, score
+from .scoring import extract_answer, score, scorer_version
 from .tasks import LOOKUP_BUDGET, LOOKUP_SYSTEM_PROMPT, SYSTEM_PROMPT
 
 _LOOKUP_RE = re.compile(r"^\s*LOOKUP\s*:\s*(.+?)\s*$", re.I | re.M)
@@ -211,7 +215,8 @@ class LexgymDataset(RLDataset):
         ) for g, t in enumerate(chunk)]
 
 
-def load_tasks(path: Path, tasks: Sequence[str] | None = None, limit_per_task: int = -1, seed: int = 0) -> list[dict]:
+def load_tasks(path: Path, tasks: Sequence[str] | None = None, limit_per_task: int = -1, seed: int = 0,
+               arm: str = "baseline") -> list[dict]:
     rows = [json.loads(line) for line in Path(path).open(encoding="utf-8")]
     if tasks:
         rows = [r for r in rows if r["task"] in set(tasks)]
@@ -224,7 +229,8 @@ def load_tasks(path: Path, tasks: Sequence[str] | None = None, limit_per_task: i
                 kept.append(r)
                 count[r["task"]] = count.get(r["task"], 0) + 1
         rows = kept
-    return rows
+    # every task row carries its reward arm; scoring.py reads it
+    return [{**r, "arm": arm} for r in rows]
 
 
 @chz.chz
@@ -238,6 +244,8 @@ class LexgymDatasetBuilder(RLDatasetBuilder):
     eval_limit_per_task: int = 50
     renderer_name: str | None = None
     seed: int = 42
+    # reward arm: "baseline" or "gated" (see scoring.py); recorded in the traces
+    arm: str = "baseline"
     # traces: one JSON line per rollout, with text, token ids, log-probabilities and the ledger
     trace_dir: str | None = None
     run_id: str = ""
@@ -251,9 +259,9 @@ class LexgymDatasetBuilder(RLDatasetBuilder):
         renderer = renderers.get_renderer(name, tokenizer=get_tokenizer(self.model_name))
         d = Path(self.task_dir)
         index = LexiconIndex(d / "lookup_index.json")
-        train = load_tasks(d / "rl_train.jsonl", self.train_tasks, self.train_limit_per_task, self.seed)
-        evals = (load_tasks(d / "eval_heldout_rule.jsonl", None, self.eval_limit_per_task, self.seed)
-                 + load_tasks(d / "eval_recall.jsonl", None, self.eval_limit_per_task, self.seed))
+        train = load_tasks(d / "rl_train.jsonl", self.train_tasks, self.train_limit_per_task, self.seed, self.arm)
+        evals = (load_tasks(d / "eval_heldout_rule.jsonl", None, self.eval_limit_per_task, self.seed, self.arm)
+                 + load_tasks(d / "eval_recall.jsonl", None, self.eval_limit_per_task, self.seed, self.arm))
         trace = None
         if self.trace_dir:
             trace = TraceWriter(self.trace_dir, {
@@ -261,7 +269,8 @@ class LexgymDatasetBuilder(RLDatasetBuilder):
                 "load_checkpoint_path": self.load_checkpoint_path, "renderer": name,
                 "temperature": self.temperature, "max_tokens": self.max_tokens,
                 "train_group_size": self.group_size, "train_batch_size": self.batch_size, "seed": self.seed,
-                "lexgym_commit": _git_commit(), "scorer_version": SCORER_VERSION,
+                "arm": self.arm, "scorer_version": scorer_version(self.arm),
+                "lexgym_commit": _git_commit(),
                 "task_files_sha256": {f: _sha256(d / f) for f in
                                       ("rl_train.jsonl", "eval_heldout_rule.jsonl", "eval_recall.jsonl", "lookup_index.json")},
             })

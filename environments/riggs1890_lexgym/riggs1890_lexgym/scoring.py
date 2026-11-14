@@ -5,6 +5,21 @@ Rules that hold for every task:
   is none, the last non-empty line). Gold text inside reasoning earns nothing.
 - `reward` is in [0, 1]. Nothing multiplies it except the length guard.
 - The ledger holds every component, so a reward can be reconstructed by hand.
+
+Reward arms. `task["arm"]` (injected by the dataset loader; default
+"baseline") selects the composition of the training reward:
+
+- baseline: the composition the pilots and the 13 November smoke ran.
+- gated (arms a1 / a2 / c1): `char_dice` leaves the `en_to_dak` reward —
+  1.0 for an accepted form, 0.7 for an n / ŋ difference, 0 otherwise — and
+  stays in the ledger as a diagnostic. `syllabify` keeps its `letters_ok`
+  gate, which the baseline already applies, and the other tasks are
+  unchanged.
+
+`SCORER_VERSIONS` bumps per arm, and the traces record the arm's version, so
+arms are comparable after the fact: a run tagged `gated` was never scored with
+the baseline composition. The tests include the near-miss probe: under the
+gated arm a high character-overlap answer earns nothing.
 """
 from __future__ import annotations
 
@@ -15,7 +30,19 @@ from .orthography import canon, loose, plain
 _THINK = re.compile(r"<think>.*?</think>", re.S)
 _STOP = set("a an the to of as or and in on for with by be is it one any which that at from".split())
 MAX_SPAN_RATIO = 3.0
-SCORER_VERSION = "2026-11-10.2"  # change when any reward rule changes; traces record it
+
+# change when any reward rule changes; traces record the version per arm
+SCORER_VERSIONS = {
+    "baseline": "2026-11-10.2",
+    "gated": "2026-11-13-gated.1",
+}
+# backwards compatibility: the version the baseline composition was at
+SCORER_VERSION = SCORER_VERSIONS["baseline"]
+
+
+def scorer_version(arm: str = "baseline") -> str:
+    """The scorer version in force for a reward arm."""
+    return SCORER_VERSIONS.get(arm, SCORER_VERSIONS["baseline"])
 
 
 def extract_answer(text: str) -> tuple[str, bool]:
@@ -110,7 +137,11 @@ def _score_en_to_dak(span: str, task: dict) -> dict:
     exact = float(cand in gold)
     lmatch = float(loose(cand) in {loose(g) for g in gold})
     near = max((_dice(cand, g) for g in gold), default=0.0)
-    raw = 1.0 if exact else 0.7 if lmatch else 0.25 * near
+    if task.get("arm", "baseline") == "gated":
+        # arm a1/a2/c1: character overlap is a diagnostic, never a reward
+        raw = 1.0 if exact else 0.7 if lmatch else 0.0
+    else:
+        raw = 1.0 if exact else 0.7 if lmatch else 0.25 * near
     return {"exact": exact, "loose_match": lmatch, "char_dice": near, "raw": raw}
 
 
@@ -133,7 +164,12 @@ _SCORERS = {
 
 
 def score(task: dict, completion: str) -> tuple[float, dict]:
-    """Score one completion. Returns (reward, ledger)."""
+    """Score one completion. Returns (reward, ledger).
+
+    The reward composition follows `task["arm"]` ("baseline" by default); the
+    ledger is identical for every arm, so a gated run can always be compared
+    with a baseline run component by component.
+    """
     span, parse_ok = extract_answer(completion)
     led = _SCORERS[task["task"]](span, task) if span else {"exact": 0.0, "raw": 0.0}
     longest = max([len(task.get("answer") or "")] + [len(a) for a in task["accepted"]])
