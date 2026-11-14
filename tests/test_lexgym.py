@@ -104,9 +104,11 @@ def test_group_advantages_center_and_floor():
     advs = group_advantages([0.0, 0.0, 0.0, 1.0])
     assert sum(advs) == pytest.approx(0.0, abs=1e-9)
     assert advs[3] > 0.0 > advs[0]
-    # a near-constant group is floored at sigma_min instead of exploding
+    # a near-constant group is floored at sigma_min instead of exploding:
+    # std([0, 0.01]) is 0.005, so the floor 0.25 wins and the deviations are
+    # (r - 0.005) / 0.25 = ±0.02, not the ±1.0 the raw std would give
     tiny = group_advantages([0.0, 0.01], sigma_min=0.25)
-    assert max(abs(x) for x in tiny) == pytest.approx(0.01 / 0.25)
+    assert max(abs(x) for x in tiny) == pytest.approx(0.02)
     # a fully constant group has zero signal, as in the baseline loop
     assert group_advantages([0.5, 0.5, 0.5]) == [0.0, 0.0, 0.0]
 
