@@ -16,6 +16,20 @@ cancelled early, the launcher harvests the last saved checkpoint from the job lo
 or from the uploaded run folder, and the next chunk resumes from there. Re-running
 the same command continues the pass where it stopped; pass --reset to start over.
 
+GRPO arms. --rl-arm runs one arm of the Wave 1 comparison instead of the
+baseline loop; each arm needs its own --progress-file (the default already
+separates them) and can run concurrently with the baseline chain:
+
+    python cookbook/launch_full_rl_pass.py --rl-arm a1 --total-steps 300 --steps-per-chunk 300 \
+        --initial-checkpoint tinker://... --ref grpo-arms
+
+Arm configurations (see lexgym/train_rl.py): a1 = gated scoring; a2 = a1 plus
+a std-scaled advantage with a floor of --sigma-min; c1 = a1 plus a KL penalty
+toward the supervised checkpoint (--kl-penalty-coef). An arm of 300 steps at
+the measured rate costs about $8 on Tinker and finishes inside one 48h Job.
+The baseline chain stays pinned to the commit it started from, so arms do not
+change what it measures.
+
 Configuration matches the 13 November smoke: renderer without a thinking block,
 answers up to 800 tokens, batch 32, group 8, LoRA rank 32, learning rate 2e-5,
 evaluation and checkpoint save every 100 steps.
@@ -43,11 +57,13 @@ from launch_rl_job import REPO_URL, slug
 DEFAULT_COMMIT = "d5654f7f4d048c0bad0fab895cde5be4322128fd"
 
 TERMINAL = {"COMPLETED", "CANCELED", "ERROR", "DELETED"}
+ARMS = ("baseline", "a1", "a2", "c1")
 
 
 def build_script(args, chunk_idx: int, steps: int, load_path: str | None) -> str:
-    log_path = f"{args.log_path_prefix}-chunk{chunk_idx:02d}"
-    prefix = f"{args.experiment}/{slug(args.model_name)}/{args.stage}/chunk{chunk_idx:02d}"
+    suffix = "" if args.rl_arm == "baseline" else f"-{args.rl_arm}"
+    log_path = f"{args.log_path_prefix}{suffix}-chunk{chunk_idx:02d}"
+    prefix = f"{args.experiment}/{slug(args.model_name)}/{args.stage}{suffix}/chunk{chunk_idx:02d}"
     train = [
         "python", "-m", "lexgym.train_rl",
         "--model-name", args.model_name,
@@ -60,10 +76,16 @@ def build_script(args, chunk_idx: int, steps: int, load_path: str | None) -> str
         "--save-every", str(args.save_every),
         "--eval-limit-per-task", str(args.eval_limit_per_task),
         "--max-tokens", str(args.max_tokens),
-        "--stage", f"{args.stage}-chunk{chunk_idx:02d}",
-        "--wandb-name", f"{args.experiment}-{args.stage}-chunk{chunk_idx:02d}",
+        "--stage", f"{args.stage}{suffix}-chunk{chunk_idx:02d}",
+        "--wandb-name", f"{args.experiment}-{args.stage}{suffix}-chunk{chunk_idx:02d}",
         "--max-steps", str(steps),
+        "--rl-arm", args.rl_arm,
     ]
+    if args.rl_arm == "a2":
+        train += ["--sigma-min", str(args.sigma_min)]
+    if args.rl_arm == "c1":
+        train += ["--kl-penalty-coef", str(args.kl_penalty_coef),
+                  "--kl-discount-factor", str(args.kl_discount_factor)]
     if load_path:
         train += ["--load-checkpoint-path", load_path]
 
@@ -77,7 +99,7 @@ def build_script(args, chunk_idx: int, steps: int, load_path: str | None) -> str
         f"pip install -q tinker=={args.tinker_version} tinker-cookbook=={args.cookbook_version} "
         "wandb python-dotenv huggingface_hub datasets",
         "mkdir repo && cd repo && git init -q",
-        f"GIT_LFS_SKIP_SMUDGE=1 git fetch -q --depth 1 {REPO_URL} {args.commit}",
+        f"GIT_LFS_SKIP_SMUDGE=1 git fetch -q --depth 1 {REPO_URL} {args.ref or args.commit}",
         "GIT_LFS_SKIP_SMUDGE=1 git checkout -q FETCH_HEAD",
         f"python -c {shlex.quote(fetch)}",
         f"trap {shlex.quote('python -c ' + shlex.quote(upload))} EXIT",
@@ -127,6 +149,11 @@ def main() -> None:
     ap.add_argument("--initial-checkpoint", required=True)
     ap.add_argument("--experiment", default="rl_full_2026_11_14")
     ap.add_argument("--stage", default="rl-full")
+    ap.add_argument("--rl-arm", choices=ARMS, default="baseline",
+                    help="Which GRPO arm this chain runs (baseline, or Wave 1: a1, a2, c1).")
+    ap.add_argument("--sigma-min", type=float, default=0.25, help="a2: advantage scaler floor.")
+    ap.add_argument("--kl-penalty-coef", type=float, default=0.05, help="c1: KL penalty coefficient.")
+    ap.add_argument("--kl-discount-factor", type=float, default=0.0, help="c1: KL position discount.")
     ap.add_argument("--total-steps", type=int, default=2154, help="Steps in one pass over all RL tasks.")
     ap.add_argument("--steps-per-chunk", type=int, default=350)
     ap.add_argument("--batch-size", type=int, default=32)
@@ -144,11 +171,17 @@ def main() -> None:
     ap.add_argument("--flavor", default="cpu-basic")
     ap.add_argument("--log-path-prefix", default="lexgym_runs/rl_full_2026_11_14")
     ap.add_argument("--commit", default=DEFAULT_COMMIT)
+    ap.add_argument("--ref", default=None, help="Git ref for the chunk jobs (branch name or SHA). Default: --commit.")
     ap.add_argument("--poll-seconds", type=int, default=300)
-    ap.add_argument("--progress-file", default="rl_full_pass_progress.json")
+    ap.add_argument("--progress-file", default=None,
+                    help="Defaults to rl_full_pass_progress.json for the baseline chain and "
+                         "rl_full_pass_<arm>_progress.json for an arm, so arms can run concurrently.")
     ap.add_argument("--reset", action="store_true", help="Ignore any saved progress and start from the initial checkpoint.")
     a = ap.parse_args()
     load_dotenv()
+    if a.progress_file is None:
+        a.progress_file = ("rl_full_pass_progress.json" if a.rl_arm == "baseline"
+                           else f"rl_full_pass_{a.rl_arm}_progress.json")
 
     progress_path = Path(__file__).resolve().parent.parent / a.progress_file
     if a.reset and progress_path.exists():
@@ -168,11 +201,12 @@ def main() -> None:
         while progress["steps_done"] < a.total_steps:
             chunk_idx = len(progress["chunks"]) + 1
             steps = min(a.steps_per_chunk, a.total_steps - progress["steps_done"])
-            print(f"chunk {chunk_idx}: {steps} steps from {progress['state_path']}")
+            print(f"chunk {chunk_idx} [{a.rl_arm}]: {steps} steps from {progress['state_path']}")
             job = api.run_job(image="python:3.12",
                               command=["bash", "-c", build_script(a, chunk_idx, steps, progress["state_path"])],
                               secrets=secrets, flavor=a.flavor, timeout=a.timeout)
-            chunk = {"index": chunk_idx, "steps": steps, "job_id": job.id, "job_url": job.url}
+            chunk = {"index": chunk_idx, "steps": steps, "rl_arm": a.rl_arm,
+                     "job_id": job.id, "job_url": job.url}
             print(f"  submitted {job.id} {job.url}")
             stage = wait_terminal(api, job.id, a.poll_seconds)
             chunk["stage"] = stage
@@ -180,7 +214,8 @@ def main() -> None:
                 progress["steps_done"] += steps
             else:
                 print(f"  chunk {chunk_idx} ended in {stage}; rescuing the last saved checkpoint")
-            prefix = f"{a.experiment}/{slug(a.model_name)}/{a.stage}/chunk{chunk_idx:02d}"
+            suffix = "" if a.rl_arm == "baseline" else f"-{a.rl_arm}"
+            prefix = f"{a.experiment}/{slug(a.model_name)}/{a.stage}{suffix}/chunk{chunk_idx:02d}"
             paths = harvest_state_paths(api, job.id, a.upload_repo, prefix)
             if paths:
                 progress["state_path"] = paths[-1]
