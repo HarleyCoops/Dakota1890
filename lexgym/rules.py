@@ -136,31 +136,51 @@ def build_lexicon(rows) -> Lexicon:
 
 
 def relation(form_plain: str, head_plain: str) -> str:
-    """How an unattested form relates to its headword stem."""
+    """How an unattested form relates to its headword stem.
+
+    Labels follow morphology, not string position: material appended AFTER
+    the stem is a suffix (ahi -> ahi-pi), material prepended BEFORE the stem
+    is a prefix (ahi -> wa-ahi). Codex review of PR #166 caught the reversal.
+    """
     if not head_plain:
         return "no-stem"
     if form_plain == head_plain:
         return "identity"
     if form_plain.startswith(head_plain):
-        return "prefix"
+        return "suffix"      # extra material after the stem
     if form_plain.endswith(head_plain):
-        return "suffix"
+        return "prefix"      # extra material before the stem
     if head_plain in form_plain:
         return "contained"
     return "other"
 
 
 def check_form(form: str, lex: Lexicon, family: str | None = None) -> dict:
-    """Label one candidate form. Returns verdict + reasons. No soft scores."""
+    """Label one candidate form. Returns verdict + reasons. No soft scores.
+
+    Alphabet and shape violations decide the verdict BEFORE attestation or
+    licensing can: a malformed spelling of an attested form is rejected,
+    per the spec ('attested = in the book, passes alphabet + shape').
+    """
     reasons = {}
     p = plain(form)
     reasons["plain"] = p
+    violations = []
     if is_suspect(form):
         reasons["alphabet_violation"] = bad_chars(form)
+        violations.append("alphabet")
     if "-" in canon(form):
         parsed = parse_syllables(form)
         if parsed is None:
-            reasons["shape_violation"] = "hyphenated form does not parse as syllables + one accent"
+            reasons["shape_violation"] = (
+                "hyphenated form does not parse as syllables + one accent")
+            violations.append("shape")
+    if violations:
+        reasons["verdict"] = "rejected"
+        if p in lex.attested_forms and "alphabet" not in violations:
+            reasons["note"] = (f"plain form '{p}' is attested, but this "
+                               "spelling fails the shape check")
+        return reasons
     if p in lex.attested_forms:
         reasons["verdict"] = "attested"
         reasons["entries"] = lex.form_to_entries.get(p, [])[:5]
@@ -169,22 +189,21 @@ def check_form(form: str, lex: Lexicon, family: str | None = None) -> dict:
         reasons["verdict"] = "attested"
         reasons["note"] = "attested within the same word family"
         return reasons
-    if is_suspect(form):
-        reasons["verdict"] = "rejected"
-        return reasons
     hit = lex.loose_index.get(loose(p))
     if hit and p not in hit:
         reasons["ng_variant_of"] = sorted(hit)[:5]
         reasons["verdict"] = "ng-variant"
         return reasons
-    stem = None
-    # find the headword this form was proposed against, if caller supplied family
-    if family:
-        for member in lex.family_members.get(family, set()):
-            if member in lex.headword_to_entry:
-                stem = member
-                break
-    reasons["relation"] = relation(p, stem) if stem else "no-stem"
+    # Evaluate EVERY headword stem in the family (sorted, so the verdict is
+    # deterministic): a candidate may be derivable from one family headword
+    # but not another. Codex review of PR #166 caught the single-stem pick.
+    stems = sorted(m for m in lex.family_members.get(family, set())
+                   if m in lex.headword_to_entry) if family else []
+    rels = {s: relation(p, s) for s in stems}
+    reasons["relations"] = rels
+    reasons["relation"] = next(
+        (r for r in ("prefix", "suffix", "contained") if r in rels.values()),
+        rels[stems[0]] if stems else "no-stem")
     reasons["verdict"] = "licensed-pending-rules" if reasons["relation"] in (
         "prefix", "suffix", "contained") else "rejected"
     if reasons["verdict"] == "rejected":
@@ -223,13 +242,16 @@ def run_audit(push: bool) -> dict:
                 continue
             counts["total_forms"] += 1
             # One verdict per instance, in precedence order:
-            # attested-headword > ng-variant > alphabet-violation > relation.
+            # attested-headword > ng-variant > alphabet-violation >
+            # shape-violation > relation.
             if p in headwords:
                 verdict = "attested-headword"
             elif loose(p) in loose_headwords:
                 verdict = "ng-variant"
             elif bad_chars(f):
                 verdict = "alphabet-violation"
+            elif ("-" in f or "'" in f) and parse_syllables(f) is None:
+                verdict = "shape-violation"
             else:
                 rel = relation(p, head)
                 verdict = ("licensed-pending" if rel in ("prefix", "suffix",
@@ -243,7 +265,8 @@ def run_audit(push: bool) -> dict:
                     {"form": f, "headword": r["headword"], "gloss": r["gloss"],
                      "relation": rel if verdict in ("licensed-pending",
                                                     "unexplained") else ""})
-            if verdict in ("unexplained", "ng-variant", "alphabet-violation"):
+            if verdict in ("unexplained", "ng-variant", "alphabet-violation",
+                           "shape-violation"):
                 triage.append({
                     "entry_id": r["entry_id"], "page": r["page"],
                     "source_image": r["source_image"],
@@ -262,7 +285,7 @@ def run_audit(push: bool) -> dict:
         "verdicts": {k: v for k, v in counts.items()
                      if k in ("attested-headword", "ng-variant",
                               "licensed-pending", "unexplained",
-                              "alphabet-violation")},
+                              "alphabet-violation", "shape-violation")},
         "relation_distribution_unexplained": dict(rel_dist_unexplained),
         "triage_rows": len(triage),
         "examples": dict(examples),
