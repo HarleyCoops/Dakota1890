@@ -21,7 +21,7 @@ baseline loop; each arm needs its own --progress-file (the default already
 separates them) and can run concurrently with the baseline chain:
 
     python cookbook/launch_full_rl_pass.py --rl-arm a1 --total-steps 300 --steps-per-chunk 300 \
-        --initial-checkpoint tinker://... --ref grpo-arms
+        --initial-checkpoint tinker://...
 
 Arm configurations (see lexgym/train_rl.py): a1 = gated scoring; a2 = a1 plus
 a std-scaled advantage with a floor of --sigma-min; c1 = a1 plus a KL penalty
@@ -57,8 +57,9 @@ except ImportError:
 sys.path.insert(0, str(Path(__file__).resolve().parent / "earlier_runs"))
 from launch_rl_job import REPO_URL, slug  # noqa: E402
 
-# main after the 800-token change and the launch_full_rl_pass.py commit
-DEFAULT_COMMIT = "d5654f7f4d048c0bad0fab895cde5be4322128fd"
+# main after PR #170 (the Wave 1 arms): every ref this launcher can fetch
+# accepts --rl-arm, and the baseline's pinned commit does too
+DEFAULT_COMMIT = "8c38b07f1d6c970988bab99d4dc239ae985991be"
 
 TERMINAL = {"COMPLETED", "CANCELED", "ERROR", "DELETED"}
 ARMS = ("baseline", "a1", "a2", "c1")
