@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shlex
 import time
@@ -36,14 +37,17 @@ try:
 except ImportError:
     raise SystemExit("pip install huggingface_hub python-dotenv")
 
-from launch_rl_job import REPO_URL, DEFAULT_COMMIT, slug
+from launch_rl_job import REPO_URL, slug
+
+# main after the 800-token change and the launch_full_rl_pass.py commit
+DEFAULT_COMMIT = "d5654f7f4d048c0bad0fab895cde5be4322128fd"
 
 TERMINAL = {"COMPLETED", "CANCELED", "ERROR", "DELETED"}
 
 
-def build_script(args, chunk: int, load_path: str | None) -> str:
-    log_path = f"{args.log_path_prefix}-chunk{chunk:02d}"
-    prefix = f"{args.experiment}/{slug(args.model_name)}/{args.stage}/chunk{chunk:02d}"
+def build_script(args, chunk_idx: int, steps: int, load_path: str | None) -> str:
+    log_path = f"{args.log_path_prefix}-chunk{chunk_idx:02d}"
+    prefix = f"{args.experiment}/{slug(args.model_name)}/{args.stage}/chunk{chunk_idx:02d}"
     train = [
         "python", "-m", "lexgym.train_rl",
         "--model-name", args.model_name,
@@ -56,12 +60,10 @@ def build_script(args, chunk: int, load_path: str | None) -> str:
         "--save-every", str(args.save_every),
         "--eval-limit-per-task", str(args.eval_limit_per_task),
         "--max-tokens", str(args.max_tokens),
-        "--stage", f"{args.stage}-chunk{chunk:02d}",
-        "--wandb-name", f"{args.experiment}-{args.stage}-chunk{chunk:02d}",
-        "--max-steps", str(min(chunk["steps"], 0) or chunk["steps"]),  # filled below
+        "--stage", f"{args.stage}-chunk{chunk_idx:02d}",
+        "--wandb-name", f"{args.experiment}-{args.stage}-chunk{chunk_idx:02d}",
+        "--max-steps", str(steps),
     ]
-    train[-1] = "--max-steps"
-    train.append(str(chunk["steps"]))
     if load_path:
         train += ["--load-checkpoint-path", load_path]
 
@@ -100,13 +102,13 @@ def wait_terminal(api: HfApi, job_id: str, poll_seconds: int) -> str:
 def harvest_state_paths(api: HfApi, job_id: str, upload_repo: str, prefix: str) -> list[str]:
     """State paths saved during a chunk, newest last, from logs and from the uploaded folder."""
     paths: list[str] = []
+    log_text = ""
     try:
-        for line in api.fetch_job_logs(job_id):
-            paths += re.findall(r"tinker://[0-9a-f-]+:train:\d+/weights/[A-Za-z0-9_/.-]+", str(line))
+        log_text = "\n".join(str(line) for line in api.fetch_job_logs(job_id))
+        paths += re.findall(r"tinker://[0-9a-f-]+:train:\d+/weights/[A-Za-z0-9_/.-]+", log_text)
     except Exception as exc:  # noqa: BLE001 - logs may be gone or unavailable
         print(f"  could not read job logs ({exc})")
     try:
-        import tempfile
         from huggingface_hub import hf_hub_download
         local = hf_hub_download(repo_id=upload_repo, repo_type="dataset",
                                 filename=f"{prefix}/checkpoints.jsonl")
@@ -116,7 +118,7 @@ def harvest_state_paths(api: HfApi, job_id: str, upload_repo: str, prefix: str) 
                 paths.append(record["state_path"])
     except Exception as exc:  # noqa: BLE001 - the chunk may have failed before any upload
         print(f"  could not read uploaded checkpoints ({exc})")
-    return sorted(dict.fromkeys(paths))
+    return sorted(set(paths))
 
 
 def main() -> None:
@@ -159,7 +161,6 @@ def main() -> None:
     else:
         progress = {"steps_done": 0, "state_path": a.initial_checkpoint, "chunks": []}
 
-    import os
     secrets = {k: os.environ[k] for k in ("TINKER_API_KEY", "WANDB_API_KEY", "HF_TOKEN")}
     api = HfApi()
 
@@ -167,11 +168,11 @@ def main() -> None:
         while progress["steps_done"] < a.total_steps:
             chunk_idx = len(progress["chunks"]) + 1
             steps = min(a.steps_per_chunk, a.total_steps - progress["steps_done"])
-            chunk = {"index": chunk_idx, "steps": steps}
             print(f"chunk {chunk_idx}: {steps} steps from {progress['state_path']}")
-            job = api.run_job(image="python:3.12", command=["bash", "-c", build_script(a, chunk_idx, progress["state_path"])],
+            job = api.run_job(image="python:3.12",
+                              command=["bash", "-c", build_script(a, chunk_idx, steps, progress["state_path"])],
                               secrets=secrets, flavor=a.flavor, timeout=a.timeout)
-            chunk.update({"job_id": job.id, "job_url": job.url})
+            chunk = {"index": chunk_idx, "steps": steps, "job_id": job.id, "job_url": job.url}
             print(f"  submitted {job.id} {job.url}")
             stage = wait_terminal(api, job.id, a.poll_seconds)
             chunk["stage"] = stage
