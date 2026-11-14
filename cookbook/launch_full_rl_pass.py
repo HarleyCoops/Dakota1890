@@ -41,6 +41,7 @@ import json
 import os
 import re
 import shlex
+import sys
 import time
 from pathlib import Path
 
@@ -51,7 +52,10 @@ try:
 except ImportError:
     raise SystemExit("pip install huggingface_hub python-dotenv")
 
-from launch_rl_job import REPO_URL, slug
+# the shared constants live in cookbook/earlier_runs/launch_rl_job.py, which is
+# importable only when that folder is on sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent / "earlier_runs"))
+from launch_rl_job import REPO_URL, slug  # noqa: E402
 
 # main after the 800-token change and the launch_full_rl_pass.py commit
 DEFAULT_COMMIT = "d5654f7f4d048c0bad0fab895cde5be4322128fd"
