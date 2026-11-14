@@ -62,6 +62,55 @@ def test_set_tasks():
     assert 0 < score(t, "ANSWER: mduhepa")[0] < 1.0
 
 
+def test_gated_arm_drops_char_dice_from_reward():
+    """Arms a1/a2/c1: a near miss earns nothing; the ledger keeps char_dice.
+
+    Baseline behaviour (no "arm" key, or arm="baseline") is unchanged: the
+    character-overlap term still pays for a plausible-looking wrong word.
+    """
+    t = _task("en_to_dak", "śuŋka")
+    t_gated = dict(t, arm="gated")
+    r_base, led_base = score(t, "ANSWER: śuŋkata")
+    r_gated, led_gated = score(t_gated, "ANSWER: śuŋkata")
+    assert led_base["char_dice"] > 0.0 and led_gated["char_dice"] > 0.0  # diagnostic stays
+    assert r_base > 0.0           # baseline still pays for character overlap
+    assert r_gated == 0.0         # gated arm pays nothing for a near miss
+    assert score(t_gated, "ANSWER: śuŋka")[0] == pytest.approx(1.0)
+    # explicit baseline spelling behaves like the default
+    assert score(dict(t, arm="baseline"), "ANSWER: śuŋkata")[0] == pytest.approx(r_base)
+    # the n / ŋ partial channel survives the gate
+    t2_gated = dict(_task("en_to_dak", "amdakedaŋ"), arm="gated")
+    r, led = score(t2_gated, "ANSWER: amdakedan")
+    assert r == pytest.approx(0.7) and led["exact"] == 0.0 and led["loose_match"] == 1.0
+
+
+def test_gated_arm_is_gated_at_the_letters():
+    """The letters_ok gate still zeroes a syllabify answer with a changed letter."""
+    s_gated = dict(_task("syllabify", "a-hi'-yo-ka-sin"), arm="gated")
+    assert score(s_gated, "ANSWER: a-hi'-yo-ka-zin")[0] == 0.0
+    assert score(s_gated, "ANSWER: a-hi'-yo-ka-sin")[0] == pytest.approx(1.0)
+
+
+def test_scorer_version_marks_the_arm():
+    from lexgym.scoring import SCORER_VERSIONS, scorer_version
+    assert scorer_version("baseline") != scorer_version("gated")
+    assert set(SCORER_VERSIONS) >= {"baseline", "gated"}
+    assert scorer_version("baseline") == "2026-11-10.2"
+
+
+def test_group_advantages_center_and_floor():
+    """Arm a2: std-scaled advantages stay centred and cannot blow up on noise."""
+    from lexgym.advantages import group_advantages
+    advs = group_advantages([0.0, 0.0, 0.0, 1.0])
+    assert sum(advs) == pytest.approx(0.0, abs=1e-9)
+    assert advs[3] > 0.0 > advs[0]
+    # a near-constant group is floored at sigma_min instead of exploding
+    tiny = group_advantages([0.0, 0.01], sigma_min=0.25)
+    assert max(abs(x) for x in tiny) == pytest.approx(0.01 / 0.25)
+    # a fully constant group has zero signal, as in the baseline loop
+    assert group_advantages([0.5, 0.5, 0.5]) == [0.0, 0.0, 0.0]
+
+
 @pytest.mark.skipif(not (TASKS / "rl_train.jsonl").exists(), reason="run python -m lexgym.tasks first")
 def test_generated_data_gold_and_leakage():
     def load(n):
