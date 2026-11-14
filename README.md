@@ -128,9 +128,27 @@ python cookbook/earlier_runs/launch_rl_job.py --model-name Qwen/Qwen3.5-4B \
 
 - **Traces of the smoke:** [HarleyCooper/riggs1890-lexgym-traces/rl_smoke_2026_11_13/qwen3.5-4b/rl-smoke-800tok](https://huggingface.co/datasets/HarleyCooper/riggs1890-lexgym-traces/tree/main/rl_smoke_2026_11_13/qwen3.5-4b/rl-smoke-800tok)
 
-### What runs next
+### The full pass and the Wave 1 arms (running from 13–14 November 2026)
 
-A full pass is about 2,150 steps at batch 32. At the smoke's measured $0.027 per step that is roughly $58 on Tinker and runs for days, so it is scheduled after the designed GRPO changes in [Proposed changes to GRPO and the compositional reward](#proposed-changes-to-grpo-and-the-compositional-reward) — the baseline loop and the changed loop are compared as arms, not run twice by accident. The division of labour stays as stated in [Next: the verifier loop](#next-the-verifier-loop): supervised training owns the facts, RL owns behaviour and precision, and the grammar becomes an executable checker rather than a reward.
+The recipe is now proven end to end, so two things run at once on the 4B model, launched by [`cookbook/launch_full_rl_pass.py`](cookbook/launch_full_rl_pass.py) as chains of Hugging Face Jobs.
+
+**The baseline pass (A0).** One pass over all 68,911 RL tasks — 2,154 steps at batch 32 — walked in chunks of 350 steps, about seven days and roughly $60 on Tinker at the measured rate. No single job timeout holds a pass of that length, so the launcher chains the chunks: each chunk resumes from the previous chunk's saved Tinker state, survives errors and cancellations through a checkpoint harvested from the job log or the uploaded run folder, and keeps its progress in a local JSON. This run is the reference every arm is measured against, and its accumulated ledger is the full-scale evidence for the remaining changes (dead-group shares, `en_to_dak` group composition) that the pilot could only measure at 40 tasks per type.
+
+**The Wave 1 arms.** Three changes to the loop, each one arm against the unchanged baseline, all from the same supervised checkpoint, seed, and evaluation sets, run concurrently. The arms' code is on the `grpo-arms` branch; the baseline is pinned to the commit it started from, so the arms cannot change what it measures.
+
+| Arm | Change (from [Proposed changes](#proposed-changes-to-grpo-and-the-compositional-reward)) | Mechanism | Hoped outcome, on held-out exact match |
+|---|---|---|---|
+| A1 | Gated composition (#1) | `en_to_dak` pays 1.0 for an accepted form, 0.7 for an n / ŋ difference, 0 otherwise; `char_dice` stays in the ledger as a diagnostic. `letters_ok` keeps gating `syllabify`, as in the baseline. | `en_to_dak` recall exact moves off ~0.00 while `pos`, `root`, and `inflect` are unharmed. The failure to avoid: the baseline's 0.25 × `char_dice` channel pays for strings that look like the answer, and RL then optimises the look instead of the word. |
+| A2 | A1 + scaled advantage (#2), `σ_min` 0.25 | Group-centred advantages divided by the group standard deviation with a floor — `(r − mean) / max(std, σ_min)` — replacing the cookbook's mean-centring. | `pos`, `root`, and `inflect` gain over A1 at the same step count: tasks whose rewards differ by 0.02 inside a group and tasks that differ by 1.0 no longer push with a 50-fold difference in strength. The risk to watch: larger advantages are a larger effective learning rate. |
+| C1 | A1 + KL penalty toward the supervised checkpoint (#6), coefficient 0.05 | The cookbook's `kl_penalty_coef` with the supervised checkpoint as the KL reference. | `syllabify` held-out holds at ≥ 0.83 while the lookup skill is learned — in the pilot it drifted between 0.78 and 0.83 during RL. |
+
+Each arm runs 300 steps, about $8–10 on Tinker, inside one 48-hour job. A run's traces record its arm and scorer version, so no gated run can be confused with a baseline run after the fact; the ledger is identical across arms, so any reward can be compared component by component.
+
+**The measure and the gates.** Held-out exact match per task type and recall exact match decide; the training reward is not a measure, because the arms alter it. Before any arm runs, the reward-hack probes in `tests/test_lexgym.py` pass with the new composition, and the ledger must still reconstruct every reward from its components. The follow-ups are conditional on the wave: B0 (`σ_min` 0.1 against 0.25) only if A2 is ambiguous; component advantages (#3) only if A1 leaves the partial channels ranking badly; the lookup process term (#7) as an ablation after the A arms; dead-group routing and curriculum sampling (#4, #5) only if the baseline ledger confirms the pilot's dead-group shares at full scale.
+
+**Then the port.** Once a Wave 1 loop wins on the 4B, the winning recipe — data, renderer, reward, scaler or penalty, hyperparameters — moves unchanged to Inkling 2 Small, starting from its supervised pass-3 checkpoint: first a two-step probe at Inkling's own step cost, then the same chunked pass. On the 4B the recipe is cheap to fix; on Inkling it is not.
+
+The division of labour stays as stated in [Next: the verifier loop](#next-the-verifier-loop): supervised training owns the facts, RL owns behaviour and precision, and the grammar becomes an executable checker rather than a reward.
 
 ---
 
