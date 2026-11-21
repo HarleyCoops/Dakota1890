@@ -704,7 +704,7 @@ wandb==0.23.0
 watchdog==6.0.0
 watchfiles==1.1.0
 watchtower-windows==1.0.0
-wcmatch==10.1
+wcmatch==11.2
 wcwidth==0.2.13
 weave==0.52.17
 webdriver-manager==4.0.2
