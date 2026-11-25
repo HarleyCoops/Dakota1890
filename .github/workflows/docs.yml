@@ -54,7 +54,7 @@ jobs:
 
       - name: Link check with lychee
         if: ${{ hashFiles('README.md') != '' }}
-        uses: lycheeverse/lychee-action@v1.9.0
+        uses: lycheeverse/lychee-action@v2.0.2
         with:
           args: --verbose README.md
 
